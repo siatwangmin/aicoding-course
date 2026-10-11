@@ -10,8 +10,8 @@
 
 | ZIP | 解压目标 |
 | --- | --- |
-| ai-coding-env-skill.zip | `%USERPROFILE%\.trae-cn\skills\ai-coding-env\` |
-| ai-coding-project-skill.zip | `%USERPROFILE%\.trae-cn\skills\ai-coding-project\` |
+| ai-coding-env-skill.zip | `<workspace>\.trae-cn\skills\ai-coding-env\` |
+| ai-coding-project-skill.zip | `<workspace>\.trae-cn\skills\ai-coding-project\` |
 
 `Install-CourseSkills.ps1 -WorkingDirectory <workspace>` 可以连续完成发现、校验和安装。只有外层资料 ZIP 时，助手先检查其真实条目包含 setup-guide.md 与两份技能 ZIP，再自动解压到当前目录的资料子目录，之后发现根目录；无需用户逐次解压或上传插件市场。
 
@@ -48,7 +48,7 @@ Start-Process powershell.exe -ArgumentList '-NoProfile','-ExecutionPolicy','Bypa
 
 ```powershell
 $workspace = (Get-Location).Path
-$skill = Join-Path $env:USERPROFILE '.trae-cn\skills\ai-coding-env'
+$skill = Join-Path $workspace '.trae-cn\skills\ai-coding-env'
 $scriptPath = Join-Path $skill 'scripts\Setup-DockerDesktop.ps1'
 # $packageRoot 由第 1 步发现；不可凭猜测赋值。
 $installerDirectory = Join-Path (Split-Path $packageRoot -Parent) 'release'
@@ -124,7 +124,7 @@ DockerEndpoint, DockerServerVersion, ComposeVersion,
 ToolchainCheck, NotVerified
 ```
 
-Docker 报告、运行日志、WSL 安装日志、重启状态都在当前目录的 **`.docker-setup\`**，其中包括 report.json、setup-日期时间.log、wsl-install.log、restart.json。所有记录均由助手直接读取，**不得写入 AppData、工作目录外或任何固定的用户/机器绝对路径**。提权后沿用原 workspace；全局技能目录用于安装技能，不能拿来保存验收记录。
+Docker 报告、运行日志、WSL 安装日志、重启状态都在当前目录的 **`.docker-setup\`**，其中包括 report.json、setup-日期时间.log、wsl-install.log、restart.json。所有记录均由助手直接读取，**不得写入 AppData、工作目录外或任何固定的用户/机器绝对路径**。提权后沿用原 workspace；项目技能目录用于安装技能，不能拿来保存验收记录。
 
 工具检查通过才报告“工具箱已准备，可以创建作品”。尚未构建作品网页/APK、尚未验证云账号或 AI 授权时，保留在 NotVerified。
 

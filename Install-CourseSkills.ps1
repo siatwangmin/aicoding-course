@@ -43,6 +43,7 @@ function Find-CoursePackageRoot {
 
 function Install-CourseSkills {
     param([string]$Workspace, [string]$Root)
+    $Workspace = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     if (-not $Root) { $Root = Find-CoursePackageRoot $Workspace }
     $Root = (Resolve-Path -LiteralPath $Root).Path
     if (-not (Test-Path -LiteralPath (Join-Path $Root 'setup-guide.md'))) { throw '指定目录没有 setup-guide.md。' }
@@ -92,7 +93,7 @@ function Install-CourseSkills {
             Expand-Archive -LiteralPath $zip -DestinationPath $destination -Force
         }
         foreach ($name in $skillNames) {
-            $destination = Join-Path $env:USERPROFILE ('.trae-cn\skills\' + $name)
+            $destination = Join-Path $Workspace ('.trae-cn\skills\' + $name)
             [void](New-Item -ItemType Directory -Path $destination -Force)
             Get-ChildItem -LiteralPath (Join-Path $stage $name) -Force | ForEach-Object {
                 Copy-Item -LiteralPath $_.FullName -Destination $destination -Recurse -Force
