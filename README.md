@@ -2,6 +2,8 @@
 
 **学员：解压资料包，双击根目录的 `index.html`。** 本工程入口是[课程网页](course/index.html)。
 
+当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
+
 网页按七个阶段带你操作：环境准备、建立作品、需求与原型、本地网页、云端网页、安卓、AI。课前先准备工具、云服务和 GitHub 账号；已有作品从当前未完成步骤继续。
 
 每步都写清：**在哪操作 → 这样做 → 复制发送 → 完成后 → 检查**。通过后再继续。

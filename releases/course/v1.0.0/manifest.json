@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "date": "2026-10-11",
+  "gitTag": "course-v1.0.0",
+  "files": {
+    "knowstar-student-kit.zip": "094b9f20b4e4ac9873267c4e64629905029474fb8b4485a3a1daa648e6f83201",
+    "knowstar-course-skill.zip": "e973cf2048c2491e4522c81a6aba0cdfaf018554d39f00487a3290cce1fdf9ce",
+    "ai-coding-toolkit.zip": "3b49c9840129612b05e6a93f7aee54af67a206779a9daf6e987b0708c891f361",
+    "knowstar-environment-kit.zip": "3b49c9840129612b05e6a93f7aee54af67a206779a9daf6e987b0708c891f361",
+    "knowstar-env-skill.zip": "14509063c1a4ce7eea35109149a58166e1719946784164e797153f23486f8d03",
+    "ai-coding-env-skill.zip": "14509063c1a4ce7eea35109149a58166e1719946784164e797153f23486f8d03",
+    "ai-coding-project-skill.zip": "141a2a1ff4706129b9f3fa74e08f97c469f448544bb56eb8773d5939c8f8b252",
+    "ai-coding-cloudbase-skill.zip": "fb873fe114389c3e6ca5ac2907e83d6709f905986ac8fe25b2bc38ca9cbeeca6",
+    "ai-coding-github-skill.zip": "81b269f2a507466f76b26a8ac5edc84aa43ac5deb7912170e84f45f4d8d0ee18",
+    "knowstar-student-kit.sha256": "2353f31b5862160edf3b4f5a93fa6ba5177b0ad2c59ce52733d34cbc461c8169",
+    "knowstar-course-skill.sha256": "c7bc80125a1a4fae49a10bc8b5883837f1b8fdcd3eb2c89949d4d45588c5c74a",
+    "ai-coding-toolkit.sha256": "038e883d69040b1f8e7effaecfa1c846c20001cf4aa1842d6bf704f625487c80",
+    "knowstar-environment-kit.sha256": "03213b1033089178f34be7d8e84e1d5f4fc3d64d9308356d13414696070ed550",
+    "knowstar-env-skill.sha256": "cf7f7c384eddcfcfbdf9e45632ca1d17fbc6b5829ec60c30c50d57bb161fdfe6",
+    "ai-coding-env-skill.sha256": "409e6197fdd55dce56e9adad597252cb53e6eccfba48f2a9e4e72144f5d8ebf9",
+    "ai-coding-project-skill.sha256": "41a96e0c0d93b5c7283c518b2b23ae15e7fed68da9b892ba080617bbc2cd820d",
+    "ai-coding-cloudbase-skill.sha256": "95a6e3f8812b630fc525846262b99781acad68b0c09c8237979531afeca0a751",
+    "ai-coding-github-skill.sha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+    "VERSION.json": "3125ff74f2c547201aa0a5f5ee50d58b4380b95f045b08b310882fe724f05744",
+    "CHANGELOG.md": "fec109eda69b070bcf1bd64421508f88e024e164297df070a53c027fb74e4290"
+  }
+}
