@@ -52,6 +52,7 @@ function Install-CourseSkills {
     if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-cloudbase-skill.zip')) { $skillNames += 'ai-coding-cloudbase' }
 
     if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-github-skill.zip')) { $skillNames += 'ai-coding-github' }
+    if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-siliconflow-skill.zip')) { $skillNames += 'ai-coding-siliconflow' }
     $archives = @{}
     foreach ($name in $skillNames) { $archives[$name] = $name + '-skill.zip' }
     $caseProfilePath = Join-Path $Root 'case-profile.json'

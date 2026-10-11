@@ -4,7 +4,7 @@
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
 
-网页按七个阶段带你操作：环境准备、建立作品、需求与原型、本地网页、云端网页、安卓、AI。课前先准备工具、云服务和 GitHub 账号；已有作品从当前未完成步骤继续。
+网页按七个阶段带你操作：环境准备、建立作品、需求与原型、本地网页、云端网页、安卓、AI。课前先准备工具、云服务、GitHub 账号和 AI 服务；已有作品从当前未完成步骤继续。
 
 每步都写清：**在哪操作 → 这样做 → 复制发送 → 完成后 → 检查**。通过后再继续。
 
@@ -15,7 +15,7 @@
 
 ## 发给学员什么
 
-发 [knowstar-student-kit.zip](knowstar-student-kit.zip) 即可。两个大安装包单独下载，按[安装包说明](installation-downloads.md)放好。资料不含成品、账号密码或 AI 凭证。
+发 [knowstar-student-kit.zip](knowstar-student-kit.zip) 即可。两个大安装包单独下载，按[安装包说明](installation-downloads.md)放好。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启，最后检查报告是否显示“已完成”。
 
