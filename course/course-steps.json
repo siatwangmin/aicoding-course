@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前步骤做，检查通过再继续。",
@@ -21,14 +21,14 @@
           "actions": [
             "找到收到的 knowstar-student-kit.zip，右键选择“全部解压缩”。",
             "打开解压后的文件夹，确认能看到 setup-guide.md 和几个名称带 skill 的 ZIP。",
-            "双击其中的 index.html，以后按这个网页继续。"
+            "双击其中的 preparation.html，按“课前环境准备”逐步完成。上课时再打开 index.html 的“AI Coding 操作手册”。"
           ],
           "prompt": "",
           "expected": [
-            "能打开这份操作网页，课程资料已经解压。"
+            "能打开课前环境准备网页，课程资料已经解压。"
           ],
           "check": [
-            "setup-guide.md 和 index.html 在同一个资料文件夹里。"
+            "setup-guide.md、preparation.html 和 index.html 在同一个资料文件夹里。"
           ],
           "help": "不要在 ZIP 的预览窗口里操作，先解压。",
           "helper": false

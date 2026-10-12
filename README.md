@@ -1,10 +1,10 @@
 # AI Coding 实操课
 
-**学员：解压资料包，双击根目录的 `index.html`。** 本工程入口是[课程网页](course/index.html)。
+**课前：解压资料包，双击根目录的 `preparation.html`。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
 
-网页按七个阶段带你操作：环境准备、建立作品、需求与原型、本地网页、云端网页、安卓、AI。课前先准备工具、云服务、GitHub 账号和 AI 服务；已有作品从当前未完成步骤继续。
+课前环境准备带你完成工具、云服务、GitHub 账号和 AI 服务准备。AI Coding 操作手册从建立作品开始，依次完成需求与原型、本地网页、云端网页、安卓和 AI。已有作品从当前未完成步骤继续。
 
 每步都写清：**在哪操作 → 这样做 → 复制发送 → 完成后 → 检查**。通过后再继续。
 

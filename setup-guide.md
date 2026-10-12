@@ -47,3 +47,7 @@
 ## E-08：课前准备硅基流动
 
 资料包包含 ai-coding-siliconflow-skill.zip 和校验文件，安装到当前 workspace 的 .trae/skills/ai-coding-siliconflow，旧资料包没有此项仍保留原助手。调用此陪练用 BrowserUse 带本人登录、核对余额/额度有效期与模型当前费用、创建或复用 Key；基础 URL 自动填好，本人只在隐藏输入窗口粘贴 Key。私有文件固定为 workspace/.ai-setup/siliconflow.env，限制访问并整体排除 Git、分享、镜像和前端产物。知错星模型 ID 由案例 Skill 的 implementation/siliconflow-models.json 提供；课前检查直接测试硅基流动，不需要产品或云函数已存在。费用决定由本人处理，配置已保存和真实调用通过分别记录。作品创建后由助手安全迁移准备结果，V4-04 只复查补缺，V4-05 才将 Key 接到本轮对应云函数服务端。
+
+## 学员网页入口
+
+课前让学员打开资料包根目录 preparation.html（在线 preparation.html），只完成 E-01 至 E-08。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
