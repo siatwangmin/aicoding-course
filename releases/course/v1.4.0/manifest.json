@@ -1,0 +1,29 @@
+{
+  "version": "1.4.0",
+  "date": "2026-10-13",
+  "gitTag": "course-v1.4.0",
+  "files": {
+    "aicoding-student-kit.zip": "6291244d1fa175db63c4a43cee6d8c95635bc2f3cce10ef52bc300f3e90204c1",
+    "knowstar-course-skill.zip": "330bf6239d2a5b88de012ddcb6ea280f24c7808d311762d14b49ba182c04f78e",
+    "ai-coding-toolkit.zip": "3dc6820f0a2e69e79bd73433b50229e287183a92c322e27f5c451e8d1769cc15",
+    "knowstar-environment-kit.zip": "3dc6820f0a2e69e79bd73433b50229e287183a92c322e27f5c451e8d1769cc15",
+    "knowstar-env-skill.zip": "441d99c2958baf8d2c1ca89ef21de0676914cb4cb6f0e092d46e073ac9167da8",
+    "ai-coding-env-skill.zip": "441d99c2958baf8d2c1ca89ef21de0676914cb4cb6f0e092d46e073ac9167da8",
+    "ai-coding-project-skill.zip": "292181564754067a348ff8946795cab0529e9ea7b7ab84fa84477f81200e0734",
+    "ai-coding-cloudbase-skill.zip": "e4d3f95b856d8e5fe16a2ffe47e958b15227f427a07ec934b2dfbd42bebf6348",
+    "ai-coding-github-skill.zip": "81b269f2a507466f76b26a8ac5edc84aa43ac5deb7912170e84f45f4d8d0ee18",
+    "ai-coding-siliconflow-skill.zip": "529d3e5f678ddcf9f4321daabc3d0727b5b21319f43627c3f92bba7fef1e5177",
+    "aicoding-student-kit.sha256": "80311d0d6a4c8c2ef59859e69a410ee8c642a2b1c2f5c2a2bb0848d62cb79cdf",
+    "knowstar-course-skill.sha256": "f13f48c4b05a5be5132df25273cc6c0b20a82b01e3931e73b3acb99ed47be6cb",
+    "ai-coding-toolkit.sha256": "4cfddc1a5c98f5885908dcc0c0b1e02bacad93896b2657d436de64843ab33527",
+    "knowstar-environment-kit.sha256": "578d19270f4ac28b5195e709a22e0524f6a170d8dba80755d9ce9ded59663407",
+    "knowstar-env-skill.sha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+    "ai-coding-env-skill.sha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+    "ai-coding-project-skill.sha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+    "ai-coding-cloudbase-skill.sha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+    "ai-coding-github-skill.sha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+    "ai-coding-siliconflow-skill.sha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+    "VERSION.json": "c11241431547c559d40151aaddbc5ff142de844ff7bbb244bcda05f663945228",
+    "CHANGELOG.md": "dfa0d5a660988bde6a37704a2bf922097bb6b49593cd27f057be67d41a4c6235"
+  }
+}

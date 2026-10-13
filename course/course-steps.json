@@ -1,8 +1,8 @@
 {
-  "version": "1.3.1",
+  "version": "1.4.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
-  "subtitle": "按当前一步操作：你决定需求、亲自试用，助手负责技术检查。",
+  "subtitle": "按当前一步操作，确认自己看到的结果。",
   "savePrompt": "这轮需求和页面设计已确认。请保留上一版文件，打开本轮文件的接收位置。我放好新文件后，请检查内容，复述本轮变化并告诉我是否可以开始开发。",
   "stages": [
     {
@@ -11,7 +11,6 @@
       "chapter": "01-环境.md",
       "goal": "课前准备好工具、云服务、GitHub 和 AI 服务，课堂上直接开始作品。",
       "learn": "知道如何检查准备结果，已有工具和账号可以复用。",
-      "gate": "助手明确确认工具、云服务、GitHub 和 AI 服务已准备好；本人步骤已处理，未完成项不能略过。",
       "steps": [
         {
           "id": "E-01",
@@ -31,9 +30,8 @@
           ],
           "help": "不要在 ZIP 的预览窗口里操作，先解压。",
           "helper": false,
-          "agentCheck": [],
-          "completionMode": "self",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "E-02",
@@ -60,9 +58,8 @@
               "url": "https://www.trae.cn/"
             }
           ],
-          "agentCheck": [],
-          "completionMode": "self",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "E-03",
@@ -93,9 +90,8 @@
               "url": "https://pan.baidu.com/s/1so3HddPOXQVl790421DczQ?pwd=egiy"
             }
           ],
-          "agentCheck": [],
-          "completionMode": "self",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "E-04",
@@ -107,19 +103,15 @@
             "在聊天框粘贴下方提示并发送；需要选择模式时，选 Agent（智能体）。",
             "按助手提示处理安装、条款或重启。重启后回到同一任务说“请继续准备工具”；等助手告诉你结果。"
           ],
-          "prompt": "我要开始 AI Coding 课程。请读取当前文件夹的 setup-guide.md，安装课程助手并准备好工具；已有安装包直接用，缺少的请帮我下载。技术检查由你完成。需要我操作时，只告诉我在哪个窗口做什么；完成后用一句话告诉我结果。现在先不创建作品。",
+          "prompt": "请读取当前文件夹的 setup-guide.md，安装课程助手并准备好工具；已有安装包直接用，缺少的请帮我下载。需要我操作时，只告诉我在哪个窗口做什么；完成后用一句话告诉我结果。",
           "expected": [
             "助手告诉你工具是否准备好；未完成时给出下一步动作。"
           ],
           "check": [],
           "help": "安装受限时把屏幕提示告诉助手；公司电脑确需 IT 处理时再联系 IT。你不用打开技能文件或判断安装日志。",
           "helper": false,
-          "agentCheck": [
-            "检查课程助手可用、工具安装与实际运行结果；缺项继续处理。",
-            "保存检查报告，用“已准备好”或“还没完成：缺什么”说明结果。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "E-06",
@@ -138,12 +130,8 @@
           "check": [],
           "help": "密码、验证码和实名信息只在本人页面填写。此时不用创建作品或发布网页。",
           "helper": false,
-          "agentCheck": [
-            "核对当前管理授权、本人练习空间和实际可用的工具。",
-            "保存准备结果；缺项说明原因，不把页面登录当连接成功。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "E-07",
@@ -162,11 +150,8 @@
           "check": [],
           "help": "密码、验证码和条款由本人在官网处理，不发到聊天里。此时不用创建仓库或设置推送工具。",
           "helper": false,
-          "agentCheck": [
-            "实际确认登录及邮箱验证状态，保存准备记录。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "E-08",
@@ -185,11 +170,8 @@
           "check": [],
           "help": "Key 不发到聊天里。登录、条款和付费决定由本人处理；调用地址、模型和技术配置交给助手。",
           "helper": false,
-          "agentCheck": [
-            "安全保存 Key，检查课程所需的文字和识图调用，分别记录通过与未验证项。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "E-05",
@@ -208,12 +190,8 @@
           "check": [],
           "help": "你不用阅读日志或逐项检查配置；看助手的明确结论即可。此时还没有错题本页面是正常的。",
           "helper": false,
-          "agentCheck": [
-            "复查工具报告与各项服务的实际准备记录；工具通过不代替账号或 AI 服务通过。",
-            "有必要项未通过或未验证时保持未完成，给出下一动作。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         }
       ]
     },
@@ -223,7 +201,6 @@
       "chapter": "02-工程模板.md",
       "goal": "建立新作品，打开起始网页；设计文件的位置由助手准备。",
       "learn": "知道作品放在哪里，下次怎样继续。",
-      "gate": "你能打开起始网页；助手确认作品已建立并打开设计文件夹。",
       "steps": [
         {
           "id": "P-01",
@@ -244,11 +221,8 @@
           ],
           "help": "以后做其他作品，换名称和用途，继续复用已准备的工具。",
           "helper": false,
-          "agentCheck": [
-            "确认所选文件夹可用于新作品，不覆盖已有内容；检查起始网页可打开。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "P-02",
@@ -269,11 +243,8 @@
           ],
           "help": "“工作空间已就绪”表示起始页面正常；下一轮才会出现错题本。",
           "helper": false,
-          "agentCheck": [
-            "定位实际源码和设计文件夹，记录位置；不要求学员记住目录名称。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         }
       ]
     },
@@ -283,7 +254,6 @@
       "chapter": "03-需求与原型.md",
       "goal": "Gemini 写需求、Canvas 画页面；你确认好用后，把两份文件交给 Trae。",
       "learn": "学会讲场景、定范围、试设计。",
-      "gate": "你认可功能规则和页面操作；Trae 已检查并接收两份设计文件。",
       "steps": [
         {
           "id": "D-01",
@@ -310,11 +280,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 整理已确定的需求，不加入后续阶段功能；不确定的业务规则交本人决定。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "D-02",
@@ -341,11 +308,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 检查需求说明覆盖当前范围、保存失败和可试用的完成标准。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "D-03",
@@ -374,11 +338,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 对照需求生成页面，说明演示内容；不擅自增加功能或改变规则。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "D-04",
@@ -405,11 +366,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 检查设计与需求规则一致，说明哪些保存效果只是演示。"
-          ],
-          "completionMode": "both",
-          "promptKind": "problem"
+          "promptKind": "problem",
+          "recordLearnerCompletion": true
         },
         {
           "id": "D-05",
@@ -436,11 +394,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 提供完整内容；文件完整性和需求一致性由下一步的 Trae 检查。"
-          ],
-          "completionMode": "both",
-          "promptKind": "missing"
+          "promptKind": "missing",
+          "recordLearnerCompletion": true
         },
         {
           "id": "D-06",
@@ -461,12 +416,8 @@
           ],
           "help": "不需要自己判断目录结构或文件版本；按 Trae 打开的文件夹放入文件即可。有缺项让它具体指出。",
           "helper": false,
-          "agentCheck": [
-            "确认当前作品和课程助手可用，读取两份真实文件，核对完整性、版本及一致性。",
-            "保留已有修改和材料，记录实际路径，不重新初始化。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         }
       ]
     },
@@ -476,7 +427,6 @@
       "chapter": "04-V1-本地网页.md",
       "goal": "Trae 按设计做出本机版；你亲自试保存、复习和打印。",
       "learn": "学会交接、分步实现、亲自验收。",
-      "gate": "题目、错因与图片刷新后保留；页面、掌握规则和周末练习符合确认设计。",
       "steps": [
         {
           "id": "V1-01",
@@ -495,12 +445,8 @@
           "check": [],
           "help": "配置、启动、文件更新和技术错误由 Trae 处理。页面空白或一直没变化时，把看到的现象告诉它。",
           "helper": false,
-          "agentCheck": [
-            "检查实际文件更新能出现在浏览器；完成本机保存、复习和打印的必要测试。",
-            "核对页面与确认设计一致，给出实际结果，不能只凭构建成功说完成。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V1-02",
@@ -521,11 +467,8 @@
           ],
           "help": "本机记录属于当前浏览器；换设备不会自动出现。清理浏览器数据会影响记录。",
           "helper": false,
-          "agentCheck": [
-            "检查重新打开后的持久保存、失败保留输入、修改删除及受影响功能。"
-          ],
-          "completionMode": "both",
-          "promptKind": "problem"
+          "promptKind": "problem",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V1-03",
@@ -545,11 +488,8 @@
           ],
           "help": "",
           "helper": false,
-          "agentCheck": [
-            "记录技术检查、本人反馈和未验证项，保留本轮材料与成果。"
-          ],
-          "completionMode": "both",
-          "promptKind": "after"
+          "promptKind": "after",
+          "recordLearnerCompletion": true
         }
       ]
     },
@@ -557,9 +497,8 @@
       "id": "v2",
       "name": "V2 云端网页",
       "chapter": "05-V2-云端.md",
-      "goal": "发布成网页链接；你试两个窗口共享记录，助手检查连接和失败处理。",
+      "goal": "发布成网页链接，试两个窗口共享记录。",
       "learn": "学会增量更新需求，分别检查网址和数据。",
-      "gate": "你看到两个窗口共享题目、图片、等级变化和删除；助手已检查发布、保存失败与重试。",
       "steps": [
         {
           "id": "V2-01",
@@ -585,11 +524,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 更新本轮需求与完成标准，不改变原产品规则。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V2-02",
@@ -615,11 +551,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 检查设计与本轮需求一致，标明模拟效果。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V2-03",
@@ -646,12 +579,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "保留上一版，读取本轮两份文件，核对内容完整、版本和需求一致性。",
-            "记录真实位置；找不到旧版时如实说明，不编造备份。"
-          ],
-          "completionMode": "both",
-          "promptKind": "missing"
+          "promptKind": "missing",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V2-04",
@@ -669,11 +598,8 @@
           "check": [],
           "help": "未做课前准备时，助手会从原记录继续；不重新注册或重复创建已有环境。",
           "helper": false,
-          "agentCheck": [
-            "复查当前管理授权和练习空间，将准备结果接入当前作品并实际检查。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V2-05",
@@ -691,12 +617,8 @@
           "check": [],
           "help": "GitHub.io 静态发布是补充练习，暂不测试也可继续。正式云端作品的发布与数据共享分别记录。",
           "helper": false,
-          "agentCheck": [
-            "实际检查保存、图片读取和正式网页发布；保留原页面与规则。",
-            "准备独立试用窗口及必要失败检查，给学员简单动作。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V2-06",
@@ -717,13 +639,8 @@
           ],
           "help": "你不用判断浏览器会话是否独立，也不用断网测试；由 Trae 准备和检查。两个普通标签页是否合格，由助手判断。",
           "helper": false,
-          "agentCheck": [
-            "确认两个窗口使用真正独立的浏览器会话；工具不能自动打开时一次指引本人一个动作。",
-            "通过受控断网或失败测试检查输入保留、恢复重试和不重复保存，并恢复试用环境。",
-            "完成必要的登录与访问权限检查，不让学员修改网络设置或判断请求日志。"
-          ],
-          "completionMode": "both",
-          "promptKind": "problem"
+          "promptKind": "problem",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V2-07",
@@ -743,11 +660,8 @@
           ],
           "help": "",
           "helper": false,
-          "agentCheck": [
-            "分别记录正式网址、云端保存、跨窗口试用与未验证项。"
-          ],
-          "completionMode": "both",
-          "promptKind": "after"
+          "promptKind": "after",
+          "recordLearnerCompletion": true
         }
       ]
     },
@@ -757,7 +671,6 @@
       "chapter": "06-V3-安卓.md",
       "goal": "更新手机设计，安装到安卓手机，检查与网页同步。",
       "learn": "学会从新场景提需求，在真实设备验收。",
-      "gate": "你在手机亲自试过操作与共享；助手检查安装文件和技术结果，未试过的单独说明。",
       "steps": [
         {
           "id": "V3-01",
@@ -783,11 +696,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 更新手机需求与双向同步标准，保留原功能。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V3-02",
@@ -813,11 +723,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 检查设计与本轮手机需求一致，说明模拟部分。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V3-03",
@@ -844,12 +751,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "保留上一版，读取本轮两份文件，核对内容完整、版本和需求一致性。",
-            "记录真实位置；找不到旧版时如实说明，不编造备份。"
-          ],
-          "completionMode": "both",
-          "promptKind": "missing"
+          "promptKind": "missing",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V3-04",
@@ -867,12 +770,8 @@
           "check": [],
           "help": "",
           "helper": false,
-          "agentCheck": [
-            "检查实际 APK 打包与文件存在，核对与当前网页版本的对应关系。",
-            "提供可执行的传输和安装指引；不以打包成功代替真机验收。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V3-05",
@@ -893,11 +792,8 @@
           ],
           "help": "你只需按当前手机提示操作，具体传输方式由 Trae 指引。安装冲突先反馈现象，不通过卸载清数据解决。",
           "helper": false,
-          "agentCheck": [
-            "核对网页与手机的实际版本、共享数据和受影响功能；记录本人真机反馈。"
-          ],
-          "completionMode": "both",
-          "promptKind": "problem"
+          "promptKind": "problem",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V3-06",
@@ -917,11 +813,8 @@
           ],
           "help": "",
           "helper": false,
-          "agentCheck": [
-            "记录本轮安装文件、真机反馈、双向共享和未验证项。"
-          ],
-          "completionMode": "both",
-          "promptKind": "after"
+          "promptKind": "after",
+          "recordLearnerCompletion": true
         }
       ]
     },
@@ -931,7 +824,6 @@
       "chapter": "07-V4-AI.md",
       "goal": "每次加一项 AI 功能，先设计，再开发和试用。",
       "learn": "学会定义 AI 任务、人工判断与失败处理。",
-      "gate": "你认可当前所选功能的实际效果；助手检查真实调用和失败处理，网页与手机分别记录。",
       "steps": [
         {
           "id": "V4-01",
@@ -958,11 +850,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 只更新所选任务的需求，写清人工判断与失败处理。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V4-02",
@@ -988,11 +877,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "Gemini 对照所选任务检查原型与需求一致，标明模拟结果。"
-          ],
-          "completionMode": "both",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V4-03",
@@ -1019,12 +905,8 @@
               "url": "https://gemini.google.com/"
             }
           ],
-          "agentCheck": [
-            "保留上一版，读取本轮两份文件，核对内容完整、版本和需求一致性。",
-            "记录真实位置；找不到旧版时如实说明，不编造备份。"
-          ],
-          "completionMode": "both",
-          "promptKind": "missing"
+          "promptKind": "missing",
+          "recordLearnerCompletion": true
         },
         {
           "id": "V4-04",
@@ -1042,12 +924,8 @@
           "check": [],
           "help": "调用地址、模型和配置由助手处理；这一项还不是作品功能验收。",
           "helper": false,
-          "agentCheck": [
-            "复查当前凭证和所需模型，复用有效真实调用记录；变化或缺证据时补最小检查。",
-            "仅检查服务准备，不提前开发其他 AI 功能，不重复注册。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V4-05",
@@ -1065,12 +943,8 @@
           "check": [],
           "help": "",
           "helper": false,
-          "agentCheck": [
-            "实际检查本项服务调用、输出校验、保存和失败回退；遵循固定服务端调用链。",
-            "核对网页发布和新 APK，分别记录真实调用、页面与真机的状态。"
-          ],
-          "completionMode": "agent",
-          "promptKind": "send"
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "V4-06",
@@ -1091,12 +965,8 @@
           ],
           "help": "网页和手机按本轮范围分别试用；没有试过的设备不要勾为通过。你判断是否好用，真实调用与故障测试由助手负责。",
           "helper": false,
-          "agentCheck": [
-            "{{ai_agent_checks}}",
-            "未亲眼观察或未收到本人反馈的真机结果，保留未验证；不要求学员判断调用日志。"
-          ],
-          "completionMode": "both",
-          "promptKind": "after"
+          "promptKind": "after",
+          "recordLearnerCompletion": true
         }
       ]
     }
@@ -1113,9 +983,6 @@
       ],
       "checks": [
         "草稿容易看懂、可以修改；保存的是我确认后的内容。"
-      ],
-      "agentChecks": [
-        "检查真实识别、结构校验和两端保存；通过受控失败检查原图/输入保留、可手填继续和重试不重复保存。"
       ]
     },
     {
@@ -1130,9 +997,6 @@
       ],
       "checks": [
         "建议能理解，能修改或放弃，原题和等级没有被擅自改变。"
-      ],
-      "agentChecks": [
-        "检查真实诊断、建议保存和原题/等级不被自动改变；受控失败可继续。"
       ]
     },
     {
@@ -1146,9 +1010,6 @@
       ],
       "checks": [
         "提示帮助我思考，没有直接替我改答案或进度。"
-      ],
-      "agentChecks": [
-        "检查真实分层提示、原题与进度保留、失败回退和当前两端状态。"
       ]
     },
     {
@@ -1162,9 +1023,6 @@
       ],
       "checks": [
         "新题可以作答，反馈能理解，等级变化符合确认规则。"
-      ],
-      "agentChecks": [
-        "检查真实生成和验证；错误答案不升级，有效验证按规则升级，重复提交不重复升级，失败可重试。"
       ]
     },
     {
@@ -1178,9 +1036,6 @@
       ],
       "checks": [
         "报告能对应已有记录，建议容易理解。"
-      ],
-      "agentChecks": [
-        "检查真实报告、只引用本人的记录；另测记录不足时如实提示，以及失败回退和已有功能可用。"
       ]
     }
   ],
