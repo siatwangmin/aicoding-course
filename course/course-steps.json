@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作：你决定需求、亲自试用，助手负责技术检查。",
@@ -42,7 +42,7 @@
           "purpose": "Trae 已打开并登录。",
           "actions": [
             "点击“下载 Trae”，安装 Windows 版；已经安装就直接打开。",
-            "按页面提示登录自己的账号。本课使用 Trae／TRAE CN，不使用 TRAE Work。",
+            "按页面提示登录自己的 Trae 账号。",
             "如果只看到独立聊天窗口，点右上角“IDE”，进入带“打开文件夹”入口的主窗口。"
           ],
           "prompt": "",
