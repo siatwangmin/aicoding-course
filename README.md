@@ -4,7 +4,7 @@
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
 
-课前环境准备带你完成工具、云服务、GitHub 账号和 AI 服务准备。AI Coding 操作手册从建立作品开始，依次完成需求与原型、本地网页、云端网页、安卓和 AI。已有作品从当前未完成步骤继续。
+课前环境准备带你完成工具、云服务、GitHub 账号和 AI 服务准备。AI Coding 操作手册从建立作品开始，依次完成需求与原型、本地网页、云端网页、安卓和 AI。每次上课按当前未完成步骤继续。
 
 每步都写清：**在哪操作 → 这样做 → 复制发送 → 完成后 → 检查**。通过后再继续。
 
