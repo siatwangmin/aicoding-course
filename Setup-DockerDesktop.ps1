@@ -407,6 +407,7 @@ function Resolve-SetupInstaller {
     foreach ($start in $starts) {
         $cursor = $start
         for ($i = 0; $i -lt 4 -and $cursor; $i++) {
+            $folders += Join-Path $cursor 'software'
             $folders += Join-Path $cursor 'release'
             $folders += Join-Path $cursor 'releases'
             $folders += $cursor
@@ -446,7 +447,7 @@ function Resolve-SetupInstaller {
         Save-SetupInstallerEvidence $Kind $destination $approvedUrl $validation
         return (Resolve-Path -LiteralPath $destination).Path
     } catch {
-        throw "安装包获取未完成：$($_.Exception.Message)。可从操作手册中的公司内/外下载链接取得文件，放入资料文件夹旁的 release 后继续。"
+        throw "安装包获取未完成：$($_.Exception.Message)。请先检查完整课程包中的 software 安装包目录；缺项时由助手定位或解压已有安装包，仍缺失再取得完整课程包。"
     } finally {
         if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
     }

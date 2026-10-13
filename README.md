@@ -16,7 +16,7 @@
 
 ## 发给学员什么
 
-发 [aicoding-student-kit.zip](aicoding-student-kit.zip) 即可。两个大安装包单独下载，按[安装包说明](installation-downloads.md)放好。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
+发完整课程包 `aicoding-course-kit.zip` 即可，内含 `aicoding-student-kit.zip` 和 `software.zip`，一次取得资料、Trae、Docker 和 WSL。按[解压说明](installation-downloads.md)继续；已收到包就不用重复下载。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启；最后由助手汇总准备结论，不要求学员审查配置或日志。
 

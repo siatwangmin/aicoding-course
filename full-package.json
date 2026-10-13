@@ -1,0 +1,31 @@
+{
+  "version": "1.5.0",
+  "file": "aicoding-course-kit.zip",
+  "bytes": 1454275213,
+  "sha256": "9d89cdc994f5f5099acaaddc5d52c3ca17f2721f3ab9c846e28debfa2b8a5a16",
+  "url": "https://github.com/siatwangmin/aicoding-course/releases/download/course-v1.5.0/aicoding-course-kit.zip",
+  "payload": {
+    "aicoding-student-kit.zip": {
+      "bytes": 967330,
+      "sha256": "8139ffe8cdb6de42509b17c451313a128276265bd04d4959d60b6522540a1157"
+    },
+    "software.zip": {
+      "bytes": 1453306817,
+      "sha256": "7b0ebecec425e6101fd8948e2d2f3c9bf3cf6f870e9969c6f25ef7e6d21f773f"
+    }
+  },
+  "installers": {
+    "Docker Desktop Installer.exe": {
+      "bytes": 625204656,
+      "sha256": "9500d88dff50ccb0ae36004f0599a0274da1211c138fb2e30dc9d335bb9df313"
+    },
+    "TRAE_CN-Setup-x64.exe": {
+      "bytes": 476371576,
+      "sha256": "56a4c50383f6b9a93a971d5926e56c0b1520a5f7628a2a7fa0b493530cf4c2ea"
+    },
+    "wsl.3.0.1.0.x64.msi": {
+      "bytes": 367669248,
+      "sha256": "28b1a0d013640a2ac95898ea705fa186e5b4ff767a1c1b49257161bc106599c6"
+    }
+  }
+}

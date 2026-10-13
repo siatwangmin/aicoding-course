@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1",
+  "version": "1.5.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -14,32 +14,39 @@
       "steps": [
         {
           "id": "E-01",
-          "title": "解压课程资料",
-          "tool": "Windows 文件夹",
-          "purpose": "能打开这份操作网页，课程资料已经解压。",
+          "title": "下载并解压完整课程包",
+          "tool": "浏览器 → Windows 文件夹",
+          "purpose": "一次取得课程资料和三个安装包。",
           "actions": [
-            "找到 aicoding-student-kit.zip，右键选择“全部解压缩”。",
-            "打开解压后的文件夹，双击 preparation.html，进入课前环境准备。"
+            "从公司提供的完整包或下方下载入口，任选一个取得 aicoding-course-kit.zip；已收到就不用再下载。",
+            "右键完整包，选择“全部解压缩”。打开文件夹，分别对 aicoding-student-kit.zip 和 software.zip 选择“全部解压缩”，保留默认位置。",
+            "打开 aicoding-student-kit 文件夹，双击 preparation.html；后面在这个文件夹继续。"
           ],
           "prompt": "",
           "expected": [
-            "能打开课前环境准备网页，课程资料已经解压。"
+            "课程资料和 software 安装包文件夹已经一起放好。"
           ],
           "check": [
-            "能打开本页；操作的是解压后的文件夹，而不是 ZIP 预览窗口。"
+            "能打开本页；操作的是解压后的课程资料文件夹。"
           ],
-          "help": "不要在 ZIP 的预览窗口里操作，先解压。",
+          "help": "完整包内有课程资料和全部安装包，下载一次即可。不要在 ZIP 预览窗口里操作；已经解压的内容不用再解压。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "links": [
+            {
+              "label": "公司外下载完整课程包",
+              "url": "https://github.com/siatwangmin/aicoding-course/releases/download/course-v1.5.0/aicoding-course-kit.zip"
+            }
+          ]
         },
         {
           "id": "E-02",
           "title": "安装并打开 Trae",
-          "tool": "浏览器 → Trae",
+          "tool": "Windows 文件夹 → Trae",
           "purpose": "Trae 已打开并登录。",
           "actions": [
-            "点击“下载 Trae”，安装 Windows 版；已经安装就直接打开。",
+            "打开刚才解压的 software 文件夹，双击 TRAE_CN-Setup-x64.exe 安装 Trae；已经安装就直接打开。",
             "按页面提示登录自己的 Trae 账号。",
             "如果只看到独立聊天窗口，点右上角“IDE”，进入带“打开文件夹”入口的主窗口。"
           ],
@@ -52,44 +59,6 @@
           ],
           "help": "出现“是否信任此文件夹中的文件作者”时，先核对提示中的完整路径是否是自己选的课程资料或作品；由本人判断并处理。看到其他目录就先切回正确目录，不要为继续操作信任所有上级目录。公司电脑不允许安装时请联系 IT 支持人员。",
           "helper": false,
-          "links": [
-            {
-              "label": "下载 Trae",
-              "url": "https://www.trae.cn/"
-            }
-          ],
-          "promptKind": "send",
-          "recordLearnerCompletion": true
-        },
-        {
-          "id": "E-03",
-          "title": "准备两个安装包",
-          "tool": "浏览器 → Windows 文件夹",
-          "purpose": "release 文件夹内有两个安装包。",
-          "actions": [
-            "点击下方一个下载入口，下载两个文件：wsl.3.0.1.0.x64.msi 和 Docker Desktop Installer.exe。已有文件不用再下载。",
-            "在课程资料文件夹旁新建 release 文件夹，把这两个文件放进去，先不用运行。",
-            "下载不了也不用停在这里：下一步告诉 Trae“安装包还没下载，请帮我下载”。"
-          ],
-          "prompt": "",
-          "expected": [
-            "release 文件夹内有两个安装包。"
-          ],
-          "check": [
-            "两个文件已放好，或已准备在下一步请 Trae 代下载。"
-          ],
-          "help": "这两个文件用于准备课程工具。文件是否完整、版本是否合适，由 Trae 检查。",
-          "helper": false,
-          "links": [
-            {
-              "label": "公司内下载",
-              "url": "https://clouddrive.huawei.com/p/2c5dce71d71908a8c0c64574ee5ba886"
-            },
-            {
-              "label": "公司外下载（提取码 egiy）",
-              "url": "https://pan.baidu.com/s/1so3HddPOXQVl790421DczQ?pwd=egiy"
-            }
-          ],
           "promptKind": "send",
           "recordLearnerCompletion": true
         },
