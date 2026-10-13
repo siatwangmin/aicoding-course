@@ -15,7 +15,7 @@
 
 ## 发给学员什么
 
-发 [knowstar-student-kit.zip](knowstar-student-kit.zip) 即可。两个大安装包单独下载，按[安装包说明](installation-downloads.md)放好。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
+发 [aicoding-student-kit.zip](aicoding-student-kit.zip) 即可。两个大安装包单独下载，按[安装包说明](installation-downloads.md)放好。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启，最后检查报告是否显示“已完成”。
 

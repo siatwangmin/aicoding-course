@@ -19,7 +19,7 @@
 
 ```text
 你的课程文件夹/
-  knowstar-student-kit/       ← 解压后的资料
+  aicoding-student-kit/       ← 解压后的资料
     index.html
     setup-guide.md
   release/                   ← 新建，与资料文件夹并列
