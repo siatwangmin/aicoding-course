@@ -1,5 +1,5 @@
 {
-  "version": "1.7.1",
+  "version": "1.7.2",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -152,47 +152,26 @@
       "steps": [
         {
           "id": "P-01",
-          "title": "建立新作品",
-          "tool": "Trae",
-          "purpose": "确认独立作品的位置和可打开的网页。",
-          "actions": [
-            "在 Trae 发送下方提示，开始建立“知错星”。",
-            "按提示选一个空文件夹作为作品保存位置。",
-            "等助手给出作品位置和网页链接。"
-          ],
-          "prompt": "我选择使用 {{container_runtime}}。调用ai-coding-project技能创建学生错题本项目工程。",
-          "expected": [
-            "得到作品位置和网页链接。"
-          ],
-          "check": [
-            "我选好了作品保存位置。"
-          ],
-          "help": "以后做其他作品，换名称和用途，继续复用已准备的工具。",
-          "helper": false,
-          "promptKind": "send",
-          "recordLearnerCompletion": true
-        },
-        {
-          "id": "P-02",
-          "title": "打开起始页面",
+          "title": "建立作品",
           "tool": "Trae → 浏览器",
-          "purpose": "作品页面可打开，Trae 指出了设计文件的保存位置。",
+          "purpose": "建立空白工程，打开起始网页，准备进入需求与原型设计。",
           "actions": [
-            "点击助手给出的网页链接，看到“工作空间已就绪”即可。",
-            "回 Trae 发送下方提示，让它打开存放设计文件的位置。",
-            "下一步去 Gemini 讨论需求；作品位置会由助手记录。"
+            "在 Trae 发送下方提示。",
+            "按提示选择一个空文件夹作为作品保存位置。",
+            "点击助手给出的网页链接，看到“工作空间已就绪”后，进入下一阶段。"
           ],
-          "prompt": "请打开这个作品存放设计文件的位置，记录作品位置。现在先不要开发具体功能。",
+          "prompt": "调用ai-coding-project技能创建项目工程。",
           "expected": [
-            "能打开起始网页，后面保存设计文件时有位置可放。"
+            "起始网页可以打开，设计文件的保存位置已由助手准备。"
           ],
           "check": [
-            "网页显示“工作空间已就绪”，助手已打开设计文件夹。"
+            "网页显示“工作空间已就绪”。"
           ],
-          "help": "“工作空间已就绪”表示起始页面正常；下一轮才会出现错题本。",
+          "help": "此时只建立空白工作空间，具体功能等需求和原型确认后再做；名称和用途不用提前填写。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "completionId": "P-02"
         }
       ]
     },
