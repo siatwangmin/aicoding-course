@@ -47,7 +47,7 @@
 
 调用 `ai-coding-env`，按前文选择对应 Windows 路线。以下为 Docker 专用流程；Podman 按其 reference 和独立脚本执行。助手连续执行自动定位/解压、`Start-Process powershell.exe ... -Verb RunAs -Wait` 运行 Prepare、自动安装和启动 Desktop、同样主动提权 Verify、digest 拉取和容器内检查，最后写 `workspace\toolchain-verification.json`。Prepare/Verify 不得先非管理员失败后再提权。仅在 UAC 前告知“请点击是”及首次条款前告知“请本人阅读并决定是否接受”；普通步骤不中断征询，不要求用户手动打开程序或观察 Engine running。诊断和安装记录只在 workspace 的 `.docker-setup`，不写 AppData。BIOS 未开启、系统需要重启或材料/策略确实阻塞时报告证据，不能自动跳过或声称完成。
 
-工具箱验收完成只报告工具可用并记录结果；本助手不创建产品目录或云资源。课程接着在 E-06 调用 CloudBase 陪练完成课前云准备，两项分别记录。用户要启动作品时才调用 `ai-coding-project`，只问作品名称、用途和保存位置。空白页面、案例开发、工具验收和云准备分别检查。
+工具箱验收完成只报告工具可用并记录结果；本助手不创建产品目录或云资源。课程接着在 E-06 调用 CloudBase 陪练完成课前云准备，两项分别记录。用户要启动作品时才调用 `ai-coding-project`，只需确定保存位置，不强制先填名称、用途或业务目标；没有这些信息也先建立通用空白工作空间，需求和原型确认后由助手据此补全。空白页面、案例开发、工具验收和云准备分别检查。
 
 **结束前必须核对工具箱验收，不能在 Docker 就绪后停止。** Prepare/Verify 返回 `Decision=Ready` 后，直接执行已安装环境助手的 `scripts\Verify-Toolchain.ps1 -WorkingDirectory <原工作目录>`，不要求学员再发“继续”指令。实际退出码为 0，且本次生成的 `toolchain-verification.json` 中 VerifiedAt 有效、Image/imageDigest 匹配固定配置、Architecture=amd64、Os=linux、ToolchainCheck.ExitCode=0 并有检查输出，才可报告工具箱准备完成。缺记录或未通过时报告实际停在哪一步，读取安装/工具记录继续诊断。
 
