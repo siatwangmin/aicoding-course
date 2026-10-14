@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$PackageRoot)
+param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames)
 
 function Get-TraeUserSkillsDirectory {
     if (-not $env:USERPROFILE -or -not [IO.Path]::IsPathRooted($env:USERPROFILE)) { throw '无法确认当前用户目录，不能猜测技能安装位置。' }
@@ -13,6 +13,44 @@ function Assert-CourseSkillDirectory {
     $prefix = [IO.Path]::GetFullPath($Parent).TrimEnd('\') + '\'
     if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw '技能目录不在预期根目录内。' }
     if ((Test-Path -LiteralPath $resolved) -and ((Get-Item -LiteralPath $resolved -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw '技能目录是链接，已保留，不能自动替换。' }
+}
+
+function Test-CourseSkills {
+    param([string]$Workspace, [string[]]$Names)
+    $Workspace = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
+    if (-not $Names -or @($Names | Where-Object { $_ -cnotmatch '^[a-z][a-z0-9-]{0,63}$' }).Count) { throw '需要明确提供要核对的技能名称。' }
+    $skillsRoot = Get-TraeUserSkillsDirectory
+    $rootIssue = $null
+    foreach ($directory in @((Split-Path $skillsRoot -Parent), $skillsRoot)) {
+        if ((Test-Path -LiteralPath $directory) -and ((Get-Item -LiteralPath $directory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { $rootIssue = '用户技能根目录是链接，尚未确认实际安装位置。' }
+    }
+    $checks = foreach ($name in @($Names | Select-Object -Unique)) {
+        $directory = Join-Path $skillsRoot $name
+        $entry = Join-Path $directory 'SKILL.md'
+        $projectDirectory = Join-Path $Workspace ('.trae\skills\' + $name)
+        $issues = @()
+        if ($rootIssue) { $issues += $rootIssue }
+        $nameMatches = $false
+        if (-not (Test-Path -LiteralPath $entry -PathType Leaf)) { $issues += '当前用户目录缺少根部 SKILL.md。' }
+        elseif (((Get-Item -LiteralPath $directory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -or ((Get-Item -LiteralPath $entry -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { $issues += '技能目录或 SKILL.md 是链接，不能当作用户级副本通过。' }
+        else {
+            try {
+                $content = Get-Content -LiteralPath $entry -Raw -Encoding UTF8 -ErrorAction Stop
+                $header = [regex]::Match($content, '(?s)\A---\r?\n(.*?)\r?\n---(?:\r?\n|\z)')
+                $nameMatches = $header.Success -and $header.Groups[1].Value -cmatch ('(?m)^name:\s*' + [regex]::Escape($name) + '\s*$')
+                if (-not $nameMatches) { $issues += 'SKILL.md 的技能名称不匹配。' }
+            } catch { $issues += '无法读取用户目录中的 SKILL.md。' }
+        }
+        $projectCopy = Test-Path -LiteralPath $projectDirectory
+        if ($projectCopy) { $issues += '当前项目仍有同名技能副本，需要先备份并移出发现目录。' }
+        [pscustomobject]@{ Name = $name; ExpectedDirectory = $directory; NameMatches = $nameMatches; ProjectCopyFound = [bool]$projectCopy; ProjectDirectory = $projectDirectory; UserDirectoryVerified = ($issues.Count -eq 0); Issues = @($issues) }
+    }
+    $verified = @($checks | Where-Object { -not $_.UserDirectoryVerified }).Count -eq 0
+    $result = [pscustomobject][ordered]@{ CheckedAt = (Get-Date).ToString('o'); UserInstallationVerified = $verified; SkillsDirectory = $skillsRoot; Checks = @($checks); NotVerified = @('Trae 中的实际识别和加载由助手另行核对；位置检查不代替工具、云服务、GitHub 或 AI 服务验收。') }
+    $records = Join-Path $Workspace '.course-setup'
+    [void](New-Item -ItemType Directory -Path $records -Force)
+    $result | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $records 'skills-verification.json') -Encoding UTF8
+    return $result
 }
 
 function Find-CoursePackageRoot {
@@ -171,5 +209,12 @@ if ($MyInvocation.InvocationName -ne '.') {
     [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
     $WorkingDirectory = (Resolve-Path -LiteralPath $WorkingDirectory).Path
+    if ($VerifyOnly) {
+        if (-not $SkillNames) { throw 'VerifyOnly 需要 SkillNames，以逗号分隔要核对的技能名称。' }
+        $verification = Test-CourseSkills -Workspace $WorkingDirectory -Names @($SkillNames.Split(',') | ForEach-Object { $_.Trim() })
+        $verification | ConvertTo-Json -Depth 6
+        if (-not $verification.UserInstallationVerified) { exit 2 }
+        exit 0
+    }
     Install-CourseSkills $WorkingDirectory $PackageRoot
 }

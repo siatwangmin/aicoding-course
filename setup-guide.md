@@ -73,4 +73,4 @@
 
 课前先看在线 preparation.html；资料下载由 Trae 完成，已有离线页面也可直接使用，只完成当前七个准备步骤。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
 
-当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-06 → E-07 → E-08 → E-05，共六步；原 E-03/E-04 进度映射到合并后的 E-01。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。
+当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-06 → E-07 → E-08 → E-05，共六步；原 E-03/E-04 进度映射到合并后的 E-01。E-05 先按课程助手内部名单执行已安装环境助手的 Install-CourseSkills.ps1 -VerifyOnly -SkillNames <完整名单> -WorkingDirectory <原workspace>，实际核对用户目录位置、六个根部 SKILL.md 名称和项目同名副本，保存 skills-verification.json；缺项由助手修复并复查，不要求学员代检。位置检查不代替实际识别加载。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。
