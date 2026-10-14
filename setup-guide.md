@@ -6,13 +6,19 @@
 
 用户可能完全没有编程经验。收到“准备 AI Coding 工具”“安装资料包里的助手”时读取本文。环境准备、项目启动和产品业务分别执行；前两项可以用于任何兼容作品。
 
+## 先确认所选容器工具
+
+课前环境页可选 Docker Desktop / Podman Desktop，复制的提示已带选择。本人明确选择优先，已有作品沿用 manifest；读取 workspace 的 .course-setup/container-runtime.json / materials.json，旧记录无选择时保留 Docker。只准备一种，不因 Podman 缺项自动安装 Docker。Get-CourseMaterials.ps1 显式传 `-ContainerRuntime docker` 或 `-ContainerRuntime podman`，将选择保存在准备记录和 AGENTS。
+
+选择 Podman 时，从用户级 ai-coding-env 读取 references/windows-podman-setup.md，执行 Setup-PodmanDesktop.ps1 的 Prepare/Verify，再执行 Verify-Toolchain.ps1 -ContainerRuntime podman；它使用独立 .podman-setup 报告及同一课程镜像。已有 Podman Desktop/CLI/WSL/machine 不重装，缺项由助手从官方来源补齐和验证，不让学员执行命令。Docker 专用提权与 endpoint 规则只适用于下面的 Docker 分支。
+
 ## E-01：还没有课程资料时
 
 当前网页先安装打开 Trae（E-02），再由 Trae 连续准备工具（E-01，含原 E-04）。此入口不依赖课程 Skill 已安装，也不要求学员先手工下载或解压。
 
-1. 保持 Trae 当前打开的文件夹为 workspace。下载官方课程仓库的 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1` 到 workspace 的 `.course-setup/Get-CourseMaterials.ps1`，读取脚本后用 Windows PowerShell 运行，传入 `-WorkingDirectory workspace`。脚本从公开 VERSION.json 确定课程版本，再从固定版本 GitHub Pages 地址取得 `aicoding-student-kit.zip` 和 SHA-256，先校验再安全解压；不需先注册 GitHub。
+1. 保持 Trae 当前打开的文件夹为 workspace。下载官方课程仓库的 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1` 到 workspace 的 `.course-setup/Get-CourseMaterials.ps1`，读取脚本后用 Windows PowerShell 运行，传入 `-WorkingDirectory workspace -ContainerRuntime <所选引擎>`。脚本从公开 VERSION.json 确定课程版本，再从固定版本 GitHub Pages 地址取得 `aicoding-student-kit.zip` 和 SHA-256，先校验再安全解压；不需先注册 GitHub。
 2. 脚本保护已有文件，在 workspace 内建立版本化资料目录，将六项课程技能安装到当前用户的 `%USERPROFILE%\.trae-cn\skills`，保存 `.course-setup/materials.json` 和 AGENTS 的资料入口。下载结束后立即从这份记录定位实际说明，继续安装与工具验收，不要求学员重开文件夹或搬文件。
-3. 脚本调用所下载的安装包解析器，已有安装程序直接用，缺项分别从下面两个原始地址下载。WSL 必须匹配固定摘要；Docker 官网版本变化时检查有效 Docker Inc 签名。只有实际工具检查证明已安装且可复用时才用 `-SkipInstallers`，并记录跳过理由；下载完成不代表安装或环境验收通过。
+3. 脚本只获取所选路线所缺的官方安装程序。Docker 路线沿用以下两个地址；Podman 使用 ai-coding-env/assets/podman-installers.json 的官方 Podman Desktop 固定版本、SHA-256 与 Red Hat, LLC 签名，已有安装直接用，不下载 Docker。WSL 必须匹配固定摘要；Docker 官网版本变化时检查有效 Docker Inc 签名。只有实际工具检查证明已安装且可复用时才用 `-SkipInstallers`，并记录跳过理由；下载完成不代表安装或环境验收通过。
    - Docker：`https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe`
    - WSL：`https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi`
 4. E-01 包含资料下载、用户级技能安装、Prepare、Verify 与工具箱实际验收（已合并原 E-04）。Get-CourseMaterials.ps1 只负责下载及技能安装，完成后必须继续下文的环境助手流程；不在下载后停止，不要求学员再发送一条安装提示。权限、条款、登录和重启由本人按当前一步处理。不得使用 GitHub Release 的 aicoding-course-kit.zip 或 software.zip 作为新下载路线，不改变原有代理或把网络失败当下载通过。
@@ -29,7 +35,7 @@
 
 5. 将通用技能位置合并到当前资料目录已有的 `AGENTS.md`，让后续功能语言请求能发现助手，不覆盖已有约束。作品启动后，将助手引用合并进作品 AGENTS；业务规则从该作品自己的材料读取。
 
-当前资料包另含 `ai-coding-cloudbase-skill.zip` 与校验文件。安装脚本会一并校验并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-cloudbase`，同样保留根部 `SKILL.md` 并检查识别状态；旧的两技能包仍可使用。将此助手也加入技能引用。课程在 E-06 课前云服务准备中调用它，提前完成账号、实名、官方接入、管理授权及练习环境。Docker 助手只验收工具；云端操作由 CloudBase 陪练调用官方 Skill 执行，不创建业务数据或发布作品。
+当前资料包另含 `ai-coding-cloudbase-skill.zip` 与校验文件。安装脚本会一并校验并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-cloudbase`，同样保留根部 `SKILL.md` 并检查识别状态；旧的两技能包仍可使用。将此助手也加入技能引用。课程在 E-06 课前云服务准备中调用它，提前完成账号、实名、官方接入、管理授权及练习环境。容器环境助手只验收所选引擎的工具；云端操作由 CloudBase 陪练调用官方 Skill 执行，不创建业务数据或发布作品。
 
 当前资料包还含 `ai-coding-github-skill.zip` 与校验文件。安装脚本一并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-github` 并保留其他技能；旧包没有此项时仍可安装原有助手。课程 E-07 调用它，一步一步带本人注册或登录 GitHub 免费个人账号、完成邮箱验证，已有账号直接复用。检查准备结果后继续 E-08 的 AI 服务准备，不在课前创建仓库或配置推送凭据；平台要求的本人验证与条款在官网完成。
 
@@ -39,7 +45,7 @@
 
 当前安装包由 E-01 的助手从官方原始地址获取；位置和来源记录在 workspace 的 `.course-setup`、`.docker-setup`。复用已有 release、releases 或 software 中的安装程序；缺项才按固定清单自动下载。不要求学员选择安装包目录、解压软件合集或移动文件，从实际位置传入 InstallerDirectory。不要把公司云盘分享页当安装程序直接执行，也不使用带到期时间的临时 WSL 链接。下载、摘要与签名检查由脚本完成；失败后检查实际网络和下载记录，按官方地址继续处理；不退回 GitHub Release 完整包或旧网盘安装包，不能声称已安装。
 
-调用 `ai-coding-env`，读取其 Windows 路线。助手连续执行自动定位/解压、`Start-Process powershell.exe ... -Verb RunAs -Wait` 运行 Prepare、自动安装和启动 Desktop、同样主动提权 Verify、digest 拉取和容器内检查，最后写 `workspace\toolchain-verification.json`。Prepare/Verify 不得先非管理员失败后再提权。仅在 UAC 前告知“请点击是”及首次条款前告知“请本人阅读并决定是否接受”；普通步骤不中断征询，不要求用户手动打开程序或观察 Engine running。诊断和安装记录只在 workspace 的 `.docker-setup`，不写 AppData。BIOS 未开启、系统需要重启或材料/策略确实阻塞时报告证据，不能自动跳过或声称完成。
+调用 `ai-coding-env`，按前文选择对应 Windows 路线。以下为 Docker 专用流程；Podman 按其 reference 和独立脚本执行。助手连续执行自动定位/解压、`Start-Process powershell.exe ... -Verb RunAs -Wait` 运行 Prepare、自动安装和启动 Desktop、同样主动提权 Verify、digest 拉取和容器内检查，最后写 `workspace\toolchain-verification.json`。Prepare/Verify 不得先非管理员失败后再提权。仅在 UAC 前告知“请点击是”及首次条款前告知“请本人阅读并决定是否接受”；普通步骤不中断征询，不要求用户手动打开程序或观察 Engine running。诊断和安装记录只在 workspace 的 `.docker-setup`，不写 AppData。BIOS 未开启、系统需要重启或材料/策略确实阻塞时报告证据，不能自动跳过或声称完成。
 
 工具箱验收完成只报告工具可用并记录结果；本助手不创建产品目录或云资源。课程接着在 E-06 调用 CloudBase 陪练完成课前云准备，两项分别记录。用户要启动作品时才调用 `ai-coding-project`，只问作品名称、用途和保存位置。空白页面、案例开发、工具验收和云准备分别检查。
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.6.1",
+  "version": "1.7.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -46,16 +46,17 @@
           "tool": "Trae",
           "purpose": "让 Trae 下载课程资料、安装课程助手并准备好工具。",
           "actions": [
+            "在本页选择 Docker Desktop 或 Podman Desktop；已有哪一个就选哪一个，不用同时安装两个。",
             "在 Trae 点“打开文件夹”，选择一个用于课程练习的文件夹；没有就新建一个。出现信任提示时，由本人核对并决定。",
             "在聊天框发送下方提示；需要选择模式时，选 Agent（智能体）。",
             "按助手提示处理安装、条款或重启。重启后回到同一任务说“请继续准备工具”；等它告诉你结果。"
           ],
-          "prompt": "请按这份课程准备说明准备好工具：https://siatwangmin.github.io/aicoding-course/setup-guide.md。下载、解压和检查由你完成，已有内容直接用。需要我操作时，一次告诉我一个动作。",
+          "prompt": "我选择使用 {{container_runtime}}。请按这份课程准备说明准备好工具：https://siatwangmin.github.io/aicoding-course/setup-guide.md。下载、解压和检查由你完成，已有内容直接用。需要我操作时，一次告诉我一个动作。",
           "expected": [
             "助手告诉你工具是否准备好；未完成时给出下一步动作。"
           ],
           "check": [],
-          "help": "资料和安装包由 Trae 下载，你不用自己解压或移动文件。安装受限时把屏幕提示告诉助手；公司电脑确需 IT 处理时再联系 IT。",
+          "help": "选择会保存在当前浏览器，并写进复制给 Trae 的提示。安装、machine、Compose、配置和检查由助手完成；你只处理本人条款、授权或重启。准备完成后可在所选 Desktop 的容器列表查看运行结果。",
           "helper": false,
           "promptKind": "send",
           "recordLearnerCompletion": false
@@ -130,7 +131,7 @@
             "若助手说“还没完成”，只处理它指出的当前缺项。",
             "助手确认课前准备完成后，点“进入 AI Coding 操作手册”。"
           ],
-          "prompt": "请汇总前面工具、云服务、GitHub 和 AI 服务的准备结果，必要时实际复查。缺项请继续处理；需要我操作时一次告诉我一个动作。最后用一句话说明课前是否已准备好，未通过的不要写成完成。现在先不创建作品。",
+          "prompt": "我选择使用 {{container_runtime}}。请汇总前面工具、云服务、GitHub 和 AI 服务的准备结果，必要时实际复查。缺项请继续处理；需要我操作时一次告诉我一个动作。最后用一句话说明课前是否已准备好，未通过的不要写成完成。现在先不创建作品。",
           "expected": [
             "助手确认四项课前准备完成，可以开始课堂操作。"
           ],
@@ -159,7 +160,7 @@
             "按提示选一个空文件夹作为作品保存位置。",
             "等助手给出作品位置和网页链接。"
           ],
-          "prompt": "调用ai-coding-project技能创建学生错题本项目工程。",
+          "prompt": "我选择使用 {{container_runtime}}。调用ai-coding-project技能创建学生错题本项目工程。",
           "expected": [
             "得到作品位置和网页链接。"
           ],
@@ -998,7 +999,21 @@
     {
       "title": "CloudBase：官方接入说明",
       "url": "https://docs.cloudbase.net/skill.md"
+    },
+    {
+      "title": "Podman Desktop 官方 Windows 安装说明",
+      "url": "https://podman-desktop.io/docs/installation/windows-install"
     }
   ],
-  "downloadMode": "agent"
+  "downloadMode": "agent",
+  "containerRuntimes": [
+    {
+      "id": "docker",
+      "name": "Docker Desktop"
+    },
+    {
+      "id": "podman",
+      "name": "Podman Desktop"
+    }
+  ]
 }

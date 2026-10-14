@@ -1,0 +1,10 @@
+{
+  "desktop": {
+    "version": "1.29.3",
+    "file": "podman-desktop-1.29.3-setup-x64.exe",
+    "downloadUrl": "https://github.com/podman-desktop/podman-desktop/releases/download/v1.29.3/podman-desktop-1.29.3-setup-x64.exe",
+    "sha256": "63e95821fa0942521cc17ef96b0ae5ae9af8207991a9cfcf79e48bf5552e35de",
+    "publisher": "Red Hat, LLC",
+    "source": "https://api.github.com/repos/podman-desktop/podman-desktop/releases/tags/v1.29.3"
+  }
+}

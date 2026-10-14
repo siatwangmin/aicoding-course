@@ -1,5 +1,8 @@
 # AI Coding 实操课
 
+环境准备现在可在 preparation.html 的“让 Trae 准备工具”中选择 **Docker Desktop** 或 **Podman Desktop**；已有哪一个就选哪一个，只安装一种。页面记住选择，并带入复制给助手的提示。助手负责安装、配置和实际检查，本人只处理必要授权、条款或重启。已有作品沿用工具记录，不重新初始化。Podman 路线、machine/Compose、rootless/pasta 与离线镜像证据由用户级 ai-coding-env 的 references/windows-podman-setup.md 维护；下文已有 Docker 命令仅为 Docker 路线示例。
+
+
 **课前：打开 `preparation.html`，先安装 Trae，后续下载和准备由助手完成。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
@@ -16,7 +19,7 @@
 
 ## 发给学员什么
 
-发送[课前环境准备网页](https://siatwangmin.github.io/aicoding-course/preparation.html)即可。先安装打开 Trae，再复制页面提示，让它下载小课程资料包、Docker 和 WSL；不要求学员手动下载或解压软件合集。已有安装程序和工具直接用。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
+发送[课前环境准备网页](https://siatwangmin.github.io/aicoding-course/preparation.html)即可。先安装打开 Trae，再复制页面提示，让它下载小课程资料包、所选 Docker/Podman 和 WSL；不要求学员手动下载或解压软件合集。已有安装程序和工具直接用。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启；最后由助手汇总准备结论，不要求学员审查配置或日志。
 

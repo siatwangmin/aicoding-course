@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$CourseVersion, [switch]$SkipInstallers)
+param([string]$WorkingDirectory, [string]$CourseVersion, [switch]$SkipInstallers,
+      [ValidateSet('docker','podman')][string]$ContainerRuntime='docker')
 
 function Receive-CourseFile {
     param([string]$Url, [string]$Destination)
@@ -34,7 +35,8 @@ function Expand-CourseMaterials {
 }
 
 function Get-CourseMaterials {
-    param([string]$Workspace, [string]$Version, [switch]$WithoutInstallers)
+    param([string]$Workspace, [string]$Version, [switch]$WithoutInstallers,
+          [ValidateSet('docker','podman')][string]$Runtime='docker')
     $workspacePath = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     $baseUrl = 'https://siatwangmin.github.io/aicoding-course'
     $records = Join-Path $workspacePath '.course-setup'
@@ -92,14 +94,23 @@ function Get-CourseMaterials {
             Set-Location -LiteralPath $workspacePath
             . (Join-Path $courseRoot 'Setup-DockerDesktop.ps1')
             $manifest = Join-Path $courseRoot 'windows-installers.json'
-            $installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest
-            $installerFiles += Resolve-SetupInstaller 'docker' '' $manifest
+            if ($Runtime -eq 'podman') {
+                $envSkill=@($installedSkills | Where-Object Name -eq 'ai-coding-env')[0].Destination
+                . (Join-Path $envSkill 'scripts\Setup-PodmanDesktop.ps1')
+                if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
+                if (-not (Get-PodmanPaths).Desktop) {$installerFiles += Resolve-PodmanInstaller $workspacePath ''}
+            } else {
+                $installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest
+                $installerFiles += Resolve-SetupInstaller 'docker' '' $manifest
+            }
         } finally { Set-Location -LiteralPath $priorLocation }
     }
-    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
+    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; ContainerRuntime=$Runtime; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
     $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $records 'materials.json') -Encoding UTF8
+    @{ContainerRuntime=$Runtime;SelectedAt=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $records 'container-runtime.json') -Encoding UTF8
     $agents = Join-Path $workspacePath 'AGENTS.md'
     $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate the downloaded setup-guide.md and user-level SkillsDirectory. Use its ai-coding-env for E-01 (including the former E-04); continue installation and actual toolchain verification after downloading. Reuse existing installers and preserve existing work. Downloads are not environment verification. Do not install course skills in the project.`n<!-- ai-coding:materials-entry:end -->"
+    $entry=$entry.Replace('Read .course-setup/materials.json', "Selected container runtime: $Runtime. Prepare only this runtime; use its local engine, Compose and reports. Browser selection is a preference, never verification. Read .course-setup/materials.json")
     $text = if (Test-Path -LiteralPath $agents) { Get-Content -LiteralPath $agents -Raw } else { '' }
     if ($text -match '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->') { $text = [regex]::Replace($text, '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->', $entry) } else { $text = $text.TrimEnd() + "`n`n" + $entry }
     Set-Content -LiteralPath $agents -Value $text -Encoding UTF8
@@ -109,5 +120,5 @@ function Get-CourseMaterials {
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
-    Get-CourseMaterials -Workspace $WorkingDirectory -Version $CourseVersion -WithoutInstallers:$SkipInstallers
+    Get-CourseMaterials -Workspace $WorkingDirectory -Version $CourseVersion -WithoutInstallers:$SkipInstallers -Runtime $ContainerRuntime
 }
