@@ -83,7 +83,8 @@ function Get-CourseMaterials {
         if (-not $resolvedStage.StartsWith([IO.Path]::GetFullPath($records).TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe staging cleanup path.' }
         if (Test-Path -LiteralPath $resolvedStage) { Remove-Item -LiteralPath $resolvedStage -Recurse -Force }
     }
-    & (Join-Path $courseRoot 'Install-CourseSkills.ps1') -WorkingDirectory $workspacePath -PackageRoot $courseRoot | Out-Host
+    $installedSkills = @(& (Join-Path $courseRoot 'Install-CourseSkills.ps1') -WorkingDirectory $workspacePath -PackageRoot $courseRoot)
+    $installedSkills | Out-Host
     $installerFiles = @()
     if (-not $WithoutInstallers) {
         $priorLocation = Get-Location
@@ -95,10 +96,10 @@ function Get-CourseMaterials {
             $installerFiles += Resolve-SetupInstaller 'docker' '' $manifest
         } finally { Set-Location -LiteralPath $priorLocation }
     }
-    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
+    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
     $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $records 'materials.json') -Encoding UTF8
     $agents = Join-Path $workspacePath 'AGENTS.md'
-    $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate the downloaded setup-guide.md. Use this workspace's .trae/skills/ai-coding-env for E-04; reuse downloaded installers and preserve existing work. Downloads are not environment verification.`n<!-- ai-coding:materials-entry:end -->"
+    $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate the downloaded setup-guide.md and user-level SkillsDirectory. Use its ai-coding-env for E-01 (including the former E-04); continue installation and actual toolchain verification after downloading. Reuse existing installers and preserve existing work. Downloads are not environment verification. Do not install course skills in the project.`n<!-- ai-coding:materials-entry:end -->"
     $text = if (Test-Path -LiteralPath $agents) { Get-Content -LiteralPath $agents -Raw } else { '' }
     if ($text -match '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->') { $text = [regex]::Replace($text, '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->', $entry) } else { $text = $text.TrimEnd() + "`n`n" + $entry }
     Set-Content -LiteralPath $agents -Value $text -Encoding UTF8

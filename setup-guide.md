@@ -8,32 +8,32 @@
 
 ## E-01：还没有课程资料时
 
-当前网页先安装打开 Trae（E-02），再由 Trae 处理资料（E-01）。此入口不依赖课程 Skill 已安装，也不要求学员先手工下载或解压。
+当前网页先安装打开 Trae（E-02），再由 Trae 连续准备工具（E-01，含原 E-04）。此入口不依赖课程 Skill 已安装，也不要求学员先手工下载或解压。
 
 1. 保持 Trae 当前打开的文件夹为 workspace。下载官方课程仓库的 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1` 到 workspace 的 `.course-setup/Get-CourseMaterials.ps1`，读取脚本后用 Windows PowerShell 运行，传入 `-WorkingDirectory workspace`。脚本从公开 VERSION.json 确定课程版本，再从固定版本 GitHub Pages 地址取得 `aicoding-student-kit.zip` 和 SHA-256，先校验再安全解压；不需先注册 GitHub。
-2. 脚本保护已有文件，在 workspace 内建立版本化资料目录，将课程技能安装到 workspace 的 `.trae/skills`，保存 `.course-setup/materials.json` 和 AGENTS 的资料入口。E-04 收到“读取当前文件夹的 setup-guide.md”时从这份记录定位实际说明，不要求学员重开文件夹或搬文件。
+2. 脚本保护已有文件，在 workspace 内建立版本化资料目录，将六项课程技能安装到当前用户的 `%USERPROFILE%\.trae-cn\skills`，保存 `.course-setup/materials.json` 和 AGENTS 的资料入口。下载结束后立即从这份记录定位实际说明，继续安装与工具验收，不要求学员重开文件夹或搬文件。
 3. 脚本调用所下载的安装包解析器，已有安装程序直接用，缺项分别从下面两个原始地址下载。WSL 必须匹配固定摘要；Docker 官网版本变化时检查有效 Docker Inc 签名。只有实际工具检查证明已安装且可复用时才用 `-SkipInstallers`，并记录跳过理由；下载完成不代表安装或环境验收通过。
    - Docker：`https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe`
    - WSL：`https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi`
-4. E-01 仅准备资料、项目级技能和所需安装包。E-04 继续下文的 Prepare、Verify 与工具箱实际验收；如果用户直接要求全程准备工具，连续完成，不在下载后停下要求“继续”。权限、条款、登录和重启由本人按当前一步处理。不得使用 GitHub Release 的 aicoding-course-kit.zip 或 software.zip 作为新下载路线，不改变原有代理或把网络失败当下载通过。
+4. E-01 包含资料下载、用户级技能安装、Prepare、Verify 与工具箱实际验收（已合并原 E-04）。Get-CourseMaterials.ps1 只负责下载及技能安装，完成后必须继续下文的环境助手流程；不在下载后停止，不要求学员再发送一条安装提示。权限、条款、登录和重启由本人按当前一步处理。不得使用 GitHub Release 的 aicoding-course-kit.zip 或 software.zip 作为新下载路线，不改变原有代理或把网络失败当下载通过。
 
 ## 直接安装本地助手
 
 1. 保留当前工作目录为 workspace。已有 .course-setup/materials.json 时先核对其中的版本、实际 PackageRoot 与 SetupGuide，使用该资料根；无有效记录时，资料包根目录优先为当前目录；没有 `setup-guide.md` 时向上和向子目录按距离搜索最近的说明。使用资料包中的 `Install-CourseSkills.ps1`（或已安装环境助手的同名脚本）自动定位与安装：`-WorkingDirectory workspace`。多个等距离完整包、搜索上限或缺文件时报告实际结果，不猜测盘符、用户名或桌面位置。只有外层 ZIP 时先核对实际条目，再自动解压到当前目录内的资料子目录。确定根目录后，查找两个技能 ZIP 与各自 SHA-256；不下载未知替代版。
 
-2. 将两个 ZIP 分别解压到 当前 Trae 项目的技能目录 `<workspace>\.trae\skills\ai-coding-env` 和 `<workspace>\.trae\skills\ai-coding-project`。更新同名目录，不改其他技能。按 [Trae 官方目录说明](https://docs.trae.cn/ide_skills)使用当前平台位置，直接本地安装，不要求用户上传插件市场。
+2. 将两个 ZIP 分别解压到 当前用户的 Trae 全局技能目录 `%USERPROFILE%\.trae-cn\skills\ai-coding-env` 和 `%USERPROFILE%\.trae-cn\skills\ai-coding-project`。先备份再更新同名目录，不改其他技能；当前 workspace 的同名项目副本保存在 .course-setup/skill-backups 后移出发现目录。按 [Trae 官方目录说明](https://docs.trae.cn/ide_skills)使用当前平台位置，直接本地安装，不要求用户上传插件市场。
 
 3. 两个根部 `SKILL.md` 的 name 必须分别为 `ai-coding-env`、`ai-coding-project`；保留脚本与资产目录，检查引用完整，实际确认能被工具识别和加载。复制成功不等于启用成功；不能识别时报告实际客户端障碍，不能猜测已启用。
 
-4. 若资料包有 `case-profile.json`，安装脚本必须读取其中声明的案例技能 ZIP 与名称，核对 SHA-256、ZIP 根部 SKILL.md 的 name 与引用，安装到当前项目的对应技能目录；声明的文件缺失时报告失败，不能静默跳过。只有用户明确选择该案例时才使用。通用环境与启动器不依赖案例资料。没有案例包仍能创建其他作品。
+4. 若资料包有 `case-profile.json`，安装脚本必须读取其中声明的案例技能 ZIP 与名称，核对 SHA-256、ZIP 根部 SKILL.md 的 name 与引用，安装到当前用户的对应全局技能目录；声明的文件缺失时报告失败，不能静默跳过。只有用户明确选择该案例时才使用。通用环境与启动器不依赖案例资料。没有案例包仍能创建其他作品。
 
 5. 将通用技能位置合并到当前资料目录已有的 `AGENTS.md`，让后续功能语言请求能发现助手，不覆盖已有约束。作品启动后，将助手引用合并进作品 AGENTS；业务规则从该作品自己的材料读取。
 
-当前资料包另含 `ai-coding-cloudbase-skill.zip` 与校验文件。安装脚本会一并校验并安装到 `<workspace>\.trae\skills\ai-coding-cloudbase`，同样保留根部 `SKILL.md` 并检查识别状态；旧的两技能包仍可使用。将此助手也加入技能引用。课程在 E-06 课前云服务准备中调用它，提前完成账号、实名、官方接入、管理授权及练习环境。Docker 助手只验收工具；云端操作由 CloudBase 陪练调用官方 Skill 执行，不创建业务数据或发布作品。
+当前资料包另含 `ai-coding-cloudbase-skill.zip` 与校验文件。安装脚本会一并校验并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-cloudbase`，同样保留根部 `SKILL.md` 并检查识别状态；旧的两技能包仍可使用。将此助手也加入技能引用。课程在 E-06 课前云服务准备中调用它，提前完成账号、实名、官方接入、管理授权及练习环境。Docker 助手只验收工具；云端操作由 CloudBase 陪练调用官方 Skill 执行，不创建业务数据或发布作品。
 
-当前资料包还含 `ai-coding-github-skill.zip` 与校验文件。安装脚本一并安装到 `<workspace>\.trae\skills\ai-coding-github` 并保留其他技能；旧包没有此项时仍可安装原有助手。课程 E-07 调用它，一步一步带本人注册或登录 GitHub 免费个人账号、完成邮箱验证，已有账号直接复用。检查准备结果后继续 E-08 的 AI 服务准备，不在课前创建仓库或配置推送凭据；平台要求的本人验证与条款在官网完成。
+当前资料包还含 `ai-coding-github-skill.zip` 与校验文件。安装脚本一并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-github` 并保留其他技能；旧包没有此项时仍可安装原有助手。课程 E-07 调用它，一步一步带本人注册或登录 GitHub 免费个人账号、完成邮箱验证，已有账号直接复用。检查准备结果后继续 E-08 的 AI 服务准备，不在课前创建仓库或配置推送凭据；平台要求的本人验证与条款在官网完成。
 
-已有对话仍报告案例技能不可调用时，先核对案例技能确已安装，再在同一作品新建对话，请求使用该助手并读取当前步骤。应看到技能调用记录和正确项目路径；只读工程内的 SKILL.md 不算加载成功。安装位置以 Trae 当前打开的作品根目录为准，资料包可以位于其他目录。切换作品时，技能跟随作品目录。旧版已安装的用户级副本不会由脚本自动删除；如存在同名副本，先备份并通过 Trae 管理界面移除旧副本，再检查项目技能调用。
+已有对话仍报告案例技能不可调用时，先核对案例技能确已安装，再在同一作品新建对话，请求使用该助手并读取当前步骤。应看到技能调用记录和正确项目路径；只读资料里的 SKILL.md 不算加载成功。安装位置固定为当前用户的 Trae 全局技能目录，切换作品继续使用，不再复制到项目 .trae/skills。旧用户副本由脚本先备份再更新；当前 workspace 的同名项目副本先备份再移出技能目录，避免旧规则遮蔽。其他已打开作品若仍有同名副本，按实际路径备份后迁出，不删除其他技能或源码。
 
 ## 准备工具，与创建作品分开
 
@@ -61,10 +61,10 @@
 
 ## E-08：课前准备硅基流动
 
-资料包包含 ai-coding-siliconflow-skill.zip 和校验文件，安装到当前 workspace 的 .trae/skills/ai-coding-siliconflow，旧资料包没有此项仍保留原助手。调用此陪练用 BrowserUse 带本人登录、核对余额/额度有效期与模型当前费用、创建或复用 Key；基础 URL 自动填好，本人只在隐藏输入窗口粘贴 Key。私有文件固定为 workspace/.ai-setup/siliconflow.env，限制访问并整体排除 Git、分享、镜像和前端产物。知错星模型 ID 由案例 Skill 的 implementation/siliconflow-models.json 提供；课前检查直接测试硅基流动，不需要产品或云函数已存在。费用决定由本人处理，配置已保存和真实调用通过分别记录。作品创建后由助手安全迁移准备结果，V4-04 只复查补缺，V4-05 才将 Key 接到本轮对应云函数服务端。
+资料包包含 ai-coding-siliconflow-skill.zip 和校验文件，安装到当前用户的 %USERPROFILE%/.trae-cn/skills/ai-coding-siliconflow，旧资料包没有此项仍保留原助手。调用此陪练用 BrowserUse 带本人登录、核对余额/额度有效期与模型当前费用、创建或复用 Key；基础 URL 自动填好，本人只在隐藏输入窗口粘贴 Key。私有文件固定为 workspace/.ai-setup/siliconflow.env，限制访问并整体排除 Git、分享、镜像和前端产物。知错星模型 ID 由案例 Skill 的 implementation/siliconflow-models.json 提供；课前检查直接测试硅基流动，不需要产品或云函数已存在。费用决定由本人处理，配置已保存和真实调用通过分别记录。作品创建后由助手安全迁移准备结果，V4-04 只复查补缺，V4-05 才将 Key 接到本轮对应云函数服务端。
 
 ## 学员网页入口
 
 课前先看在线 preparation.html；资料下载由 Trae 完成，已有离线页面也可直接使用，只完成当前七个准备步骤。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
 
-当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-04 → E-06 → E-07 → E-08 → E-05，共七步；保留原 E 编号和旧进度。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。
+当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-06 → E-07 → E-08 → E-05，共六步；原 E-03/E-04 进度映射到合并后的 E-01。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。

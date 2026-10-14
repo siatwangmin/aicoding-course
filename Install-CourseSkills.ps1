@@ -2,6 +2,19 @@
 [CmdletBinding()]
 param([string]$WorkingDirectory, [string]$PackageRoot)
 
+function Get-TraeUserSkillsDirectory {
+    if (-not $env:USERPROFILE -or -not [IO.Path]::IsPathRooted($env:USERPROFILE)) { throw '无法确认当前用户目录，不能猜测技能安装位置。' }
+    return [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.trae-cn\skills'))
+}
+
+function Assert-CourseSkillDirectory {
+    param([string]$Path, [string]$Parent)
+    $resolved = [IO.Path]::GetFullPath($Path)
+    $prefix = [IO.Path]::GetFullPath($Parent).TrimEnd('\') + '\'
+    if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw '技能目录不在预期根目录内。' }
+    if ((Test-Path -LiteralPath $resolved) -and ((Get-Item -LiteralPath $resolved -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw '技能目录是链接，已保留，不能自动替换。' }
+}
+
 function Find-CoursePackageRoot {
     param([string]$StartDirectory, [int]$MaxDepth = 6, [int]$MaxDirectories = 2000)
     $start = (Resolve-Path -LiteralPath $StartDirectory -ErrorAction Stop).Path
@@ -95,13 +108,55 @@ function Install-CourseSkills {
             } finally { $archive.Dispose() }
             Expand-Archive -LiteralPath $zip -DestinationPath $destination -Force
         }
-        foreach ($name in $skillNames) {
-            $destination = Join-Path $Workspace ('.trae\skills\' + $name)
-            [void](New-Item -ItemType Directory -Path $destination -Force)
-            Get-ChildItem -LiteralPath (Join-Path $stage $name) -Force | ForEach-Object {
-                Copy-Item -LiteralPath $_.FullName -Destination $destination -Recurse -Force
+        $skillsRoot = Get-TraeUserSkillsDirectory
+        $userTraeRoot = Split-Path $skillsRoot -Parent
+        $migrationId = [guid]::NewGuid().ToString()
+        $userStage = Join-Path $userTraeRoot ('.course-skill-stage-' + $migrationId)
+        $userBackup = Join-Path $userTraeRoot ('course-skill-backups\' + $migrationId)
+        $projectSkillsRoot = Join-Path $Workspace '.trae\skills'
+        $projectBackup = Join-Path $Workspace ('.course-setup\skill-backups\' + $migrationId)
+        Assert-CourseSkillDirectory $skillsRoot $userTraeRoot
+        Assert-CourseSkillDirectory $projectSkillsRoot $Workspace
+        [void](New-Item -ItemType Directory -Path $skillsRoot, $userStage -Force)
+        try {
+            # Prepare the new user-level copies on the same volume before replacing old ones.
+            foreach ($name in $skillNames) {
+                Assert-CourseSkillDirectory (Join-Path $skillsRoot $name) $skillsRoot
+                Assert-CourseSkillDirectory (Join-Path $projectSkillsRoot $name) $projectSkillsRoot
+                Copy-Item -LiteralPath (Join-Path $stage $name) -Destination (Join-Path $userStage $name) -Recurse
             }
-            [pscustomobject]@{ PackageRoot = $Root; Name = $name; Destination = $destination }
+            foreach ($name in $skillNames) {
+                $destination = Join-Path $skillsRoot $name
+                $prior = Join-Path $userBackup $name
+                if (Test-Path -LiteralPath $destination) {
+                    Assert-CourseSkillDirectory $destination $skillsRoot
+                    Assert-CourseSkillDirectory $prior $userTraeRoot
+                    [void](New-Item -ItemType Directory -Path $userBackup -Force)
+                    Move-Item -LiteralPath $destination -Destination $prior
+                }
+                try { Move-Item -LiteralPath (Join-Path $userStage $name) -Destination $destination }
+                catch {
+                    if ((Test-Path -LiteralPath $prior) -and -not (Test-Path -LiteralPath $destination)) { Move-Item -LiteralPath $prior -Destination $destination }
+                    throw
+                }
+            }
+            # Retire only matching project copies; preserve them outside Trae's discovery directory.
+            foreach ($name in $skillNames) {
+                $projectCopy = Join-Path $projectSkillsRoot $name
+                $savedProjectCopy = $null
+                if (Test-Path -LiteralPath $projectCopy) {
+                    $savedProjectCopy = Join-Path $projectBackup $name
+                    Assert-CourseSkillDirectory $projectCopy $projectSkillsRoot
+                    Assert-CourseSkillDirectory $savedProjectCopy $Workspace
+                    [void](New-Item -ItemType Directory -Path $projectBackup -Force)
+                    Move-Item -LiteralPath $projectCopy -Destination $savedProjectCopy
+                }
+                $prior = Join-Path $userBackup $name
+                [pscustomobject]@{ PackageRoot = $Root; Name = $name; Destination = (Join-Path $skillsRoot $name); Scope = 'user'; BackupPath = $(if (Test-Path -LiteralPath $prior) { $prior } else { $null }); ProjectBackupPath = $savedProjectCopy }
+            }
+        } finally {
+            Assert-CourseSkillDirectory $userStage $userTraeRoot
+            if (Test-Path -LiteralPath $userStage) { Remove-Item -LiteralPath $userStage -Recurse -Force }
         }
     } finally {
         $stagePath = [IO.Path]::GetFullPath($stage)

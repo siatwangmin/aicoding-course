@@ -250,7 +250,7 @@ ToolchainCheck, NotVerified
 
 
 
-Docker 报告、运行日志、WSL 安装日志、重启状态都在当前目录的 **`.docker-setup\`**，其中包括 report.json、setup-日期时间.log、wsl-install.log、restart.json。所有记录均由助手直接读取，**不得写入 AppData、工作目录外或任何固定的用户/机器绝对路径**。提权后沿用原 workspace；项目技能目录用于安装技能，不能拿来保存验收记录。
+Docker 报告、运行日志、WSL 安装日志、重启状态都在当前目录的 **`.docker-setup\`**，其中包括 report.json、setup-日期时间.log、wsl-install.log、restart.json。所有记录均由助手直接读取，**不得写入 AppData、工作目录外或任何固定的用户/机器绝对路径**。提权后沿用原 workspace；用户级技能目录只用于安装技能，不能拿来保存验收记录。
 
 
 
