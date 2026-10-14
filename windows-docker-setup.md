@@ -32,7 +32,7 @@
 
 
 
-课前下载入口见[安装包下载与摆放说明](installation-downloads.md)。完整包已包含安装程序，本地安装包首选使用与解压资料文件夹并列的 `software`，或助手从实际文件位置传入 `-InstallerDirectory`。也兼容资料目录内 `release` 和旧 `releases`。两个大文件不内嵌在小工具包里：
+课前下载入口见[安装包下载与摆放说明](installation-downloads.md)。E-01 由助手取得课程资料和官方安装包；从 `.course-setup/materials.json` 定位资料，本地优先复用已有 `release`、`releases` 或 `software`，或助手从实际文件位置传入 `-InstallerDirectory`。也兼容资料目录内 `release` 和旧 `releases`。两个大文件不内嵌在小工具包里：
 
 
 
@@ -62,7 +62,7 @@
 
 
 
-缺目录或所需文件时，脚本自动创建 `release` 并从清单指定的官方 URL 下载，不等待学员另发指令。WSL 固定 3.0.1.0 x64，摘要不一致就停止。Docker 官网下载可能更新：课程摘要匹配的本地包直接使用；其他 Docker 版本及所有新下载文件必须有效签名且主体匹配，实际来源、版本、SHA-256、签名保存到 workspace 的 `.docker-setup/installer-<种类>.json`。下载失败、签名不符或文件损坏时明确未完成，先定位或解压已有 software.zip，缺项才指向当前完整课程包入口，不循环重装。已有合格 WSL 保留，不额外装 Ubuntu。
+缺目录或所需文件时，脚本自动创建 `release` 并从清单指定的官方 URL 下载，不等待学员另发指令。WSL 固定 3.0.1.0 x64，摘要不一致就停止。Docker 官网下载可能更新：课程摘要匹配的本地包直接使用；其他 Docker 版本及所有新下载文件必须有效签名且主体匹配，实际来源、版本、SHA-256、签名保存到 workspace 的 `.docker-setup/installer-<种类>.json`。下载失败、签名不符或文件损坏时明确未完成并按实际原因继续处理官方地址，不改用软件合集，不循环重装。已有合格 WSL 保留，不额外装 Ubuntu。
 
 
 

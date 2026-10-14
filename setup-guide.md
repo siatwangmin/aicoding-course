@@ -6,11 +6,22 @@
 
 用户可能完全没有编程经验。收到“准备 AI Coding 工具”“安装资料包里的助手”时读取本文。环境准备、项目启动和产品业务分别执行；前两项可以用于任何兼容作品。
 
+## E-01：还没有课程资料时
+
+当前网页先安装打开 Trae（E-02），再由 Trae 处理资料（E-01）。此入口不依赖课程 Skill 已安装，也不要求学员先手工下载或解压。
+
+1. 保持 Trae 当前打开的文件夹为 workspace。下载官方课程仓库的 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1` 到 workspace 的 `.course-setup/Get-CourseMaterials.ps1`，读取脚本后用 Windows PowerShell 运行，传入 `-WorkingDirectory workspace`。脚本从公开 VERSION.json 确定课程版本，再从固定版本 GitHub Pages 地址取得 `aicoding-student-kit.zip` 和 SHA-256，先校验再安全解压；不需先注册 GitHub。
+2. 脚本保护已有文件，在 workspace 内建立版本化资料目录，将课程技能安装到 workspace 的 `.trae/skills`，保存 `.course-setup/materials.json` 和 AGENTS 的资料入口。E-04 收到“读取当前文件夹的 setup-guide.md”时从这份记录定位实际说明，不要求学员重开文件夹或搬文件。
+3. 脚本调用所下载的安装包解析器，已有安装程序直接用，缺项分别从下面两个原始地址下载。WSL 必须匹配固定摘要；Docker 官网版本变化时检查有效 Docker Inc 签名。只有实际工具检查证明已安装且可复用时才用 `-SkipInstallers`，并记录跳过理由；下载完成不代表安装或环境验收通过。
+   - Docker：`https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe`
+   - WSL：`https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi`
+4. E-01 仅准备资料、项目级技能和所需安装包。E-04 继续下文的 Prepare、Verify 与工具箱实际验收；如果用户直接要求全程准备工具，连续完成，不在下载后停下要求“继续”。权限、条款、登录和重启由本人按当前一步处理。不得使用 GitHub Release 的 aicoding-course-kit.zip 或 software.zip 作为新下载路线，不改变原有代理或把网络失败当下载通过。
+
 ## 直接安装本地助手
 
-1. 保留当前工作目录为 workspace。资料包根目录优先为当前目录；没有 `setup-guide.md` 时向上和向子目录按距离搜索最近的说明。使用资料包中的 `Install-CourseSkills.ps1`（或已安装环境助手的同名脚本）自动定位与安装：`-WorkingDirectory workspace`。多个等距离完整包、搜索上限或缺文件时报告实际结果，不猜测盘符、用户名或桌面位置。只有外层 ZIP 时先核对实际条目，再自动解压到当前目录内的资料子目录。确定根目录后，查找两个技能 ZIP 与各自 SHA-256；不下载未知替代版。
+1. 保留当前工作目录为 workspace。已有 .course-setup/materials.json 时先核对其中的版本、实际 PackageRoot 与 SetupGuide，使用该资料根；无有效记录时，资料包根目录优先为当前目录；没有 `setup-guide.md` 时向上和向子目录按距离搜索最近的说明。使用资料包中的 `Install-CourseSkills.ps1`（或已安装环境助手的同名脚本）自动定位与安装：`-WorkingDirectory workspace`。多个等距离完整包、搜索上限或缺文件时报告实际结果，不猜测盘符、用户名或桌面位置。只有外层 ZIP 时先核对实际条目，再自动解压到当前目录内的资料子目录。确定根目录后，查找两个技能 ZIP 与各自 SHA-256；不下载未知替代版。
 
-2. 将两个 ZIP 分别解压到 当前 Trae 项目的技能目录 `<workspace>\.trae\skills\ai-coding-env` 和 `<workspace>\.trae\skills\ai-coding-project`。更新同名目录，不改其他技能。按 [Trae 官方目录说明](https://docs.trae.cn/work_skills)使用当前平台位置，直接本地安装，不要求用户上传插件市场。
+2. 将两个 ZIP 分别解压到 当前 Trae 项目的技能目录 `<workspace>\.trae\skills\ai-coding-env` 和 `<workspace>\.trae\skills\ai-coding-project`。更新同名目录，不改其他技能。按 [Trae 官方目录说明](https://docs.trae.cn/ide_skills)使用当前平台位置，直接本地安装，不要求用户上传插件市场。
 
 3. 两个根部 `SKILL.md` 的 name 必须分别为 `ai-coding-env`、`ai-coding-project`；保留脚本与资产目录，检查引用完整，实际确认能被工具识别和加载。复制成功不等于启用成功；不能识别时报告实际客户端障碍，不能猜测已启用。
 
@@ -26,7 +37,7 @@
 
 ## 准备工具，与创建作品分开
 
-安装包的课前下载入口和摆放图见资料根目录的 `installation-downloads.md`。完整课程包内 `software.zip` 解压成与资料文件夹并列的 `software`，这是首选安装包位置；也兼容原 `release` 和 `releases`。只有 ZIP 时先核对条目，再由助手安全解压到相邻 `software`，不覆盖已有不同文件；不要让学员移动安装包。从真实存在文件的位置传入 InstallerDirectory，已有所需包直接用，缺项才自动下载。不要把公司云盘分享页当安装程序直接执行，也不使用带到期时间的临时 WSL 链接。下载、摘要与签名检查由脚本完成；失败后定位完整包中的现有安装程序，仍缺项才使用当前完整包入口，不再指向旧网盘安装包；不能声称已安装。
+当前安装包由 E-01 的助手从官方原始地址获取；位置和来源记录在 workspace 的 `.course-setup`、`.docker-setup`。复用已有 release、releases 或 software 中的安装程序；缺项才按固定清单自动下载。不要求学员选择安装包目录、解压软件合集或移动文件，从实际位置传入 InstallerDirectory。不要把公司云盘分享页当安装程序直接执行，也不使用带到期时间的临时 WSL 链接。下载、摘要与签名检查由脚本完成；失败后检查实际网络和下载记录，按官方地址继续处理；不退回 GitHub Release 完整包或旧网盘安装包，不能声称已安装。
 
 调用 `ai-coding-env`，读取其 Windows 路线。助手连续执行自动定位/解压、`Start-Process powershell.exe ... -Verb RunAs -Wait` 运行 Prepare、自动安装和启动 Desktop、同样主动提权 Verify、digest 拉取和容器内检查，最后写 `workspace\toolchain-verification.json`。Prepare/Verify 不得先非管理员失败后再提权。仅在 UAC 前告知“请点击是”及首次条款前告知“请本人阅读并决定是否接受”；普通步骤不中断征询，不要求用户手动打开程序或观察 Engine running。诊断和安装记录只在 workspace 的 `.docker-setup`，不写 AppData。BIOS 未开启、系统需要重启或材料/策略确实阻塞时报告证据，不能自动跳过或声称完成。
 
@@ -54,6 +65,6 @@
 
 ## 学员网页入口
 
-课前让学员打开资料包根目录 preparation.html（在线 preparation.html），只完成 E-01 至 E-08。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
+课前先看在线 preparation.html；资料下载由 Trae 完成，已有离线页面也可直接使用，只完成当前七个准备步骤。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
 
-当前一次下载的完整包为 aicoding-course-kit.zip，内含 aicoding-student-kit.zip 和 software.zip；软件包含 Trae、Docker 和 WSL 安装程序。课前顺序为 E-01 → E-02 → E-04 → E-06 → E-07 → E-08 → E-05，共七步；E-03 的重复下载已合入 E-01。E-05 放在最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；工具检查仍由环境助手完成，不能代替服务检查。必要项通过后进入操作手册，不要求学员逐项审查配置或日志。首次工具准备仍实际验收，不因最终复核后移而跳过 E-04 的必要验证。
+当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-04 → E-06 → E-07 → E-08 → E-05，共七步；保留原 E 编号和旧进度。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。

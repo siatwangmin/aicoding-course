@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
+  "version": "1.6.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -13,40 +13,12 @@
       "learn": "知道如何检查准备结果，已有工具和账号可以复用。",
       "steps": [
         {
-          "id": "E-01",
-          "title": "下载并解压完整课程包",
-          "tool": "浏览器 → Windows 文件夹",
-          "purpose": "一次取得课程资料和三个安装包。",
-          "actions": [
-            "从公司提供的完整包或下方下载入口，任选一个取得 aicoding-course-kit.zip；已收到就不用再下载。",
-            "右键完整包，选择“全部解压缩”。打开文件夹，分别对 aicoding-student-kit.zip 和 software.zip 选择“全部解压缩”，保留默认位置。",
-            "打开 aicoding-student-kit 文件夹，双击 preparation.html；后面在这个文件夹继续。"
-          ],
-          "prompt": "",
-          "expected": [
-            "课程资料和 software 安装包文件夹已经一起放好。"
-          ],
-          "check": [
-            "能打开本页；操作的是解压后的课程资料文件夹。"
-          ],
-          "help": "完整包内有课程资料和全部安装包，下载一次即可。不要在 ZIP 预览窗口里操作；已经解压的内容不用再解压。",
-          "helper": false,
-          "promptKind": "send",
-          "recordLearnerCompletion": true,
-          "links": [
-            {
-              "label": "公司外下载完整课程包",
-              "url": "https://github.com/siatwangmin/aicoding-course/releases/download/course-v1.5.0/aicoding-course-kit.zip"
-            }
-          ]
-        },
-        {
           "id": "E-02",
           "title": "安装并打开 Trae",
-          "tool": "Windows 文件夹 → Trae",
-          "purpose": "Trae 已打开并登录。",
+          "tool": "浏览器 → Trae",
+          "purpose": "先安装 Trae，后续下载与环境准备都交给它。",
           "actions": [
-            "打开刚才解压的 software 文件夹，双击 TRAE_CN-Setup-x64.exe 安装 Trae；已经安装就直接打开。",
+            "点击“下载 Trae”，在官网安装 Windows 版；已经安装就直接打开。",
             "按页面提示登录自己的 Trae 账号。",
             "如果只看到独立聊天窗口，点右上角“IDE”，进入带“打开文件夹”入口的主窗口。"
           ],
@@ -60,7 +32,33 @@
           "help": "出现“是否信任此文件夹中的文件作者”时，先核对提示中的完整路径是否是自己选的课程资料或作品；由本人判断并处理。看到其他目录就先切回正确目录，不要为继续操作信任所有上级目录。公司电脑不允许安装时请联系 IT 支持人员。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "links": [
+            {
+              "label": "下载 Trae",
+              "url": "https://www.trae.cn/"
+            }
+          ]
+        },
+        {
+          "id": "E-01",
+          "title": "让 Trae 下载课程资料",
+          "tool": "Trae",
+          "purpose": "让 Trae 下载资料、安装课程助手并取得所需安装包。",
+          "actions": [
+            "在 Trae 点“打开文件夹”，选择一个用于课程练习的文件夹；没有就新建一个。出现信任提示时，由本人核对并决定。",
+            "在聊天框发送下方提示；需要选择模式时，选 Agent（智能体）。",
+            "等 Trae 告诉你资料已就绪，再进入下一步；不用自己下载、解压或移动安装包。"
+          ],
+          "prompt": "请按这份课程准备说明下载资料和所需安装包：https://siatwangmin.github.io/aicoding-course/setup-guide.md。已有内容直接用，下载和解压由你完成。需要我操作时，一次告诉我一个动作。",
+          "expected": [
+            "Trae 已准备好课程资料、课程助手和所需安装包。"
+          ],
+          "check": [],
+          "help": "课程资料、Docker 和 WSL 由 Trae 分别从指定来源下载。下载失败时告诉助手继续处理，不用改用旧的完整课程包。",
+          "helper": false,
+          "promptKind": "send",
+          "recordLearnerCompletion": false
         },
         {
           "id": "E-04",
@@ -68,7 +66,7 @@
           "tool": "Trae",
           "purpose": "Trae 安装课程助手、准备工具箱，并打开检查报告。",
           "actions": [
-            "在 Trae 点“打开文件夹”，选择解压后的课程资料文件夹。出现信任提示时，由本人核对并决定。",
+            "留在刚才的 Trae 任务中，发送下方提示；助手会沿用已经下载的资料和安装包。",
             "在聊天框粘贴下方提示并发送；需要选择模式时，选 Agent（智能体）。",
             "按助手提示处理安装、条款或重启。重启后回到同一任务说“请继续准备工具”；等助手告诉你结果。"
           ],
@@ -1021,5 +1019,6 @@
       "title": "CloudBase：官方接入说明",
       "url": "https://docs.cloudbase.net/skill.md"
     }
-  ]
+  ],
+  "downloadMode": "agent"
 }

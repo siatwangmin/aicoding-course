@@ -1,6 +1,6 @@
 # AI Coding 实操课
 
-**课前：解压资料包，双击根目录的 `preparation.html`。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
+**课前：打开 `preparation.html`，先安装 Trae，后续下载和准备由助手完成。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
 
@@ -16,7 +16,7 @@
 
 ## 发给学员什么
 
-发完整课程包 `aicoding-course-kit.zip` 即可，内含 `aicoding-student-kit.zip` 和 `software.zip`，一次取得资料、Trae、Docker 和 WSL。按[解压说明](installation-downloads.md)继续；已收到包就不用重复下载。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
+发送[课前环境准备网页](https://siatwangmin.github.io/aicoding-course/preparation.html)即可。先安装打开 Trae，再复制页面提示，让它下载小课程资料包、Docker 和 WSL；不要求学员手动下载或解压软件合集。已有安装程序和工具直接用。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启；最后由助手汇总准备结论，不要求学员审查配置或日志。
 

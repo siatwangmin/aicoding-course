@@ -447,7 +447,7 @@ function Resolve-SetupInstaller {
         Save-SetupInstallerEvidence $Kind $destination $approvedUrl $validation
         return (Resolve-Path -LiteralPath $destination).Path
     } catch {
-        throw "安装包获取未完成：$($_.Exception.Message)。请先检查完整课程包中的 software 安装包目录；缺项时由助手定位或解压已有安装包，仍缺失再取得完整课程包。"
+        throw "安装包获取未完成：$($_.Exception.Message)。助手应读取下载记录，复用已有安装程序或从上述官方地址继续处理；不要求学员下载软件合集或移动文件。"
     } finally {
         if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
     }
