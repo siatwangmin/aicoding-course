@@ -53,6 +53,72 @@ function Test-CourseSkills {
     return $result
 }
 
+function Get-WorkspaceSkillsVerification {
+    param([string]$Workspace)
+    try {
+        # Use the required list, never infer it from whichever folders happen to exist.
+        $manifest = Join-Path $Workspace '.course-setup\materials.json'
+        if (-not (Test-Path -LiteralPath $manifest)) { $manifest = Join-Path $Workspace '.course-setup\skills-installation.json' }
+        $installed = Get-Content -LiteralPath $manifest -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        $names = @($installed.SkillNames)
+        if (-not $names.Count -or @($names | Where-Object { $_ -cnotmatch '^[a-z][a-z0-9-]{0,63}$' }).Count -or @($names | Select-Object -Unique).Count -ne $names.Count) {
+            throw '准备记录缺少有效的完整技能名单，不能根据现有目录猜测通过。'
+        }
+        return Test-CourseSkills -Workspace $Workspace -Names $names
+    } catch {
+        $result = [pscustomobject][ordered]@{
+            CheckedAt = (Get-Date).ToString('o'); UserInstallationVerified = $false
+            SkillsDirectory = $(if ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.trae-cn\skills' } else { $null })
+            Checks = @(); Issues = @('无法完成用户级技能检查：' + $_.Exception.Message)
+            NotVerified = @('安装位置未确认；Trae 实际识别加载及其他准备结果仍需分别验证。')
+        }
+        $records = Join-Path $Workspace '.course-setup'
+        [void](New-Item -ItemType Directory -Path $records -Force)
+        $result | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $records 'skills-verification.json') -Encoding UTF8
+        return $result
+    }
+}
+
+function Get-SkillsChecklistLines {
+    param($Verification)
+    function ConvertTo-SkillCell($Value) { return ([string]$Value -replace '\|', '\\|' -replace '[\r\n]+', ' ') }
+    '<!-- ai-coding:user-skills:start -->'
+    '## 课程技能：用户级安装检查'
+    ''
+    '检查时间：' + $Verification.CheckedAt
+    '用户技能目录：`' + $Verification.SkillsDirectory + '`'
+    '用户级安装结果：' + $(if ($Verification.UserInstallationVerified) { '通过' } else { '未通过' })
+    ''
+    '| 技能 | 用户目录安装 | 项目同名副本 | 实际位置与问题 |'
+    '| --- | --- | --- | --- |'
+    foreach ($check in $Verification.Checks) {
+        $state = if ($check.UserDirectoryVerified) { '通过' } else { '未通过' }
+        $project = if ($check.ProjectCopyFound) { '发现：' + $check.ProjectDirectory } else { '未发现' }
+        '| ' + $check.Name + ' | ' + $state + ' | ' + (ConvertTo-SkillCell $project) + ' | ' + (ConvertTo-SkillCell ($check.ExpectedDirectory + '；' + ($check.Issues -join '；'))) + ' |'
+    }
+    foreach ($issue in $Verification.Issues) { '未通过原因：' + (ConvertTo-SkillCell $issue) }
+    ''
+    '证据：`.course-setup/skills-verification.json`。用户目录安装可跨项目复用；本项核对实际位置、SKILL.md 名称及当前项目同名副本，不代替 Trae 中的实际识别与加载验证。'
+    '<!-- ai-coding:user-skills:end -->'
+}
+
+function Update-ExistingSkillsChecklist {
+    param([string]$Workspace, $Verification)
+    $path = Join-Path $Workspace 'environment-checklist.md'
+    if (-not (Test-Path -LiteralPath $path)) { return }
+    $text = Get-Content -LiteralPath $path -Raw -Encoding UTF8
+    $section = (Get-SkillsChecklistLines $Verification) -join "`r`n"
+    $pattern = '(?s)<!-- ai-coding:user-skills:start -->.*?<!-- ai-coding:user-skills:end -->'
+    if ([regex]::IsMatch($text, $pattern)) { $text = [regex]::Replace($text, $pattern, [Text.RegularExpressions.MatchEvaluator]{ param($match) $section }) }
+    else { $text = $text.TrimEnd() + "`r`n`r`n" + $section + "`r`n" }
+    if (-not $Verification.UserInstallationVerified) {
+        $text = $text -replace '(?m)\*\*结论：已完成[^\r\n]*', '**结论：未完成（课程技能用户级安装未通过）**'
+        $text = $text -replace '(?m)^# 容器工具准备：已完成', '# 容器工具准备：未完成（课程技能用户级安装未通过）'
+    }
+    # A location-only recheck never promotes an incomplete toolchain to completed.
+    Set-Content -LiteralPath $path -Value $text -Encoding UTF8
+}
+
 function Find-CoursePackageRoot {
     param([string]$StartDirectory, [int]$MaxDepth = 6, [int]$MaxDirectories = 2000)
     $start = (Resolve-Path -LiteralPath $StartDirectory -ErrorAction Stop).Path
@@ -192,6 +258,10 @@ function Install-CourseSkills {
                 $prior = Join-Path $userBackup $name
                 [pscustomobject]@{ PackageRoot = $Root; Name = $name; Destination = (Join-Path $skillsRoot $name); Scope = 'user'; BackupPath = $(if (Test-Path -LiteralPath $prior) { $prior } else { $null }); ProjectBackupPath = $savedProjectCopy }
             }
+            $records = Join-Path $Workspace '.course-setup'
+            [void](New-Item -ItemType Directory -Path $records -Force)
+            @{ InstalledAt = (Get-Date).ToString('o'); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames) } |
+                ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $records 'skills-installation.json') -Encoding UTF8
         } finally {
             Assert-CourseSkillDirectory $userStage $userTraeRoot
             if (Test-Path -LiteralPath $userStage) { Remove-Item -LiteralPath $userStage -Recurse -Force }
@@ -212,6 +282,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     if ($VerifyOnly) {
         if (-not $SkillNames) { throw 'VerifyOnly 需要 SkillNames，以逗号分隔要核对的技能名称。' }
         $verification = Test-CourseSkills -Workspace $WorkingDirectory -Names @($SkillNames.Split(',') | ForEach-Object { $_.Trim() })
+        Update-ExistingSkillsChecklist -Workspace $WorkingDirectory -Verification $verification
         $verification | ConvertTo-Json -Depth 6
         if (-not $verification.UserInstallationVerified) { exit 2 }
         exit 0

@@ -26,6 +26,6 @@
 
 Docker archive 导入可能重建本地 manifest。该路线的离线证据记为 `VerificationMethod=archive-sha256+image-config`、`RegistryDigestVerified=false`，不能声称远端 RepoDigest 已核对；在线证据为 `registry-digest`。两者都必须实际运行断网容器，退出码 0 且输出 TOOLCHAIN_READY。批准归档校验是镜像来源证据，不代替工具执行。
 
-共同记录 `toolchain-verification.json` 与 `environment-checklist.md`，包含 ContainerRuntime、Image、imageDigest、Architecture、Os、Machine、Connection、Endpoint、ServerVersion、ComposeVersion、Rootless、NetworkMode、VerificationMethod、RegistryDigestVerified、ArchiveSha256、ToolchainCheck、VerifiedAt、NotVerified。失败时 VerifiedAt=null，旧成功记录不能替代新结果。DockerEndpoint/DockerServerVersion 是 Docker 旧报告专用字段，不冒充 Podman 证据。
+共同记录 `toolchain-verification.json` 与 `environment-checklist.md`，包含 ContainerRuntime、Image、imageDigest、Architecture、Os、Machine、Connection、Endpoint、ServerVersion、ComposeVersion、Rootless、NetworkMode、VerificationMethod、RegistryDigestVerified、ArchiveSha256、ToolchainCheck、VerifiedAt、NotVerified；另以 SkillInstallationVerified 和 SkillsVerificationPath 记录按完整准备名单实测的用户级技能安装，清单逐项列出用户目录、名称及项目同名副本。缺名单、缺用户副本或存在同名项目副本不能通过。位置检查不代替 Trae 实际识别加载。失败时 VerifiedAt=null，旧成功记录不能替代新结果。DockerEndpoint/DockerServerVersion 是 Docker 旧报告专用字段，不冒充 Podman 证据。
 
 项目启动时把报告里的实际 Image、containerRuntime=podman、NetworkMode 传给 ai-coding-project；`podman compose` 使用所选本机 connection。构建、源码热更新、浏览器保存、云端与 APK/真机分别记录。工具验收不意味着作品或服务全部通过。

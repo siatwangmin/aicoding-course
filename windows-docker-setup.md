@@ -258,7 +258,7 @@ Docker 报告、运行日志、WSL 安装日志、重启状态都在当前目录
 
 
 
-学员可读的验收 checklist 写在当前工作目录的 **`.\environment-checklist.md`**，Docker 阶段和工具箱阶段自动更新，包含系统条件、WSL、Docker、镜像获取、RepoDigests、linux/amd64 平台和容器检查的实际证据。仅 Docker Ready 时总结仍为“未完成”；完整检查通过才为“已完成”，失败时覆盖旧成功结论。助手给学员打开或链接这份报告，学员不需要手工打勾。
+学员可读的验收 checklist 写在当前工作目录的 **`.\environment-checklist.md`**，Docker 阶段和工具箱阶段自动更新，包含系统条件、WSL、Docker、镜像获取、RepoDigests、linux/amd64 平台和容器检查的实际证据；同时按当前准备记录的完整名单，实际复查每项技能是否位于当前用户 `.trae-cn/skills`、根部名称是否匹配、项目是否存在同名副本，附路径和 `.course-setup/skills-verification.json`。仅 Docker Ready 或仅技能安装成功时总结仍为“未完成”；全部必要检查通过才为“已完成”，失败时覆盖旧成功结论。位置检查不代替 Trae 实际加载。助手给学员打开或链接这份报告，学员不需要手工打勾。
 
 
 

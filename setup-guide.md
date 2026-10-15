@@ -51,7 +51,7 @@
 
 **结束前必须核对工具箱验收，不能在 Docker 就绪后停止。** Prepare/Verify 返回 `Decision=Ready` 后，直接执行已安装环境助手的 `scripts\Verify-Toolchain.ps1 -WorkingDirectory <原工作目录>`，不要求学员再发“继续”指令。实际退出码为 0，且本次生成的 `toolchain-verification.json` 中 VerifiedAt 有效、Image/imageDigest 匹配固定配置、Architecture=amd64、Os=linux、ToolchainCheck.ExitCode=0 并有检查输出，才可报告工具箱准备完成。缺记录或未通过时报告实际停在哪一步，读取安装/工具记录继续诊断。
 
-脚本同时生成当前工作目录的 `environment-checklist.md`，展示系统、WSL、Docker、镜像获取、摘要、平台和容器工具的逐项结果及证据。助手结束时打开或链接这份报告；“未检查”或“未通过”的必要项不能当作完成。
+脚本同时生成当前工作目录的 `environment-checklist.md`，展示系统、WSL、所选容器工具、镜像获取、摘要、平台和容器工具的逐项结果及证据。E-01 内就按 `.course-setup/materials.json` 的完整 SkillNames（直接安装资料包时用 `skills-installation.json`）实际检查技能用户级安装，逐项展示六项课程技能的用户路径、项目同名副本和检查时间，保存 `skills-verification.json`；缺项由助手修复后重验，不等到 E-05 才检查。工具检查和用户级安装都通过才能完成；位置检查不代替 Trae 实际识别加载。助手结束时打开或链接这份报告；“未检查”或“未通过”的必要项不能当作完成。
 
 ## 课前准备 CloudBase，作品建立后复用
 

@@ -513,7 +513,9 @@ function Invoke-SetupAction {
 }
 
 function Write-EnvironmentChecklist {
-    param([string]$Workspace, $Setup, $Toolchain, $Steps, $CurrentDocker)
+    param([string]$Workspace, $Setup, $Toolchain, $Steps, $CurrentDocker, $SkillsVerification)
+    if (-not (Get-Command Get-WorkspaceSkillsVerification -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot 'Install-CourseSkills.ps1') }
+    if (-not $SkillsVerification) { $SkillsVerification = Get-WorkspaceSkillsVerification $Workspace }
     function Get-ChecklistState($Value) {
         if ($null -eq $Value) { return '未检查' }
         if ($Value) { return '通过' }
@@ -525,7 +527,7 @@ function Write-EnvironmentChecklist {
     $snapshot = $Setup.Snapshot
     $docker = $snapshot.Docker
     if ($CurrentDocker) { $docker = $CurrentDocker }
-    $complete = $Setup.Decision -eq 'Ready' -and [bool]$Toolchain.VerifiedAt -and $Toolchain.ToolchainCheck.ExitCode -eq 0
+    $complete = $Setup.Decision -eq 'Ready' -and [bool]$Toolchain.VerifiedAt -and $Toolchain.ToolchainCheck.ExitCode -eq 0 -and $SkillsVerification.UserInstallationVerified
     $lines = [Collections.Generic.List[string]]::new()
     $lines.Add('# AI Coding 环境验收 checklist')
     $lines.Add('')
@@ -568,6 +570,8 @@ function Write-EnvironmentChecklist {
     $lines.Add('')
     $lines.Add('本报告只验收开发环境。作品网页/APK 构建、云账号和 AI 授权需在对应阶段另行验证。')
     $lines.Add('实际记录：`.docker-setup/report.json`、`toolchain-verification.json`；工具记录尚未生成时以未检查为准。')
+    $lines.Add('')
+    foreach ($line in (Get-SkillsChecklistLines $SkillsVerification)) { $lines.Add($line) }
     $lines | Set-Content -LiteralPath (Join-Path $Workspace 'environment-checklist.md') -Encoding UTF8
 }
 
