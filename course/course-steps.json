@@ -1,5 +1,5 @@
 {
-  "version": "1.7.4",
+  "version": "1.8.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -424,8 +424,8 @@
       "id": "v2",
       "name": "V2 云端网页",
       "chapter": "05-V2-云端.md",
-      "goal": "发布成网页链接，试两个窗口共享记录。",
-      "learn": "学会增量更新需求，分别检查网址和数据。",
+      "goal": "先发布可打开的静态页面，再实现不同设备共享记录。",
+      "learn": "先体验网页展示，再体验云端保存与共享。",
       "steps": [
         {
           "id": "V2-01",
@@ -510,6 +510,27 @@
           "recordLearnerCompletion": true
         },
         {
+          "id": "V2-PAGES",
+          "title": "把页面发布到 github.io",
+          "tool": "Trae → 浏览器",
+          "purpose": "把已确认的页面变成一个能打开的网址。",
+          "actions": [
+            "在 Trae 发送下方提示，等助手给出网页链接。",
+            "点击 github.io 链接，看到自己的页面后继续。"
+          ],
+          "prompt": "请把已确认的 HTML 页面发布到 GitHub Pages，给我一个能打开的 github.io 链接。",
+          "expected": [
+            "通过 github.io 链接打开自己的页面。"
+          ],
+          "check": [
+            "我通过 github.io 链接看到了自己的页面。"
+          ],
+          "help": "链接暂时打不开时，把看到的提示告诉 Trae。",
+          "helper": false,
+          "promptKind": "send",
+          "recordLearnerCompletion": true
+        },
+        {
           "id": "V2-04",
           "title": "检查课前云服务",
           "tool": "Trae 与它打开的授权页面",
@@ -542,7 +563,7 @@
             "得到已发布的作品链接和试用入口。"
           ],
           "check": [],
-          "help": "GitHub.io 静态发布是补充练习，暂不测试也可继续。正式云端作品的发布与数据共享分别记录。",
+          "help": "这里完成云端保存与共享；前面的 github.io 页面保留为静态展示。",
           "helper": false,
           "promptKind": "send",
           "recordLearnerCompletion": false
