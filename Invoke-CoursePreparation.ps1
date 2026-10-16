@@ -1,0 +1,43 @@
+﻿#Requires -Version 5.1
+[CmdletBinding()]
+param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[ValidateSet('Status','Record')][string]$Action='Status',
+      [ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$EvidencePath)
+$ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'Course-Context.ps1')
+$root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
+$file=Join-Path $root '.course-setup\preparation-progress.json'
+$order=@('tools','cloudbase','github','ai','summary')
+$skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';ai='ai-coding-siliconflow';summary='ai-coding-env'}
+$state=if(Test-Path -LiteralPath $file){Read-CourseJson $file}else{[pscustomobject]@{schemaVersion=2;runId=[guid]::NewGuid().ToString();stages=[pscustomobject]@{}}}
+function Test-PreparationStage([string]$Name,$Item){
+    if(-not $Item -or -not(Test-Path -LiteralPath $Item.path)){return $false}
+    Assert-CoursePlainPath $Item.path
+    if((Get-FileHash -LiteralPath $Item.path).Hash.ToLowerInvariant() -ne $Item.sha256){return $false}
+    $e=Read-CourseJson $Item.path
+    $time=if($Name -eq 'tools'){$e.VerifiedAt}else{$e.checkedAt}
+    try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
+    if($age -lt 0 -or $age -gt 24){return $false}
+    if($Name -eq 'tools'){
+        if(-not $e.VerifiedAt -or $e.ToolchainCheck.ExitCode -ne 0 -or -not $e.SkillInstallationVerified){return $false}
+        $storage=Join-Path $root '.course-setup\storage.json'
+        return (Test-Path -LiteralPath $storage) -and (Read-CourseJson $storage).status -eq 'verified'
+    }
+    if($Name -eq 'ai'){return $e.credentials -eq 'passed' -and $e.text.status -eq 'passed' -and $e.vision.status -eq 'passed'}
+    $required=switch($Name){cloudbase{@('identityVerified','managementAccessVerified','pgCapabilityVerified','publicConfigSaved')}github{@('identityVerified','emailVerified')}summary{@('skillsVerified','traeLoadObserved','currentResultsReviewed')}}
+    return $e.status -eq 'verified' -and @($required|Where-Object {$e.checks.$_ -ne $true}).Count -eq 0 -and @($e.evidence).Count -gt 0
+}
+if($Action -eq 'Record'){
+    if(-not $Stage -or -not $EvidencePath){throw 'Stage and actual evidence path are required.'}
+    $path=(Resolve-Path -LiteralPath $EvidencePath).Path;Assert-CoursePlainPath $path
+    if(-not $path.StartsWith($root.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Preparation evidence must belong to A.'}
+    $item=[pscustomobject]@{path=$path;sha256=(Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()}
+    if(-not(Test-PreparationStage $Stage $item)){throw 'Incomplete or outdated evidence; stage not recorded.'}
+    $state.stages|Add-Member -MemberType NoteProperty -Name $Stage -Value $item -Force
+}
+$pending=@($order|Where-Object {-not(Test-PreparationStage $_ $state.stages.$_)})
+$next=if($pending.Count){$pending[0]}else{$null}
+$state|Add-Member -MemberType NoteProperty -Name status -Value $(if($next){'pending'}else{'verified'}) -Force
+$state|Add-Member -MemberType NoteProperty -Name checkedAt -Value (Get-Date).ToString('o') -Force
+Write-CourseJson $file $state
+[pscustomobject]@{status=$state.status;nextStage=$next;nextSkill=$(if($next){$skills[$next]}else{$null});pending=$pending;record=$file}|ConvertTo-Json
+# A continuation plan, not an automatic authorization/login or product acceptance.

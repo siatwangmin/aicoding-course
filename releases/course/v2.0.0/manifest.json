@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "date": "2026-10-16",
+  "gitTag": "course-v2.0.0",
+  "files": {
+    "aicoding-student-kit.zip": "bc3f78e2508967efe42c62e17a701e74d0812200e0a018e35e5406957e83ce95",
+    "knowstar-course-skill.zip": "168bd7140dbc4537c750db196086f568309422c8fe8088d2fc4c94059bbfc161",
+    "ai-coding-toolkit.zip": "99da93fdeea10a0b0e8a19ff66ef4dbbd96a99652e06da55c4e056cf7ab43b1f",
+    "knowstar-environment-kit.zip": "99da93fdeea10a0b0e8a19ff66ef4dbbd96a99652e06da55c4e056cf7ab43b1f",
+    "knowstar-env-skill.zip": "6d2e0fd5c9ab66d12dd093e486a35072d88b58bffbd78ce48fde5a231c9e5e45",
+    "ai-coding-env-skill.zip": "6d2e0fd5c9ab66d12dd093e486a35072d88b58bffbd78ce48fde5a231c9e5e45",
+    "ai-coding-project-skill.zip": "e093e8cd2585528c1d519a78045b3b0104af8c92d79b4b5d80d114fd787aedcf",
+    "ai-coding-cloudbase-skill.zip": "3e980736ac2f4d1453fc5374b9445e0a4375246a2e812d1d58aec7868710e702",
+    "ai-coding-github-skill.zip": "17169a7bfe8c87dfe3506ae9ec7353dba84e41c121c735422f623743e99e169a",
+    "ai-coding-siliconflow-skill.zip": "fbee95e415806739e9c93e05512063a40a145a69ac29bacf7c59adac0ec750a0",
+    "ai-coding-development-skill.zip": "090c19d9031d843e70eb11765f419750d2946524d350f6e9b8fee86116dd673c",
+    "ai-coding-android-skill.zip": "f9877a4ce797f13e71388e5ee5af719ae4ecd388b7435d0a9c6c427575ea3dd3",
+    "aicoding-student-kit.sha256": "f30f0d9863fcdfba835d339001546bb889b681317b1ca04b60290cc6f9ec40a4",
+    "knowstar-course-skill.sha256": "31ed84aa39ba697f908fa749453c56c7ba16581f504e4cca20f23314811fce14",
+    "ai-coding-toolkit.sha256": "1c849125bcaf4c8ae8cf4c7d0614da4c74bcc414a54d43f01c189d2b143123cb",
+    "knowstar-environment-kit.sha256": "999e3f2b291af6710d570ba979d2ac4f7ede96675fcf85341c312c8c93b5ea8a",
+    "knowstar-env-skill.sha256": "c7bd5458392731be9fdb7feba9b3a1260221076cc6b83c1f2df88a6a4828da93",
+    "ai-coding-env-skill.sha256": "8f402cbbf28b964a89fea7512936a9ff7525d45aa0d90d13a12c48b8dd13d384",
+    "ai-coding-project-skill.sha256": "a12482c607e2cb18f8877f1f4ff864bbe76ffe1b55aa8a582188cb8374fc1f88",
+    "ai-coding-cloudbase-skill.sha256": "60fd295161ef93d971a2ec9177a5cd767af779a5703cec10a5fc2ba9d6ca7859",
+    "ai-coding-github-skill.sha256": "f755550f903918aec38510450229d7fa94dacff8651fcc40996963341b834f56",
+    "ai-coding-siliconflow-skill.sha256": "d709582a28343a020f3066100827df6c21bad0f7263d5a89c6092cbc8d49ea7b",
+    "ai-coding-development-skill.sha256": "51f2edda0d9fbb60e264cfd82f47d8fb062071babb5ae43a176c25eb4c158782",
+    "ai-coding-android-skill.sha256": "8794953d91221e29be1e9c5a70e8fada15a87051531467dc78172b42a414b0c3",
+    "VERSION.json": "1228063376f30c867698d07648a92091f31f5a02b4272bac4322ef90367e81c7",
+    "CHANGELOG.md": "c0e22455a925f830448789ee13b32fb8731f0cf43a10cf316f0718f785474a2f"
+  }
+}

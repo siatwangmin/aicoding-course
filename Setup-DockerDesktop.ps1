@@ -12,6 +12,7 @@ param(
     [string]$ExpectedUserSid,
     [string]$WorkingDirectory,
     [string]$DockerDesktopPath,
+    [string]$StorageRoot = 'D:\AI-Coding',
     [ValidateRange(1, 600)][int]$EngineTimeoutSeconds = 120
 )
 
@@ -42,9 +43,10 @@ function ConvertFrom-SetupBytes {
 }
 
 function Invoke-SetupNative {
-    param([string]$FilePath, [string[]]$Arguments, [int]$TimeoutSeconds = 30)
+    param([string]$FilePath, [string[]]$Arguments, [int]$TimeoutSeconds = 30, [string]$WorkingDirectory)
     $start = [Diagnostics.ProcessStartInfo]::new()
     $start.FileName = $FilePath
+    if($WorkingDirectory){$start.WorkingDirectory=$WorkingDirectory}
     # Quote only when necessary: older wsl.exe treats a quoted flag as a Linux command.
     # Escape quotes and trailing backslashes using Windows argv rules for paths with spaces.
     $start.Arguments = (($Arguments | ForEach-Object { ConvertTo-SetupArgument $_ }) -join ' ')
@@ -73,8 +75,10 @@ function Invoke-SetupNative {
         if (-not $stdout.Wait(2000) -or -not $stderr.Wait(2000)) {
             return [pscustomobject]@{ ExitCode = -1; Output = 'Command output timed out'; TimedOut = $true }
         }
-        $output = ((ConvertFrom-SetupBytes $outBuffer.ToArray()) + "`n" + (ConvertFrom-SetupBytes $errBuffer.ToArray())).Trim()
-        return [pscustomobject]@{ ExitCode = $process.ExitCode; Output = $output; TimedOut = $false }
+        $stdoutText=ConvertFrom-SetupBytes $outBuffer.ToArray()
+        $stderrText=ConvertFrom-SetupBytes $errBuffer.ToArray()
+        $output = ($stdoutText + "`n" + $stderrText).Trim()
+        return [pscustomobject]@{ ExitCode = $process.ExitCode; Output = $output; Stdout=$stdoutText; Stderr=$stderrText; TimedOut = $false }
     } catch {
         return [pscustomobject]@{ ExitCode = -1; Output = $_.Exception.Message; TimedOut = $false }
     } finally { $process.Dispose(); $outBuffer.Dispose(); $errBuffer.Dispose() }
@@ -375,14 +379,21 @@ function Test-SetupInstallerFile {
 function Receive-SetupInstaller {
     param([string]$Url, [string]$Destination)
     $priorTls = [Net.ServicePointManager]::SecurityProtocol
-    $priorProgress = $ProgressPreference
+    $response=$null;$inputStream=$null;$outputStream=$null
     try {
         [Net.ServicePointManager]::SecurityProtocol = $priorTls -bor [Net.SecurityProtocolType]::Tls12
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -Uri $Url -OutFile $Destination -UseBasicParsing -TimeoutSec 1800 -ErrorAction Stop
+        $request=[Net.HttpWebRequest]::Create($Url);$request.Timeout=30000;$request.ReadWriteTimeout=15000
+        $response=$request.GetResponse();$inputStream=$response.GetResponseStream()
+        $outputStream=[IO.File]::Open($Destination,[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::None)
+        $buffer=New-Object byte[] 65536;$watch=[Diagnostics.Stopwatch]::StartNew();[long]$received=0
+        while(($count=$inputStream.Read($buffer,0,$buffer.Length)) -gt 0){
+            $outputStream.Write($buffer,0,$count);$received+=$count
+            if($watch.Elapsed.TotalSeconds -gt 1800){throw 'DOWNLOAD_TOTAL_TIMEOUT: partial file retained.'}
+            if($watch.Elapsed.TotalSeconds -ge 20 -and $received/$watch.Elapsed.TotalSeconds -lt 65536){throw 'DOWNLOAD_SLOW: check reachable network/proxy for the same official source; partial file retained.'}
+        }
     } finally {
+        if($outputStream){$outputStream.Dispose()};if($inputStream){$inputStream.Dispose()};if($response){$response.Dispose()}
         [Net.ServicePointManager]::SecurityProtocol = $priorTls
-        $ProgressPreference = $priorProgress
     }
 }
 
@@ -429,10 +440,9 @@ function Resolve-SetupInstaller {
     if (-not $approvedUrl -or $entry.downloadUrl -cne $approvedUrl) { throw "没有找到 $($entry.file)，清单没有匹配的官方自动下载地址。" }
     $destinationDirectory = $Directory
     if (-not $destinationDirectory) {
-        $destinationDirectory = Join-Path (Get-Location).Path 'release'
-        if (Test-Path -LiteralPath (Join-Path (Get-Location).Path 'setup-guide.md')) {
-            $destinationDirectory = Join-Path (Split-Path (Get-Location).Path -Parent) 'release'
-        }
+        . (Join-Path $PSScriptRoot 'Course-Context.ps1')
+        $plan = Get-CourseStoragePlan $StorageRoot
+        $destinationDirectory = $plan.installers
     }
     [void](New-Item -ItemType Directory -Path $destinationDirectory -Force)
     $destination = Join-Path $destinationDirectory $entry.file
@@ -499,7 +509,11 @@ function Invoke-SetupAction {
             $installer = Resolve-SetupInstaller 'docker' $Directory $Manifest
             Write-Host '助手正在自动安装 Docker Desktop，固定使用 WSL 2；首次条款由你本人决定。' -ForegroundColor Cyan
             # Automate installation; legal acceptance remains in Desktop's first-run page.
-            $process = Start-Process -FilePath $installer -ArgumentList @('install', '--backend=wsl-2', '--quiet') -Wait -PassThru
+            . (Join-Path $PSScriptRoot 'Course-Context.ps1')
+            $plan = Get-CourseStoragePlan $StorageRoot
+            Write-CourseJson (Join-Path (Split-Path $RecordDirectory -Parent) '.course-setup\storage-plan.json') $plan
+            $installArgs = @('install', '--backend=wsl-2', '--quiet', ('--installation-dir=' + (Join-Path $plan.programs 'docker')), ('--wsl-default-data-root=' + $plan.dockerData))
+            $process = Start-Process -FilePath $installer -ArgumentList (($installArgs | ForEach-Object { ConvertTo-SetupArgument $_ }) -join ' ') -WindowStyle Hidden -Wait -PassThru
             if ($process.ExitCode -in @(3010, 1641)) {
                 Save-SetupRestart $RecordDirectory $Snapshot.Boot 'Docker 安装要求重启'
                 return 'Restart'
@@ -559,6 +573,11 @@ function Write-EnvironmentChecklist {
         if ($state -ne '通过' -and -not ($name -eq '镜像获取' -and $state -eq '已跳过')) { $complete = $false }
         $lines.Add('| ' + $name + ' | ' + $state + ' | ' + (ConvertTo-ChecklistCell $detail) + ' |')
     }
+    $storage=Get-WorkspaceStorageEvidence $Workspace
+    if($storage.Required){
+        $lines.Add('| D 盘实际程序与数据位置 | '+$(if($storage.Verified){'通过'}else{'未通过'})+' | '+$storage.EvidencePath+' |')
+        if(-not $storage.Verified){$complete=$false}
+    }
     $outcome = '未完成'
     if ($complete) { $outcome = '已完成：工具箱已准备，可以创建新作品' }
     $lines[2] = "**结论：$outcome**"
@@ -572,7 +591,7 @@ function Write-EnvironmentChecklist {
     $lines.Add('实际记录：`.docker-setup/report.json`、`toolchain-verification.json`；工具记录尚未生成时以未检查为准。')
     $lines.Add('')
     foreach ($line in (Get-SkillsChecklistLines $SkillsVerification)) { $lines.Add($line) }
-    $lines | Set-Content -LiteralPath (Join-Path $Workspace 'environment-checklist.md') -Encoding UTF8
+    Set-Content -LiteralPath (Join-Path $Workspace 'environment-checklist.md') -Value $lines -Encoding UTF8
 }
 
 function Save-SetupReport {
@@ -680,10 +699,11 @@ if ($MyInvocation.InvocationName -ne '.') {
         $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (ConvertTo-SetupArgument $PSCommandPath), '-Mode', $Mode, '-ManifestPath', (ConvertTo-SetupArgument $ManifestPath), '-ExpectedUserSid', $sid, '-WorkingDirectory', (ConvertTo-SetupArgument $WorkingDirectory), '-EngineTimeoutSeconds', $EngineTimeoutSeconds)
         if ($InstallerDirectory) { $arguments += @('-InstallerDirectory', (ConvertTo-SetupArgument $InstallerDirectory)) }
         if ($DockerDesktopPath) { $arguments += @('-DockerDesktopPath', (ConvertTo-SetupArgument $DockerDesktopPath)) }
+        $arguments += @('-StorageRoot', (ConvertTo-SetupArgument $StorageRoot))
         # Use an absolute manifest path: elevated PowerShell can start in a different directory.
         try {
             $elevationStarted = Get-Date
-            $child = Start-Process -FilePath (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -Verb RunAs -ArgumentList $arguments -WorkingDirectory $WorkingDirectory -Wait -PassThru
+            $child = Start-Process -FilePath (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -Verb RunAs -ArgumentList $arguments -WorkingDirectory $WorkingDirectory -WindowStyle Hidden -Wait -PassThru
             # The elevated window closes at exit. Repeat the actionable result in the original window.
             $reportPath = Join-Path $WorkingDirectory '.docker-setup\report.json'
             if (Test-Path -LiteralPath $reportPath) {

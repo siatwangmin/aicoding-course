@@ -8,6 +8,10 @@
 2. 缺少 Desktop 时由助手运行 `scripts/Setup-PodmanDesktop.ps1 -Mode Prepare -WorkingDirectory <workspace>`；它只从 Podman 官方 GitHub 固定版本下载 x64 安装程序，核对 SHA-256 和 Red Hat, LLC 的有效 Authenticode 签名。已有安装不要求降级至清单版本。记录来源，不运行 HTML、签名失败文件或第三方重打包程序。
 3. 系统虚拟化、虚拟机平台、WSL 未满足时，由助手检查并安装必要组件。需要系统提权时用当前本人账号的提升权限执行；本人只处理 UAC、重启与实际出现的条款，不替助手检查日志。WSL 安装包沿用 windows-installers.json 的官方固定版本和摘要，有效安装不降级；不要运行会顺带安装 Docker 的完整 Docker Prepare。系统限制、拒绝提权、必须重启或本人身份不一致时记录阻塞，重启后续接。
 4. Desktop 缺少 Podman 引擎时，助手按[官方 Windows 安装说明](https://podman-desktop.io/docs/installation/windows-install)完成 onboarding 和必要引擎安装；缺少 Compose 时按[官方 Compose 设置说明](https://podman-desktop.io/docs/compose/setting-up-compose)补齐。`podman compose` 可以调用独立 Compose 客户端；不要求启动 Docker Desktop 引擎。Desktop 安装、引擎安装、machine 启动和 Compose 各自检查，缺任一项不得报 Ready。
+
+   当前Prepare已从podman-installers.json补固定Podman 6.1.4 MSI与Compose 5.6.0，按官方release摘要核对，MSI再验Red Hat签名；不会用缺项为由只停在“onboarding incomplete”。新程序默认D盘，实际绝对入口登记用户.ai-coding/tool-paths.json；后续进程读取，不要求学员改PATH。官方核对来源：[Podman固定版本](https://github.com/podman-container-tools/podman/releases/tag/v6.1.4)、[Compose固定版本](https://github.com/docker/compose/releases/tag/v5.6.0)。
+
+   新建且没有其他machine时，为Podman进程设置D盘XDG_DATA_HOME，覆盖machine镜像缓存与WSL导入目标；依据固定版本[数据目录实现](https://github.com/podman-container-tools/podman/blob/v6.1.4/pkg/machine/env/dir.go)和[WSL实现](https://github.com/podman-container-tools/podman/blob/v6.1.4/pkg/machine/wsl/machine.go)。仅本进程/子进程生效，不改其他应用全局XDG配置；记录供后续课程进程复用。已有machine不切数据根，迁移须按保留资源路线另做并实测；新参数与源码依据不能冒充真实安装/VHD位置通过。
 5. Prepare 只会初始化缺失的本机 `podman-machine-default`（rootless）或启动已停止的同名 machine；Verify 不修改现有 machine。运行 `Setup-PodmanDesktop.ps1 -Mode Verify -WorkingDirectory <workspace>`，检查本次退出码 0、`.podman-setup/report.json` 的新时间、`ContainerRuntime=podman`、`Decision=Ready`、本机 connection 与 Linux amd64 Server、Compose。脚本显式使用经本机 machine 核对的 loopback SSH connection，不把任意远程服务当本机。
 
 ## 已实测的兼容处理

@@ -1,6 +1,6 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$CourseVersion, [switch]$SkipInstallers,
+param([string]$WorkingDirectory, [string]$CourseVersion, [string]$PreviewId, [switch]$SkipInstallers,
       [ValidateSet('docker','podman')][string]$ContainerRuntime='docker')
 
 function Receive-CourseFile {
@@ -35,25 +35,35 @@ function Expand-CourseMaterials {
 }
 
 function Get-CourseMaterials {
-    param([string]$Workspace, [string]$Version, [switch]$WithoutInstallers,
+    param([string]$Workspace, [string]$Version, [string]$Preview, [switch]$WithoutInstallers,
           [ValidateSet('docker','podman')][string]$Runtime='docker')
     $workspacePath = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     $baseUrl = 'https://siatwangmin.github.io/aicoding-course'
     $records = Join-Path $workspacePath '.course-setup'
     [void](New-Item -ItemType Directory -Path $records -Force)
-    if (-not $Version) {
+    $metadataInfo=$null
+    if (-not $Version -or (-not $Preview -and $Version -match '^[2-9]\d*\.')) {
         $metadata = Join-Path $records 'VERSION.json'
         Receive-CourseFile "$baseUrl/VERSION.json" $metadata
-        $Version = (Get-Content -LiteralPath $metadata -Raw | ConvertFrom-Json).version
+        $metadataInfo = Get-Content -LiteralPath $metadata -Raw | ConvertFrom-Json
+        if(-not $Version){$Version=$metadataInfo.version}
+        if($metadataInfo.version -eq $Version -and $metadataInfo.status -eq 'candidate'){
+            $Preview=$metadataInfo.distributionId
+            if(-not $Preview){throw 'Candidate metadata has no pinned distribution. Do not download a formal-release path.'}
+        }
     }
     if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid course version.' }
-    $url = "$baseUrl/releases/course/v$Version/aicoding-student-kit.zip"
-    $checksumFile = Join-Path $records "aicoding-student-kit-v$Version.sha256"
+    if($Preview -and $Preview -notmatch '^[a-f0-9]{12}$'){throw 'Invalid preview identity.'}
+    $distribution=if($Preview){"previews/v$Version/$Preview"}else{"releases/course/v$Version"}
+    $cacheId=if($Preview){"v$Version-preview-$Preview"}else{"v$Version"}
+    $url = "$baseUrl/$distribution/aicoding-student-kit.zip"
+    $checksumFile = Join-Path $records "aicoding-student-kit-$cacheId.sha256"
     Receive-CourseFile ($url -replace '\.zip$', '.sha256') $checksumFile
     $checksum = (Get-Content -LiteralPath $checksumFile -Raw).Trim()
     if ($checksum -notmatch '^([a-fA-F0-9]{64})\s+aicoding-student-kit\.zip$') { throw 'Invalid course checksum file.' }
     $expectedHash = $Matches[1].ToLowerInvariant()
-    $archive = Join-Path $records "aicoding-student-kit-v$Version.zip"
+    if($Preview -and -not $expectedHash.StartsWith($Preview)){throw 'Preview identity does not match its artifact checksum.'}
+    $archive = Join-Path $records "aicoding-student-kit-$cacheId.zip"
     if (-not (Test-Path -LiteralPath $archive) -or (Get-FileHash -LiteralPath $archive).Hash.ToLowerInvariant() -ne $expectedHash) {
         $partial = $archive + '.partial'
         Receive-CourseFile $url $partial
@@ -61,7 +71,7 @@ function Get-CourseMaterials {
         Move-Item -LiteralPath $partial -Destination $archive -Force
     }
     $staging = Join-Path $records ('stage-' + [guid]::NewGuid())
-    $courseRoot = Join-Path $workspacePath ("course-materials-v$Version")
+    $courseRoot = Join-Path $workspacePath ("course-materials-$cacheId")
     try {
         Expand-CourseMaterials $archive $staging
         foreach ($required in @('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')) {
@@ -105,20 +115,27 @@ function Get-CourseMaterials {
             }
         } finally { Set-Location -LiteralPath $priorLocation }
     }
-    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; ContainerRuntime=$Runtime; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
+    $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; DistributionId=$Preview; DistributionStatus=$(if($Preview){'candidate'}else{'release'}); ContainerRuntime=$Runtime; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
     $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $records 'materials.json') -Encoding UTF8
     @{ContainerRuntime=$Runtime;SelectedAt=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $records 'container-runtime.json') -Encoding UTF8
     $agents = Join-Path $workspacePath 'AGENTS.md'
-    $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate the downloaded setup-guide.md and user-level SkillsDirectory. Use its ai-coding-env for E-01 (including the former E-04); continue installation and actual toolchain verification after downloading. Reuse existing installers and preserve existing work. Downloads are not environment verification. Do not install course skills in the project.`n<!-- ai-coding:materials-entry:end -->"
+    $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate setup-guide.md and user-level SkillsDirectory. For a full preparation request, read ai-coding-env/references/preparation-workflow.md and continue E-01 tools -> E-06 CloudBase -> E-07 GitHub -> E-08 SiliconFlow -> E-05 summary in the same task. Tools ready is only one stage; do not stop and ask the learner to say continue. Save the current stage and resume after necessary identity/terms/fees/restart actions. A tool-only troubleshooting request keeps its scope. Reuse existing installers and valid service results; register user-level preparation and service references for a new B. Downloads, installed skills, saved configuration and real service checks are separate. Preserve work; do not create a product or copy secrets/skills into a project.`n<!-- ai-coding:materials-entry:end -->"
     $entry=$entry.Replace('Read .course-setup/materials.json', "Selected container runtime: $Runtime. Prepare only this runtime; use its local engine, Compose and reports. Browser selection is a preference, never verification. Read .course-setup/materials.json")
     $text = if (Test-Path -LiteralPath $agents) { Get-Content -LiteralPath $agents -Raw } else { '' }
     if ($text -match '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->') { $text = [regex]::Replace($text, '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->', $entry) } else { $text = $text.TrimEnd() + "`n`n" + $entry }
     Set-Content -LiteralPath $agents -Value $text -Encoding UTF8
+    $rule=Join-Path $workspacePath '.trae\rules\course-preparation.md'
+    $ruleText="---`nalwaysApply: true`n---`n<!-- ai-coding:preparation-rule:2 -->`nRead the root AGENTS.md course preparation entry before starting or resuming this workspace. Keep original product rules. Use the selected user-level course skills and recorded preparation source; never treat tool readiness as full account/service readiness.`n"
+    if(Test-Path -LiteralPath $rule){
+        if([IO.File]::ReadAllText($rule) -notmatch 'ai-coding:preparation-rule:2'){throw 'Existing preparation rule is not course-managed; preserved.'}
+    }
+    [void](New-Item -ItemType Directory -Path (Split-Path $rule -Parent) -Force)
+    Set-Content -LiteralPath $rule -Value $ruleText -Encoding UTF8
     return [pscustomobject]$result
 }
 
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
-    Get-CourseMaterials -Workspace $WorkingDirectory -Version $CourseVersion -WithoutInstallers:$SkipInstallers -Runtime $ContainerRuntime
+    Get-CourseMaterials -Workspace $WorkingDirectory -Version $CourseVersion -Preview $PreviewId -WithoutInstallers:$SkipInstallers -Runtime $ContainerRuntime
 }

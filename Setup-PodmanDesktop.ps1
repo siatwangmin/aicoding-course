@@ -1,22 +1,50 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([ValidateSet('Check','Prepare','Verify')][string]$Mode='Check', [string]$WorkingDirectory,
-      [string]$MachineName='podman-machine-default', [string]$InstallerDirectory)
+      [string]$MachineName='podman-machine-default', [string]$InstallerDirectory,[string]$StorageRoot='D:\AI-Coding')
 
-$podmanInvocation=@{Mode=$Mode;WorkingDirectory=$WorkingDirectory;MachineName=$MachineName;InstallerDirectory=$InstallerDirectory}
+$podmanInvocation=@{Mode=$Mode;WorkingDirectory=$WorkingDirectory;MachineName=$MachineName;InstallerDirectory=$InstallerDirectory;StorageRoot=$StorageRoot}
 . (Join-Path $PSScriptRoot 'Setup-DockerDesktop.ps1')
 $Mode=$podmanInvocation.Mode; $WorkingDirectory=$podmanInvocation.WorkingDirectory
 $MachineName=$podmanInvocation.MachineName; $InstallerDirectory=$podmanInvocation.InstallerDirectory
+$StorageRoot=$podmanInvocation.StorageRoot
 
 function Get-PodmanPaths {
+    $registered=$null
+    $registry=Join-Path $env:USERPROFILE '.ai-coding\tool-paths.json'
+    if(Test-Path -LiteralPath $registry){$registered=(Get-Content -LiteralPath $registry -Raw -Encoding UTF8|ConvertFrom-Json).podman}
+    if($registered.dataHome){$env:XDG_DATA_HOME=$registered.dataHome}
     $cli = Get-Command podman.exe -ErrorAction SilentlyContinue
-    $cliPath = if ($cli) { $cli.Source } else { $null }
-    foreach ($candidate in @("$env:LOCALAPPDATA\Programs\Podman\podman.exe", "$env:ProgramFiles\RedHat\Podman\podman.exe")) {
+    $cliPath = if ($registered.cli -and (Test-Path -LiteralPath $registered.cli)) { $registered.cli } elseif ($cli) { $cli.Source } else { $null }
+    $candidates=@($registered.cli,(Join-Path $StorageRoot 'programs\podman\podman.exe'),"$env:LOCALAPPDATA\Programs\Podman\podman.exe", "$env:ProgramFiles\Podman\podman.exe", "$env:ProgramFiles\RedHat\Podman\podman.exe")
+    foreach($key in @('HKCU:\SOFTWARE\Podman','HKLM:\SOFTWARE\Podman')){if(Test-Path $key){$dir=(Get-ItemProperty $key).InstallDir;if($dir){$candidates+=Join-Path $dir 'podman.exe'}}}
+    foreach ($candidate in $candidates) {
+        if(-not $candidate){continue}
         if (-not $cliPath -and (Test-Path -LiteralPath $candidate)) { $cliPath=$candidate }
     }
-    $desktop = @("$env:ProgramFiles\Podman Desktop\Podman Desktop.exe", "$env:LOCALAPPDATA\Programs\Podman Desktop\Podman Desktop.exe", "$env:LOCALAPPDATA\Programs\podman-desktop\Podman Desktop.exe") |
-        Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
-    return [pscustomobject]@{ Cli=$cliPath; Desktop=$desktop }
+    $desktop = @($registered.desktop,(Join-Path $StorageRoot 'programs\podman-desktop\Podman Desktop.exe'),"$env:ProgramFiles\Podman Desktop\Podman Desktop.exe", "$env:LOCALAPPDATA\Programs\Podman Desktop\Podman Desktop.exe", "$env:LOCALAPPDATA\Programs\podman-desktop\Podman Desktop.exe") |
+        Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -First 1
+    $compose=if($registered.compose -and (Test-Path -LiteralPath $registered.compose)){$registered.compose}elseif(Get-Command docker-compose.exe -ErrorAction SilentlyContinue){(Get-Command docker-compose.exe).Source}else{$null}
+    return [pscustomobject]@{ Cli=$cliPath; Desktop=$desktop; Compose=$compose; DataHome=$registered.dataHome }
+}
+
+function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compose')][string]$Kind){
+    . (Join-Path $PSScriptRoot 'Course-Context.ps1')
+    $manifest=Join-Path $PSScriptRoot '..\assets\podman-installers.json'
+    $entry=(Read-CourseJson $manifest).$Kind
+    if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or $entry.downloadUrl -notmatch '^https://github\.com/(podman-container-tools/podman|docker/compose)/releases/download/'){throw 'Unapproved Podman component manifest.'}
+    $plan=Get-CourseStoragePlan $StorageRoot
+    [void](New-Item -ItemType Directory -Path $plan.installers -Force)
+    $file=Join-Path $plan.installers $entry.file
+    if(-not(Test-Path -LiteralPath $file)){
+        Receive-SetupInstaller $entry.downloadUrl ($file+'.partial')
+        if((Get-FileHash -LiteralPath ($file+'.partial')).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component download SHA-256 mismatch.'}
+        Move-Item -LiteralPath ($file+'.partial') -Destination $file
+    }
+    if((Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component SHA-256 mismatch.'}
+    if($entry.publisher){$sig=Get-AuthenticodeSignature -LiteralPath $file;if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName,$false) -cne $entry.publisher){throw 'Component publisher mismatch.'}}
+    Write-CourseJson (Join-Path $Workspace ('.podman-setup\installer-'+$Kind+'.json')) @{file=$file;source=$entry.downloadUrl;sha256=$entry.sha256;checkedAt=(Get-Date).ToString('o')}
+    return $file
 }
 
 function Resolve-PodmanInstaller {
@@ -29,7 +57,7 @@ function Resolve-PodmanInstaller {
     $file=$folders | ForEach-Object { Join-Path $_ $entry.file } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     $source='Local'
     if (-not $file) {
-        $folder=Join-Path $Workspace 'release'; [void](New-Item -ItemType Directory -Path $folder -Force)
+        . (Join-Path $PSScriptRoot 'Course-Context.ps1'); $plan=Get-CourseStoragePlan $StorageRoot; $folder=$plan.installers; [void](New-Item -ItemType Directory -Path $folder -Force)
         $file=Join-Path $folder $entry.file
         $partial=$file+'.partial'
         Receive-SetupInstaller $entry.downloadUrl $partial
@@ -50,6 +78,7 @@ function Resolve-PodmanInstaller {
 function Get-SetupPodman {
     param([string]$Machine='podman-machine-default', [string]$RepairWorkspace)
     $paths=Get-PodmanPaths
+    if($paths.Compose){$env:PODMAN_COMPOSE_PROVIDER=$paths.Compose}
     if (-not $paths.Cli -or -not $paths.Desktop) { throw 'Podman Desktop or Podman CLI is missing; follow references/windows-podman-setup.md.' }
     $inspection=Invoke-SetupNative $paths.Cli @('machine','inspect',$Machine)
     if ($inspection.ExitCode -ne 0) { throw "Local Podman machine unavailable: $($inspection.Output)" }
@@ -100,23 +129,48 @@ function Invoke-PodmanSetup {
     try {
         if ($Action -eq 'Prepare') {
             $paths=Get-PodmanPaths
+            . (Join-Path $PSScriptRoot 'Course-Context.ps1');$plan=Get-CourseStoragePlan $StorageRoot
             if (-not $paths.Desktop) {
                 $installer=Resolve-PodmanInstaller $Workspace $Directory
                 Write-Host 'Installing official Podman Desktop. Any terms or elevation prompt must be handled by the learner.'
-                $installed=Invoke-SetupNative $installer @('/S','/currentuser') 900
+                $installed=Invoke-SetupNative $installer @('/S','/currentuser',('/D='+(Join-Path $plan.programs 'podman-desktop'))) 900
                 if ($installed.ExitCode -ne 0) { throw $installed.Output }
                 $paths=Get-PodmanPaths
             }
-            if ($paths.Desktop -and -not (Get-Process -Name 'Podman Desktop' -ErrorAction SilentlyContinue)) { Start-Process -FilePath $paths.Desktop -WindowStyle Hidden | Out-Null }
-            if (-not $paths.Cli) { throw 'Desktop installed, but engine onboarding is incomplete. Assistant must follow the Podman reference, not report readiness.' }
+            if (-not $paths.Cli) {
+                $msi=Resolve-PodmanComponent $Workspace 'engine'
+                $install=Invoke-SetupNative (Join-Path $env:SystemRoot 'System32\msiexec.exe') @('/i',$msi,'/passive','/norestart','ALLUSERS=2','MSIINSTALLPERUSER=1',('INSTALLDIR='+(Join-Path $plan.programs 'podman')),'MACHINE_PROVIDER=wsl') 900
+                if($install.ExitCode -eq 3010){throw 'Podman engine installed; Windows restart required.'}
+                if($install.ExitCode -ne 0){throw 'Podman engine installation failed.'}
+                $paths=Get-PodmanPaths
+            }
+            if(-not $paths.Cli){throw 'Installed engine path not confirmed; do not report readiness.'}
+            if(-not $paths.Compose){
+                $composeAsset=Resolve-PodmanComponent $Workspace 'compose';$composeDir=Join-Path $plan.programs 'compose'
+                [void](New-Item -ItemType Directory -Path $composeDir -Force);Copy-Item -LiteralPath $composeAsset -Destination (Join-Path $composeDir 'docker-compose.exe')
+                $paths|Add-Member -MemberType NoteProperty -Name Compose -Value (Join-Path $composeDir 'docker-compose.exe') -Force
+            }
+            $userRoot=Get-CourseUserRoot;Protect-CourseDirectory $userRoot
+            $toolPaths=Join-Path $userRoot 'tool-paths.json';$recorded=if(Test-Path -LiteralPath $toolPaths){Read-CourseJson $toolPaths}else{[pscustomobject]@{schemaVersion=2}}
+            $recorded|Add-Member -MemberType NoteProperty -Name podman -Value @{cli=$paths.Cli;desktop=$paths.Desktop;compose=$paths.Compose;storageRoot=$StorageRoot} -Force
+            Write-CourseJson $toolPaths $recorded;$env:PODMAN_COMPOSE_PROVIDER=$paths.Compose
             $machines=Invoke-SetupNative $paths.Cli @('machine','list','--format','json')
             if ($machines.ExitCode -ne 0) { throw $machines.Output }
             $machineList=ConvertFrom-Json -InputObject $machines.Output
             $existing=@($machineList | Where-Object Name -eq $Machine)
             $operation=$null
-            if (-not $existing) { $operation=Invoke-SetupNative $paths.Cli @('machine','init','--rootful=false','--now',$Machine) 900 }
+            if (-not $existing) {
+                if(@($machineList|Where-Object {$_}).Count -gt 0){throw 'Other machines exist; preserve their data/config and select the intended machine before creating another.'}
+                # Podman v6.1.4 env.GetDataDir uses homedir.GetDataHome; set only this process/children.
+                # Both the image cache and WSL --import destination then originate on the data drive.
+                $dataHome=Join-Path $plan.podmanData 'data-home';Assert-CoursePlainPath $dataHome
+                [void](New-Item -ItemType Directory -Path $dataHome -Force);$env:XDG_DATA_HOME=$dataHome
+                $recorded.podman['dataHome']=$dataHome;Write-CourseJson $toolPaths $recorded
+                $operation=Invoke-SetupNative $paths.Cli @('machine','init','--rootful=false','--now',$Machine) 900
+            }
             elseif (-not $existing.Running) { $operation=Invoke-SetupNative $paths.Cli @('machine','start',$Machine) 300 }
             if ($operation -and $operation.ExitCode -ne 0) { throw $operation.Output }
+            if ($paths.Desktop -and -not (Get-Process -Name 'Podman Desktop' -ErrorAction SilentlyContinue)) { Start-Process -FilePath $paths.Desktop -WindowStyle Hidden | Out-Null }
         }
         $record.Snapshot=if($Action -eq 'Prepare'){Get-SetupPodman $Machine $Workspace}else{Get-SetupPodman $Machine}
         $record.Decision='Ready'

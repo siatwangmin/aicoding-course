@@ -1,0 +1,13 @@
+
+# course published artifacts: preserve checksum bytes
+/previews/** -text
+/*.zip -text
+/*.sha256 -text
+/*.ps1 -text
+/*.json -text
+/*.md -text
+/*.html -text
+/*.cmd -text
+/course/** -text
+/releases/course/** -text
+/.gitattributes -text

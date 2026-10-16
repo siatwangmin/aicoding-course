@@ -64,6 +64,14 @@ function Get-WorkspaceSkillsVerification {
         if (-not $names.Count -or @($names | Where-Object { $_ -cnotmatch '^[a-z][a-z0-9-]{0,63}$' }).Count -or @($names | Select-Object -Unique).Count -ne $names.Count) {
             throw '准备记录缺少有效的完整技能名单，不能根据现有目录猜测通过。'
         }
+        if ($installed.CourseVersion -match '^2\.' -or $installed.ContractVersion -match '^2\.') {
+            $contractPath=Join-Path $PSScriptRoot '..\assets\course-contract.json'
+            if (-not (Test-Path -LiteralPath $contractPath)) { $contractPath=Join-Path $PSScriptRoot 'course-contract.json' }
+            $contract=Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8 -ErrorAction Stop|ConvertFrom-Json
+            foreach ($required in @($contract.skills|Where-Object kind -eq 'generic')) {
+                if ($names -notcontains $required.name) { throw 'Preparation skill list does not satisfy the current contract.' }
+            }
+        }
         return Test-CourseSkills -Workspace $Workspace -Names $names
     } catch {
         $result = [pscustomobject][ordered]@{
@@ -102,6 +110,25 @@ function Get-SkillsChecklistLines {
     '<!-- ai-coding:user-skills:end -->'
 }
 
+function Get-WorkspaceStorageEvidence {
+    param([string]$Workspace)
+    $required=$false
+    foreach($name in @('materials.json','skills-installation.json')){
+        $metadata=Join-Path $Workspace ('.course-setup\'+$name)
+        if(Test-Path -LiteralPath $metadata){
+            $data=Get-Content -LiteralPath $metadata -Raw -Encoding UTF8|ConvertFrom-Json
+            if($data.CourseVersion -match '^2\.' -or $data.ContractVersion -match '^2\.'){$required=$true}
+        }
+    }
+    $path=Join-Path $Workspace '.course-setup\storage.json'
+    $verified=$false
+    if(Test-Path -LiteralPath $path){
+        $record=Get-Content -LiteralPath $path -Raw -Encoding UTF8|ConvertFrom-Json
+        $verified=$record.schemaVersion -eq 2 -and $record.status -eq 'verified' -and [bool]$record.checkedAt
+    }
+    return [pscustomobject]@{Required=$required;Verified=$verified;EvidencePath=$path}
+}
+
 function Update-ExistingSkillsChecklist {
     param([string]$Workspace, $Verification)
     $path = Join-Path $Workspace 'environment-checklist.md'
@@ -114,6 +141,11 @@ function Update-ExistingSkillsChecklist {
     if (-not $Verification.UserInstallationVerified) {
         $text = $text -replace '(?m)\*\*结论：已完成[^\r\n]*', '**结论：未完成（课程技能用户级安装未通过）**'
         $text = $text -replace '(?m)^# 容器工具准备：已完成', '# 容器工具准备：未完成（课程技能用户级安装未通过）'
+    }
+    $storage=Get-WorkspaceStorageEvidence $Workspace
+    if($storage.Required -and -not $storage.Verified){
+        $text=$text -replace '(?m)\*\*结论：已完成[^\r\n]*','**结论：未完成（实际程序与数据存储位置尚未通过）**'
+        $text=$text -replace '(?m)^# 容器工具准备：已完成','# 容器工具准备：未完成（存储位置尚未通过）'
     }
     # A location-only recheck never promotes an incomplete toolchain to completed.
     Set-Content -LiteralPath $path -Value $text -Encoding UTF8
@@ -170,8 +202,20 @@ function Install-CourseSkills {
 
     if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-github-skill.zip')) { $skillNames += 'ai-coding-github' }
     if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-siliconflow-skill.zip')) { $skillNames += 'ai-coding-siliconflow' }
+    $contractPath = Join-Path $Root 'course-contract.json'
+    if (-not (Test-Path -LiteralPath $contractPath) -and (Test-Path -LiteralPath (Join-Path $Root 'course-contract\skills.json'))) { $contractPath = Join-Path $Root 'course-contract\skills.json' }
     $archives = @{}
-    foreach ($name in $skillNames) { $archives[$name] = $name + '-skill.zip' }
+    if (Test-Path -LiteralPath $contractPath) {
+        $contract = Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($contract.schemaVersion -ne 2) { throw 'Unsupported course contract.' }
+        $generic = @($contract.skills | Where-Object kind -eq 'generic')
+        $skillNames = @($generic.name)
+        if (-not $skillNames.Count -or @($skillNames | Select-Object -Unique).Count -ne $skillNames.Count) { throw 'Invalid required skill list.' }
+        foreach ($entry in $generic) {
+            if ($entry.name -cnotmatch '^[a-z][a-z0-9-]{0,63}$' -or $entry.archive -cnotmatch '^[a-z][a-z0-9-]{0,100}\.zip$') { throw 'Unsafe skill contract.' }
+            $archives[$entry.name] = $entry.archive
+        }
+    } else { foreach ($name in $skillNames) { $archives[$name] = $name + '-skill.zip' } }
     $caseProfilePath = Join-Path $Root 'case-profile.json'
     if (Test-Path -LiteralPath $caseProfilePath) {
         $caseProfile = Get-Content -LiteralPath $caseProfilePath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -260,7 +304,7 @@ function Install-CourseSkills {
             }
             $records = Join-Path $Workspace '.course-setup'
             [void](New-Item -ItemType Directory -Path $records -Force)
-            @{ InstalledAt = (Get-Date).ToString('o'); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames) } |
+            @{ InstalledAt = (Get-Date).ToString('o'); ContractVersion = $(if ($contract) { $contract.baselineVersion } else { '1' }); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames) } |
                 ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $records 'skills-installation.json') -Encoding UTF8
         } finally {
             Assert-CourseSkillDirectory $userStage $userTraeRoot
