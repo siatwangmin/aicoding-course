@@ -14,11 +14,12 @@ function Get-CourseUserRoot {
 function Protect-CourseDirectory([string]$Path) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path $Path -Force)
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User
-    $acl=[IO.Directory]::GetAccessControl($Path,[Security.AccessControl.AccessControlSections]::Access)
+    $legacyAclApi=[IO.Directory].GetMethods().Name -contains 'GetAccessControl'
+    $acl=if($legacyAclApi){[IO.Directory]::GetAccessControl($Path,[Security.AccessControl.AccessControlSections]::Access)}else{Get-Acl -LiteralPath $Path}
     $acl.SetAccessRuleProtection($true,$false)
     foreach($rule in @($acl.Access)){[void]$acl.RemoveAccessRuleSpecific($rule)}
     $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'))
-    [IO.Directory]::SetAccessControl($Path,$acl)
+    if($legacyAclApi){[IO.Directory]::SetAccessControl($Path,$acl)}else{Set-Acl -LiteralPath $Path -AclObject $acl}
 }
 function Write-CourseJson([string]$Path,$Value) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path (Split-Path $Path -Parent) -Force)
@@ -32,6 +33,18 @@ function Read-CourseJson([string]$Path) {
     Assert-CoursePlainPath $Path
     return Get-Content -LiteralPath $Path -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
 }
+function Resolve-CourseRecordedRuntime([string]$Workspace) {
+    foreach($relative in @('.ai-coding\project.json','.course-setup\container-runtime.json','.course-setup\materials.json','toolchain-verification.json')){
+        $path=Join-Path $Workspace $relative
+        if(Test-Path -LiteralPath $path){
+            $record=Read-CourseJson $path
+            $runtime=$record.containerRuntime
+            if($runtime -in @('docker','podman')){return $runtime}
+            if($relative -eq 'toolchain-verification.json'){return 'docker'}
+        }
+    }
+    return 'podman'
+}
 function Register-CoursePreparation([string]$Workspace) {
     $Workspace=(Resolve-Path -LiteralPath $Workspace).Path; Assert-CoursePlainPath $Workspace
     $report=Read-CourseJson (Join-Path $Workspace 'toolchain-verification.json')
@@ -43,8 +56,13 @@ function Register-CoursePreparation([string]$Workspace) {
     $id=if($prior.preparationId){$prior.preparationId}else{[guid]::NewGuid().ToString()}
     $value=@{schemaVersion=2;preparationId=$id;registeredAt=(Get-Date).ToString('o');userSid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;machine=$env:COMPUTERNAME;containerRuntime=$runtime;image=$report.Image;imageDigest=$report.imageDigest;verifiedAt=$report.VerifiedAt;verificationMethod=$report.VerificationMethod;networkMode=$report.NetworkMode;connection=$report.Connection;toolchainEvidence='toolchain-verification.json';storageEvidence='.course-setup/storage.json'}
     $value.imageId=$report.ImageId;$value.archiveSha256=$report.ArchiveSha256
+    if($runtime -eq 'podman'){$value.compose=$report.ComposeBinding}
     $storageFile=Join-Path $Workspace '.course-setup\storage.json'
-    $value.storageRoot=if(Test-Path -LiteralPath $storageFile){(Read-CourseJson $storageFile).desiredRoot}else{'D:\AI-Coding'}
+    $storage=if(Test-Path -LiteralPath $storageFile){Read-CourseJson $storageFile}else{$null}
+    $value.desiredStorageRoot=$storage.desiredRoot
+    $value.storageStatus=if($storage.status){$storage.status}else{'pending'}
+    $value.storageRoot=if($storage.status -eq 'verified'){$storage.desiredRoot}else{$null}
+    $value.storagePaths=@($storage.actualPaths)
     $capabilityLine=([string]$report.ToolchainCheck.Output -split '\r?\n'|Where-Object {$_ -like 'CAPABILITIES_JSON:*'}|Select-Object -Last 1)
     if($capabilityLine){
         $capabilities=$capabilityLine.Substring('CAPABILITIES_JSON:'.Length)|ConvertFrom-Json
@@ -59,15 +77,37 @@ function Register-CoursePreparation([string]$Workspace) {
     Write-CourseJson $indexPath @{schemaVersion=2;selectedId=$id;preparations=@($entries)}
     return [pscustomobject]@{preparationId=$id;path=$path;status='registered'}
 }
-function Find-CoursePreparation([string]$Source) {
+function Find-CoursePreparation([string]$Source,[string]$PreparationId) {
     if($Source){$path=Join-Path $Source '.course-setup/preparation.json'}else{
         $index=Read-CourseJson (Join-Path (Get-CourseUserRoot) 'preparation-index.json')
-        $entries=@($index.preparations | Where-Object {$_.preparationId -eq $index.selectedId})
+        $wanted=if($PreparationId){$PreparationId}else{$index.selectedId}
+        $entries=@($index.preparations | Where-Object {$_.preparationId -eq $wanted})
         if($entries.Count -ne 1){throw 'Preparation missing or ambiguous; ask for preparation location.'}; $path=$entries[0].path
     }
     $record=if(Test-Path -LiteralPath $path){Read-CourseJson $path}elseif(-not $Source -and $entries[0].record){$entries[0].record}else{throw 'Preparation record unavailable.'}
     if($record.schemaVersion -ne 2 -or $record.userSid -ne [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -or $record.machine -ne $env:COMPUTERNAME){throw 'Preparation schema, user or machine mismatch.'}
     return [pscustomobject]@{path=$path;workspace=(Split-Path (Split-Path $path -Parent) -Parent);record=$record}
+}
+function Find-CourseProjectPreparation([string]$ProjectDirectory,[string]$Source) {
+    $manifest=Join-Path $ProjectDirectory '.ai-coding\project.json'
+    if(-not(Test-Path -LiteralPath $manifest)){return Find-CoursePreparation $Source}
+    $project=Read-CourseJson $manifest
+    $bindingPath=Join-Path $ProjectDirectory '.ai-coding\preparation.json'
+    $binding=if(Test-Path -LiteralPath $bindingPath){Read-CourseJson $bindingPath}else{$null}
+    $id=if($project.preparationId){$project.preparationId}else{$binding.preparationId}
+    if($Source){$found=Find-CoursePreparation $Source}
+    elseif($id){$found=Find-CoursePreparation -PreparationId $id}
+    else{
+        # Legacy projects may lack an ID: match existing toolchain, never adopt an unrelated selected environment.
+        $index=Read-CourseJson (Join-Path (Get-CourseUserRoot) 'preparation-index.json')
+        $matches=@($index.preparations|Where-Object {$_.record.image -eq $project.image -and $_.record.containerRuntime -eq $project.containerRuntime -and (-not $project.connection -or $_.record.connection -eq $project.connection)})
+        if($matches.Count -ne 1){throw 'PROJECT_PREPARATION_MISSING_OR_AMBIGUOUS: preserve project and identify its original preparation.'}
+        $found=Find-CoursePreparation -PreparationId $matches[0].preparationId
+    }
+    if(($id -and $found.record.preparationId -ne $id) -or $found.record.image -ne $project.image -or $found.record.containerRuntime -ne $project.containerRuntime -or ($project.connection -and $project.connection -ne $found.record.connection)){
+        throw 'PROJECT_PREPARATION_CONFLICT: existing binding preserved.'
+    }
+    return $found
 }
 function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
     $source=Find-CoursePreparation $Workspace
@@ -89,6 +129,14 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
         if($values.Count -eq 2){$entry.cloudbase=[pscustomobject]@{envId=$values.VITE_CLOUDBASE_ENV_ID;publishableKey=$values.VITE_CLOUDBASE_PUBLISHABLE_KEY;authorizationStatus='pending'}}
     }
     $aiFile=Join-Path $Workspace '.ai-setup\verification.json'
+    $accountFile=Join-Path $Workspace '.ai-setup\account-readiness.json'
+    if(Test-Path -LiteralPath $accountFile){
+        $account=Read-CourseJson $accountFile
+        if($account.mode -eq 'account-readiness'){
+            if(-not $entry.ai){$entry.ai=[pscustomobject]@{}}
+            $entry.ai|Add-Member -MemberType NoteProperty -Name accountReadiness -Value ([pscustomobject]@{status=$account.status;checkedAt=$account.checkedAt;learnerConfirmedAt=$account.learnerConfirmedAt;scope='account-and-billing-only';checks=[pscustomobject]@{identityVerified=($account.checks.identityVerified -eq $true);billingReviewed=($account.checks.billingReviewed -eq $true)}}) -Force
+        }
+    }
     if(Test-Path -LiteralPath $aiFile){
         $report=Read-CourseJson $aiFile
         # Only known non-secret fields; never copy arbitrary provider responses.
@@ -105,11 +153,11 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
     Write-CourseJson $registryPath @{schemaVersion=2;preparations=@($remaining)+@($entry)}
     return [pscustomobject]@{preparationId=$entry.preparationId;status='service-records-registered';authorizationStatus='pending'}
 }
-function Get-CourseStoragePlan([string]$Root='D:\AI-Coding',[long]$RequiredBytes=20GB) {
+function Get-CourseStoragePlan([string]$Root='D:\AI-Practice',[long]$RequiredBytes=20GB) {
     $rootPath=[IO.Path]::GetFullPath($Root); Assert-CoursePlainPath $rootPath
     $drive=New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($rootPath))
     if(-not $drive.IsReady -or $drive.DriveType -ne 'Fixed' -or $drive.DriveFormat -ne 'NTFS'){throw 'Select a local NTFS data drive. No C fallback.'}
     if([IO.Path]::GetPathRoot($rootPath) -eq [IO.Path]::GetPathRoot($env:SystemRoot)){throw 'Large data cannot use the system drive.'}
     if($drive.AvailableFreeSpace -lt $RequiredBytes){throw 'Insufficient target space. No C fallback.'}
-    return [pscustomobject]@{schemaVersion=2;desiredRoot=$rootPath;checkedAt=(Get-Date).ToString('o');availableBytes=$drive.AvailableFreeSpace;requiredBytes=$RequiredBytes;programs=(Join-Path $rootPath 'programs');installers=(Join-Path $rootPath 'installers');dockerData=(Join-Path $rootPath 'runtime-data\docker');podmanData=(Join-Path $rootPath 'runtime-data\podman');status='planned';actualStatus='pending'}
+    return [pscustomobject]@{schemaVersion=2;desiredRoot=$rootPath;checkedAt=(Get-Date).ToString('o');availableBytes=$drive.AvailableFreeSpace;requiredBytes=$RequiredBytes;programs=(Join-Path $rootPath 'programs');installers=(Join-Path $rootPath 'downloads\installers');dockerData=(Join-Path $rootPath 'runtime-data\docker');podmanData=(Join-Path $rootPath 'runtime-data\podman');status='planned';actualStatus='pending'}
 }

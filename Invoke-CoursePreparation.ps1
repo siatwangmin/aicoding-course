@@ -22,7 +22,14 @@ function Test-PreparationStage([string]$Name,$Item){
         $storage=Join-Path $root '.course-setup\storage.json'
         return (Test-Path -LiteralPath $storage) -and (Read-CourseJson $storage).status -eq 'verified'
     }
-    if($Name -eq 'ai'){return $e.credentials -eq 'passed' -and $e.text.status -eq 'passed' -and $e.vision.status -eq 'passed'}
+    if($Name -eq 'ai'){
+        if($e.mode -eq 'account-readiness'){
+            try{$confirmed=[datetime]::Parse($e.learnerConfirmedAt);$validConfirmation=$confirmed -le (Get-Date) -and $confirmed -ge [datetime]::Parse($e.checkedAt).AddHours(-24)}catch{$validConfirmation=$false}
+            return $e.status -eq 'verified' -and $e.checks.identityVerified -eq $true -and $e.checks.billingReviewed -eq $true -and $validConfirmation -and @($e.evidence).Count -gt 0
+        }
+        # Explicitly retained legacy service evidence is not required for new course preparation.
+        return $e.credentials -eq 'passed' -and $e.text.status -eq 'passed' -and $e.vision.status -eq 'passed'
+    }
     $required=switch($Name){cloudbase{@('identityVerified','managementAccessVerified','pgCapabilityVerified','publicConfigSaved')}github{@('identityVerified','emailVerified')}summary{@('skillsVerified','traeLoadObserved','currentResultsReviewed')}}
     return $e.status -eq 'verified' -and @($required|Where-Object {$e.checks.$_ -ne $true}).Count -eq 0 -and @($e.evidence).Count -gt 0
 }

@@ -1,6 +1,6 @@
 # AI Coding 实操课
 
-环境准备现在可在 preparation.html 的“让 Trae 准备工具”中选择 **Docker Desktop** 或 **Podman Desktop**；已有哪一个就选哪一个，只安装一种。页面记住选择，并带入复制给助手的提示。助手负责安装、配置和实际检查，本人只处理必要授权、条款或重启。已有作品沿用工具记录，不重新初始化。Podman 路线、machine/Compose、rootless/pasta 与离线镜像证据由用户级 ai-coding-env 的 references/windows-podman-setup.md 维护；下文已有 Docker 命令仅为 Docker 路线示例。
+新课前准备统一使用 **Podman CLI + 独立 Docker Compose**，由 Trae 下载、配置和实际验证。无需 Docker Desktop 或 Podman Desktop，也无需为编排安装 Python。已有作品沿用原 runtime、connection 和镜像；助手保留数据并处理必要迁移，学员不执行命令。
 
 
 **课前：打开 `preparation.html`，先安装 Trae，后续下载和准备由助手完成。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
@@ -20,7 +20,7 @@
 
 ## 发给学员什么
 
-发送[课前环境准备网页](https://siatwangmin.github.io/aicoding-course/preparation.html)即可。先安装打开 Trae，再复制页面提示，让它下载小课程资料包、所选 Docker/Podman 和 WSL；不要求学员手动下载或解压软件合集。已有安装程序和工具直接用。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
+发送[课前环境准备网页](https://siatwangmin.github.io/aicoding-course/preparation.html)即可。先安装打开 Trae，再复制页面提示，让它下载小课程资料包、Podman、独立 Docker Compose 和 WSL；不要求学员手动下载或解压软件合集。已有安装程序和工具直接用。资料不含成品、个人平台密码或 AI 凭证；作品使用指定公开课堂演示账号。
 
 环境由 Trae 按 `setup-guide.md` 准备。学员处理需要本人完成的授权、条款和重启；最后由助手汇总准备结论，不要求学员审查配置或日志。
 
@@ -30,7 +30,7 @@
 
 ## 2.0 工程接续
 
-环境在 A 准备，作品在新的 B 初始化；ai-coding-project 自动从用户级索引发现准备，接入 GitHub/CloudBase/AI，准备 Android 并生成项目根 AGENTS、技术基线和接续记录。大型环境数据默认 D 盘；本地运行、Web 编译和 APK 构建使用准备阶段同一 Docker 镜像。API Key 使用用户级加密存储与项目引用，不逐项目复制。
+环境在 A 准备，作品在新的 B 初始化；ai-coding-project 自动从用户级索引发现准备，接入 GitHub/CloudBase/AI，准备 Android 并生成项目根 AGENTS、技术基线和接续记录。大型环境数据默认 D 盘；本地运行、Web 编译和 APK 构建使用准备阶段同一已验证课程镜像。API Key 使用用户级加密存储与项目引用，不逐项目复制。
 
 通用技能名单以 course-contract.json（维护源 course-contract/skills.json）为准：七项通用，学生错题本课程另加案例技能。通用开发调用 ai-coding-development，Android 调用 ai-coding-android；明确选择案例才读取案例业务。本人只做必要授权/费用决定、需求设计与亲自试用。配置、实际服务、构建、安装与本人试用分别留证。
 

@@ -7,7 +7,7 @@ $prepared=Find-CoursePreparation $PreparationDirectory
 Assert-CoursePlainPath $Destination
 # An explicit allowlist; never export raw reports, service credentials or extra index fields.
 $value=@{}
-foreach($key in @('schemaVersion','preparationId','registeredAt','userSid','machine','containerRuntime','image','imageDigest','verifiedAt','verificationMethod','networkMode','connection','imageId','archiveSha256','capabilities','storageRoot')){
+foreach($key in @('schemaVersion','preparationId','registeredAt','userSid','machine','containerRuntime','image','imageDigest','verifiedAt','verificationMethod','networkMode','connection','compose','imageId','archiveSha256','capabilities','storageRoot','storageStatus','desiredStorageRoot','storagePaths')){
     $value[$key]=$prepared.record.$key
 }
 if(-not $value.verifiedAt -or -not $value.image){throw 'Unverified preparation cannot be exported.'}

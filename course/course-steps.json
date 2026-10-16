@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -19,7 +19,7 @@
           "purpose": "下载安装 Trae，完成登录、界面与网络代理配置，选好课程工作目录。",
           "actions": [
             "下载 Trae 安装软件包。链接：https://www.trae.cn/（推荐在Huawei-Guest 网络操作）",
-            "安装 Trae 软件。如果C盘空间不足，选择“自定义安装”在非系统盘安装Trae（如下第2个图）。",
+            "安装 Trae 软件。优先选择“自定义安装”，将 Trae 安装在非系统盘（默认课程根目录 D:\\AI-Practice）（如下第2个图）。",
             "点右上角的“Agent”，进入工作台模式（有可能每次启动都需要点一下）。",
             "登录 Trae（推荐在 Huawei-Guest 网络登录）。",
             "选择“亮色”皮肤，告别黑暗色。",
@@ -100,7 +100,12 @@
               "label": "下载 Trae",
               "url": "https://www.trae.cn/"
             }
-          ]
+          ],
+          "timing": {
+            "minMinutes": 10,
+            "maxMinutes": 20,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "E-01",
@@ -108,20 +113,26 @@
           "tool": "Trae",
           "purpose": "一次连续准备工具、云服务、GitHub和AI，已有成果供新文件夹复用。",
           "actions": [
-            "在本页选择 Docker Desktop 或 Podman Desktop；已有哪一个就选哪一个，不用同时安装两个。",
             "在 Trae 点“打开文件夹”，选择一个用于课程练习的文件夹；没有就新建一个。出现信任提示时，由本人核对并决定。",
             "在聊天框发送下方提示；需要选择模式时，选 Agent（智能体）。",
             "按助手提示处理必要授权、条款、费用或重启；完成后它会继续。重启后回原任务说“请继续未完成的课前准备”。"
           ],
-          "prompt": "我选择使用 {{container_runtime}}。请按这份课程准备说明连续完成全部课前准备：https://siatwangmin.github.io/aicoding-course/setup-guide.md。工具、腾讯云、GitHub和AI服务按顺序准备，最后汇总结果；已有内容直接用。较大的软件、镜像和数据默认放D盘，保存成果让新文件夹的作品直接复用。需要我操作时，一次告诉我一个动作。现在先不创建作品。",
+          "prompt": "请使用 Podman CLI 和独立 Docker Compose，无需 Desktop。已有工程沿用原工具记录。请按这份课程准备说明连续完成全部课前准备：https://siatwangmin.github.io/aicoding-course/setup-guide.md。工具、腾讯云、GitHub和AI服务按顺序准备，最后汇总结果；已有内容直接用。较大的软件、镜像和数据默认放D盘，保存成果让新文件夹的作品直接复用。需要我操作时，一次告诉我一个动作。现在先不创建作品。",
           "expected": [
             "助手连续准备工具、云服务、GitHub和AI，并说明各项结果；未完成时给当前一个动作。"
           ],
           "check": [],
-          "help": "只准备所选容器工具；下载、安装、配置和检查由助手完成。后面几页对应同一次准备的各阶段，已完成不用重复发送提示；只有中断或缺项才用该页提示恢复。本人只处理身份、条款、费用或重启。",
+          "help": "新环境由 Trae 准备 Podman 和独立 Compose，已有工程沿用原记录；下载、安装、配置和检查由助手完成。后面几页对应同一次准备的各阶段，已完成不用重复发送提示；只有中断或缺项才用该页提示恢复。本人只处理身份、条款、费用或重启。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 45,
+            "maxMinutes": 120,
+            "reuseMinMinutes": 3,
+            "reuseMaxMinutes": 10,
+            "waitHint": "下载期间保持网络连接，留意 Trae 的授权提示；如需重启，保存工作后重启并回到原目录继续。"
+          }
         },
         {
           "id": "E-06",
@@ -141,7 +152,12 @@
           "help": "密码、验证码和实名信息只在本人页面填写。此时不用创建作品或发布网页。 本页是同一次课前准备的接续入口，已完成不用重复操作。",
           "helper": false,
           "promptKind": "recovery",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 10,
+            "maxMinutes": 25,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "E-07",
@@ -161,27 +177,40 @@
           "help": "密码、验证码和条款由本人在官网处理，不发到聊天里。此时不用创建仓库或设置推送工具。 本页是同一次课前准备的接续入口，已完成不用重复操作。",
           "helper": false,
           "promptKind": "recovery",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "E-08",
-          "title": "课前准备 AI 服务",
+          "title": "准备自己的 AI 服务账号",
           "tool": "Trae 与它打开的硅基流动页面",
-          "purpose": "提前准备好 AI 服务，后续加 AI 功能时直接使用。",
+          "purpose": "本人注册登录，了解可用优惠、余额和费用；程序配置将在 V4 完成。",
           "actions": [
-            "助手已经完成这一项时，直接看结果并进入下一页；仅中断或未完成时发送下方恢复提示。",
-            "跟随页面登录，查看额度与费用，由本人决定是否继续。",
-            "按助手指引创建或复用 Key（AI 服务的调用钥匙），只粘贴到它打开的隐藏输入窗口。等助手检查结果。"
+            "复制下面提示到 Trae，由助手引导打开硅基流动官方入口。",
+            "本人注册或登录，查看当前可领取优惠及费用，决定是否充值。",
+            "保存准备结果，API Key 和模型将在程序具备设置入口后由本人配置。"
           ],
-          "prompt": "请用课程的硅基流动陪练带我准备 AI 服务。已有账号和 Key 直接用；先让我看清额度和费用，再带我安全保存 Key。地址配置和实际调用检查由你完成，最后告诉我是否准备好。",
+          "prompt": "请调用ai-coding-siliconflow，带我注册或登录自己的账号，查看当前优惠和费用，由我决定是否充值。记录账号准备结果，程序里的 Key 和模型配置留到 AI 开发阶段完成。",
           "expected": [
-            "助手确认 AI 服务可用，或说明尚缺哪一项。"
+            "本人已登录并了解当前费用，充值决定已记录。",
+            "账号准备与后续 Key、模型调用及作品功能验收分别记录。"
           ],
-          "check": [],
+          "check": [
+            "我已了解当前优惠和费用，知道后续要在程序中配置自己的 Key 和模型。"
+          ],
           "help": "Key 不发到聊天里。登录、条款和付费决定由本人处理；调用地址、模型和技术配置交给助手。 助手会安全保存为你可复用的凭证；新作品由它自动接入，不用再次复制 Key。 本页是同一次课前准备的接续入口，已完成不用重复操作。",
           "helper": false,
           "promptKind": "recovery",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "E-05",
@@ -201,9 +230,19 @@
           "help": "你不用阅读日志或逐项检查配置；看助手的明确结论即可。此时还没有作品业务页面是正常的。",
           "helper": false,
           "promptKind": "recovery",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 70,
+        "maxMinutes": 180,
+        "scope": "含工具安装及账号准备；平台特殊审核可能延长"
+      }
     },
     {
       "id": "project",
@@ -234,9 +273,21 @@
           "helper": false,
           "promptKind": "send",
           "recordLearnerCompletion": true,
-          "completionId": "P-02"
+          "completionId": "P-02",
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "reuseMinMinutes": 2,
+            "reuseMaxMinutes": 5,
+            "waitHint": "复用课前准备的环境；需要本人授权时，Trae 会给出一个具体动作。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 5,
+        "maxMinutes": 15,
+        "scope": "本阶段总时间，包含正常操作、等待及试用；不与步骤时间重复相加"
+      }
     },
     {
       "id": "design",
@@ -271,7 +322,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 10,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "D-02",
@@ -299,7 +355,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 8,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "D-03",
@@ -329,7 +390,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "D-04",
@@ -357,7 +423,12 @@
             }
           ],
           "promptKind": "problem",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "D-05",
@@ -385,7 +456,12 @@
             }
           ],
           "promptKind": "missing",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 1,
+            "maxMinutes": 3,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "D-06",
@@ -407,9 +483,19 @@
           "help": "不需要自己判断目录结构或文件版本；按 Trae 打开的文件夹放入文件即可。有缺项让它具体指出。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 5,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 20,
+        "maxMinutes": 40,
+        "scope": "本阶段总时间，包含正常操作、等待及试用；不与步骤时间重复相加"
+      }
     },
     {
       "id": "v1",
@@ -436,7 +522,12 @@
           "help": "配置、启动、文件更新和技术错误由 Trae 处理。页面空白或一直没变化时，把看到的现象告诉它。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 10,
+            "maxMinutes": 25,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V1-02",
@@ -458,7 +549,12 @@
           "help": "本机记录属于当前浏览器；换设备不会自动出现。清理浏览器数据会影响记录。",
           "helper": false,
           "promptKind": "problem",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V1-03",
@@ -479,9 +575,19 @@
           "help": "",
           "helper": false,
           "promptKind": "after",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 5,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 20,
+        "maxMinutes": 45,
+        "scope": "本阶段总时间，包含正常操作、等待及试用；不与步骤时间重复相加"
+      }
     },
     {
       "id": "v2",
@@ -515,7 +621,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-02",
@@ -542,7 +653,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-03",
@@ -570,7 +686,12 @@
             }
           ],
           "promptKind": "missing",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-PAGES",
@@ -591,7 +712,12 @@
           "help": "链接暂时打不开时，把看到的提示告诉 Trae。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "平台发布需要等待，Trae 会核对部署结果和实际网址。"
+          }
         },
         {
           "id": "V2-04",
@@ -610,7 +736,12 @@
           "help": "未做课前准备时，助手会从原记录继续；不重新注册或重复创建已有环境。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-05",
@@ -629,7 +760,12 @@
           "help": "这里完成云端保存与共享；前面的 github.io 页面保留为静态展示。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 10,
+            "maxMinutes": 25,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-06",
@@ -651,7 +787,12 @@
           "help": "你不用判断浏览器会话是否独立，也不用断网测试；由 Trae 准备和检查。两个普通标签页是否合格，由助手判断。",
           "helper": false,
           "promptKind": "problem",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         },
         {
           "id": "V2-07",
@@ -672,9 +813,19 @@
           "help": "",
           "helper": false,
           "promptKind": "after",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "需要授权或本人试用时，助手会给出具体动作；超过预计时间会说明原因及下一步。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 20,
+        "maxMinutes": 55,
+        "scope": "本阶段总时间，包含正常操作、等待及试用；不与步骤时间重复相加"
+      }
     },
     {
       "id": "v3",
@@ -708,7 +859,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         },
         {
           "id": "V3-02",
@@ -735,7 +891,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         },
         {
           "id": "V3-03",
@@ -763,7 +924,12 @@
             }
           ],
           "promptKind": "missing",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         },
         {
           "id": "V3-04",
@@ -782,7 +948,12 @@
           "help": "",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         },
         {
           "id": "V3-05",
@@ -804,7 +975,12 @@
           "help": "你只需按当前手机提示操作，具体传输方式由 Trae 指引。安装冲突先反馈现象，不通过卸载清数据解决。",
           "helper": false,
           "promptKind": "problem",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         },
         {
           "id": "V3-06",
@@ -825,9 +1001,19 @@
           "help": "",
           "helper": false,
           "promptKind": "after",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "编译和安装分别检查；需要手机操作时，Trae 会一步一步提示。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 10,
+        "maxMinutes": 30,
+        "scope": "本阶段总时间，包含正常操作、等待及试用；不与步骤时间重复相加"
+      }
     },
     {
       "id": "v4",
@@ -846,7 +1032,7 @@
             "回原 Gemini 对话；新对话上传当前 PRD 和 HTML，说明上一阶段已完成情况。",
             "发送下面提示，确认本项输入、输出、人工确认与失败处理。"
           ],
-          "prompt": "这轮先给学生错题本增加“{{ai_name}}”。具体要求：{{ai_goal}} 请更新 PRD.md，写清学生的操作顺序、人工判断、失败时怎样继续和完成标准。保持已有功能，本次只设计这一项，先不要开发。 同时加入“设置 → AI 模型”，让我能查看和更换文本、图片理解模型，默认值由课程配置提供。",
+          "prompt": "这轮先给学生错题本增加“{{ai_name}}”。具体要求：{{ai_goal}} 请更新 PRD.md，写清学生的操作顺序、人工判断、失败时怎样继续和完成标准。保持已有功能，本次只设计这一项，先不要开发。 同时加入“设置 → AI 服务”，让我能查看和更换文本、图片理解模型，默认值由课程配置提供。 API Key 由我在程序里亲自填写，助手完成受保护服务端实现并引导测试连接。",
           "expected": [
             "更新后的 PRD 只新增本次选择的 AI 任务。"
           ],
@@ -862,7 +1048,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         },
         {
           "id": "V4-02",
@@ -873,7 +1064,7 @@
             "在同一 Gemini 对话继续 Canvas，发送下面提示。",
             "按本项流程试正常、人工确认和失败情况，确认后继续。"
           ],
-          "prompt": "请按更新后的 PRD，在现有 Canvas 中加入“{{ai_name}}”。让我试用：{{ai_flow}}。结果用虚构内容演示，明确标为模拟；保留原来的页面与规则。确认后同步更新 PRD，并输出完整单个 HTML。 在现有界面提供“设置 → AI 模型”，可查看和更换模型、保存或取消、恢复默认，并显示失败反馈；保留现有导航。",
+          "prompt": "请按更新后的 PRD，在现有 Canvas 中加入“{{ai_name}}”。让我试用：{{ai_flow}}。结果用虚构内容演示，明确标为模拟；保留原来的页面与规则。确认后同步更新 PRD，并输出完整单个 HTML。 在现有界面提供“设置 → AI 服务”，可查看和更换模型、保存或取消、恢复默认，并显示失败反馈；保留现有导航。",
           "expected": [
             "本项 AI 功能的确认原型。"
           ],
@@ -889,7 +1080,12 @@
             }
           ],
           "promptKind": "send",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         },
         {
           "id": "V4-03",
@@ -917,26 +1113,36 @@
             }
           ],
           "promptKind": "missing",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 2,
+            "maxMinutes": 8,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         },
         {
           "id": "V4-04",
           "title": "检查已有 AI 服务",
           "tool": "Trae",
-          "purpose": "确保这轮能进行真实 AI 调用。",
+          "purpose": "复查本人账号、费用和本轮所需模型能力；程序设置将在下一步接入。",
           "actions": [
-            "发送下方提示，让 Trae 复查课前 AI 服务。",
-            "等它确认可用；只有缺项时才按陪练指引补齐。Key 只填到隐藏输入窗口。"
+            "复制提示到 Trae，复查已有账号与本轮费用范围。",
+            "按助手提示完成必要的本人账号操作；不要求此时已有程序设置或云函数。"
           ],
-          "prompt": "这轮要做“{{ai_name}}”。请按课程方案检查并复用初始化时接入的 AI 服务和当前所选模型，只补缺项。技术检查由你完成；需要我操作时一次告诉我一个动作，Key 不发到聊天里。准备好后告诉我。",
+          "prompt": "请复查我自己的 AI 服务账号、费用和本轮所需模型能力；只补缺项，已有账号直接复用。程序设置尚未实现时记录待办，下一步做好入口后带我亲自填写 Key 和选择模型。",
           "expected": [
-            "助手确认本项 AI 服务可用，可以开始实现。"
+            "账号与本轮准备结果已记录，程序配置缺项如实保留。"
           ],
           "check": [],
           "help": "助手检查当前设置的模型；尚未配置时采用课程默认值。Key只进隐藏输入，这一步还不是作品功能验收。",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 3,
+            "maxMinutes": 10,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         },
         {
           "id": "V4-05",
@@ -947,7 +1153,7 @@
             "发送下方提示，让 Trae 完成当前选择的 AI 功能。",
             "等它检查完成，给出网页入口和本轮安卓安装文件。"
           ],
-          "prompt": "本轮“{{ai_name}}”的需求和页面设计已确认。请用学生错题本课程助手实现：{{ai_goal}} 保留原来的页面、保存和同步。实际调用及技术检查由你完成；结束给我网页入口、安卓安装文件和简短试用动作。这次只做这一项，未通过的请说明。 同时接入“设置 → AI 模型”，保存后网页和已安装安卓版本共同生效，后续换模型不用改代码或重装；已有设置直接复用。",
+          "prompt": "本轮“{{ai_name}}”的需求和页面设计已确认。请用学生错题本课程助手实现：{{ai_goal}} 保留原来的页面、保存和同步。实际调用及技术检查由你完成；结束给我网页入口、安卓安装文件和简短试用动作。这次只做这一项，未通过的请说明。 同时接入“设置 → AI 服务”，保存后网页和已安装安卓版本共同生效，后续换模型不用改代码或重装；已有设置直接复用。 API Key 由我在程序里亲自填写，助手完成受保护服务端实现并引导测试连接。",
           "expected": [
             "得到当前功能的试用入口和安卓更新指引。",
             "能从设置查看和更换模型，网页与安卓版共用同一选择。"
@@ -956,7 +1162,12 @@
           "help": "",
           "helper": false,
           "promptKind": "send",
-          "recordLearnerCompletion": false
+          "recordLearnerCompletion": false,
+          "timing": {
+            "minMinutes": 15,
+            "maxMinutes": 30,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         },
         {
           "id": "V4-06",
@@ -965,7 +1176,7 @@
           "purpose": "判断真实效果，保留人工决定。",
           "actions": [
             "{{ai_tests}}",
-            "首次完成 AI 或更换模型后，按助手指引试“设置 → AI 模型”：保存后在网页和已安装安卓版查看；有问题直接反馈。",
+            "首次完成 AI 或更换模型后，按助手指引试“设置 → AI 服务”：保存后在网页和已安装安卓版查看；有问题直接反馈。",
             "完成后填写下方试用结果，发给 Trae；有问题让它修复后带你再试。",
             "本项完成后再选择下一项 AI 功能，从需求开始新一轮。"
           ],
@@ -979,9 +1190,19 @@
           "help": "网页和手机按本轮范围分别试用；没有试过的设备不要勾为通过。你判断是否好用，真实调用与故障测试由助手负责。 模型设置的权限、费用、真实生效与失败测试由助手完成；不要求你填写Key或判断技术日志。",
           "helper": false,
           "promptKind": "after",
-          "recordLearnerCompletion": true
+          "recordLearnerCompletion": true,
+          "timing": {
+            "minMinutes": 5,
+            "maxMinutes": 15,
+            "waitHint": "本轮只做当前选定的 AI 能力；配置和调用失败由 Trae 排查，费用决定由本人完成。"
+          }
         }
-      ]
+      ],
+      "timing": {
+        "minMinutes": 30,
+        "maxMinutes": 60,
+        "scope": "当前选定的一项 AI 能力，包含正常配置、开发及试用"
+      }
     }
   ],
   "aiTasks": [
@@ -1066,19 +1287,16 @@
       "url": "https://docs.cloudbase.net/skill.md"
     },
     {
-      "title": "Podman Desktop 官方 Windows 安装说明",
-      "url": "https://podman-desktop.io/docs/installation/windows-install"
+      "title": "Podman CLI 官方 Windows 安装说明",
+      "url": "https://github.com/podman-container-tools/podman/blob/main/docs/tutorials/podman-for-windows.md"
     }
   ],
   "downloadMode": "agent",
   "containerRuntimes": [
     {
-      "id": "docker",
-      "name": "Docker Desktop"
-    },
-    {
       "id": "podman",
-      "name": "Podman Desktop"
+      "name": "Podman CLI + 独立 Docker Compose"
     }
-  ]
+  ],
+  "timingNotice": "教学估算，适用于当前一轮已确认的小需求；网络异常、复杂需求、平台审核及重启可能延长。实际耗时以执行记录为准。"
 }

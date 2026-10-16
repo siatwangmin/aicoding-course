@@ -1,92 +1,44 @@
 # 通用准备说明｜供 Trae 读取
 
-学员不用阅读本文件；把课前网页的提示发给 Trae 即可。
+学员把课前网页的简短请求发给 Trae 即可。助手负责下载、安装、配置、检查和记录；本人只确认保存位置、需求设计、必要身份/条款/费用/重启及真实试用。正常技术步骤连续完成，必要本人动作一次一个，完成后接续。
 
-学员只需发简短准备请求，安装、实际运行检查和报告保存都由助手默认执行，不要求学员在提示中重复技术约束或勾选助手完成状态。本阶段只准备工具，不创建作品；需要本人登录、条款或重启时给一个动作，结束用一句话说明结果。案例阶段的逐步技术检查由对应课程 Skill 的内部检查资料承担，不显示在学员手册。
+## 当前路线与范围
 
-用户可能完全没有编程经验。收到“准备 AI Coding 工具”“安装资料包里的助手”时读取本文。环境准备、项目启动和产品业务分别执行；前两项可以用于任何兼容作品。
+新准备统一 Windows 11 x64 / WSL2 + Podman CLI + 独立 Docker Compose EXE，容器由 Podman 运行。无需 Docker Desktop、Podman Desktop 或编排用 Python。固定工具镜像由准备记录提供，后续 Web、测试、APK 构建均使用同一镜像，不在宿主安装 Node/JDK/Android 工具链。
 
-## 先确认所选容器工具
+已有作品以 .ai-coding/project.json 为准；已有准备先读原始报告和 .course-setup/materials.json、container-runtime.json。没有 runtime 的旧报告按原 Docker 兼容处理，不因课程新默认静默换引擎。Docker 旧工程按用户级 ai-coding-env/references/windows-docker-setup.md 恢复；不运行 Docker Prepare 来补 Podman 缺项。
 
-课前环境页可选 Docker Desktop / Podman Desktop，复制的提示已带选择。本人明确选择优先，已有作品沿用 manifest；读取 workspace 的 .course-setup/container-runtime.json / materials.json，旧记录无选择时保留 Docker。只准备一种，不因 Podman 缺项自动安装 Docker。Get-CourseMaterials.ps1 显式传 `-ContainerRuntime docker` 或 `-ContainerRuntime podman`，将选择保存在准备记录和 AGENTS。
+完整课前请求连续推进 E-01 工具 → E-06 CloudBase → E-07 GitHub → E-08 AI → E-05 汇总。工具 Ready 只是一个子阶段，不能在此停止或让学员再说“继续”。仅请求工具排障时保持该范围。本阶段不创建业务工程、数据库表、函数或 APK。
 
-选择 Podman 时，从用户级 ai-coding-env 读取 references/windows-podman-setup.md，执行 Setup-PodmanDesktop.ps1 的 Prepare/Verify，再执行 Verify-Toolchain.ps1 -ContainerRuntime podman；它使用独立 .podman-setup 报告及同一课程镜像。已有 Podman Desktop/CLI/WSL/machine 不重装，缺项由助手从官方来源补齐和验证，不让学员执行命令。Docker 专用提权与 endpoint 规则只适用于下面的 Docker 分支。
+## E-01：从零取得课程资料
 
-## E-01：还没有课程资料时
+1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.1.0/18515e73bb8c/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.1.0 -PreviewId 18515e73bb8c -ContainerRuntime podman`。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
+2. 从 A/.course-setup/materials.json 定位实际 PackageRoot、SetupGuide 和 SkillsDirectory。按 course-contract/skills.json 安装七项通用技能及明确选定案例；同名用户副本先备份再更新，项目同名副本先备份移出发现目录，不复制 Skill 到 B。
+3. 已有完整本地包时，运行其 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <实际目录>，脚本保护旧文件并核对 ZIP 摘要和根部 SKILL.md 名称；缺文件或多个等距来源时报告真实缺项，不猜用户名或盘符。
+4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，继续准备、工具验收与服务阶段。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
 
-当前网页先安装打开 Trae（E-02），再由 Trae 连续准备工具（E-01，含原 E-04）。此入口不依赖课程 Skill 已安装，也不要求学员先手工下载或解压。
+## 工具准备与恢复
 
-1. 保持 Trae 当前打开的文件夹为 workspace。下载官方课程仓库的 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1` 到 workspace 的 `.course-setup/Get-CourseMaterials.ps1`，读取脚本后用 Windows PowerShell 运行，传入 `-WorkingDirectory workspace -ContainerRuntime <所选引擎>`。脚本从公开 VERSION.json 确定课程版本，再从固定版本 GitHub Pages 地址取得 `aicoding-student-kit.zip` 和 SHA-256，先校验再安全解压；不需先注册 GitHub。
-2. 脚本保护已有文件，在 workspace 内建立版本化资料目录，将清单规定的课程技能安装到当前用户的 `%USERPROFILE%\.trae-cn\skills`，保存 `.course-setup/materials.json` 和 AGENTS 的资料入口。下载结束后立即从这份记录定位实际说明，继续安装与工具验收，不要求学员重开文件夹或搬文件。
-3. 脚本只获取所选路线所缺的官方安装程序。Docker 路线沿用以下两个地址；Podman 使用 ai-coding-env/assets/podman-installers.json 的官方 Podman Desktop 固定版本、SHA-256 与 Red Hat, LLC 签名，已有安装直接用，不下载 Docker。WSL 必须匹配固定摘要；Docker 官网版本变化时检查有效 Docker Inc 签名。只有实际工具检查证明已安装且可复用时才用 `-SkipInstallers`，并记录跳过理由；下载完成不代表安装或环境验收通过。
-   - Docker：`https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe`
-   - WSL：`https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi`
-4. E-01 包含资料下载、用户级技能安装、Prepare、Verify 与工具箱实际验收（已合并原 E-04）。Get-CourseMaterials.ps1 只负责下载及技能安装，完成后必须继续下文的环境助手流程；不在下载后停止，不要求学员再发送一条安装提示。权限、条款、登录和重启由本人按当前一步处理。不得使用 GitHub Release 的 aicoding-course-kit.zip 或 software.zip 作为新下载路线，不改变原有代理或把网络失败当下载通过。
+1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -CourseVersion 2.1.0 -PreviewId 18515e73bb8c -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
+2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
+3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到 D:/AI-Practice/programs/compose/docker-compose.exe，登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
+4. 共同 Course-Native.ps1/Course-Runtime.ps1 将 PODMAN_COMPOSE_PROVIDER 仅注入本次子进程，绑定受管 EXE、项目 connection 及目标 API；隔离旧 DOCKER_HOST/CONTEXT/TLS 变量。不得修改全局默认连接或抢占 docker_engine 管道。Podman info、Compose version、真实 API 与容器操作分别验证。
+5. Prepare/Verify 后立即运行 Verify-Toolchain.ps1 -ContainerRuntime podman -WorkingDirectory <A>。在线核精确 RepoDigest；官方仓库不可达且存在批准离线镜像时，用 -ImageArchive <明确来源> -SkipPull，重新核归档 SHA256、镜像配置 ID 与 linux/amd64。不能拿标签或旧报告代替身份。
+6. 固定镜像内执行断网 check-environment.sh，要求退出码 0 和 TOOLCHAIN_READY；保存本次 toolchain-verification.json、environment-checklist.md 与用户级准备索引。Verify 失败保留 VerifiedAt=null、实际错误和续接点，不沿用旧成功。
+7. 用 Prepare-CourseStorage.ps1 -Verify 记录程序/Compose、WSL VHD 与实际大型数据位置；旧 C 盘资源保持 pending，不为满足 D 盘要求重建或自动搬动正在使用的 VHD。本人已选 D 盘不等于技术验证通过。
 
-## 直接安装本地助手
+Compose 客户端不需要 Python、PyYAML 或 python-dotenv。课程文档/ZIP 生成用的已有管理运行时与学员项目工具链分开。网络失败先分层探测宿主、machine、容器和服务代理，不关闭 TLS、防火墙或改 host 网络来绕过失败。
 
-1. 保留当前工作目录为 workspace。已有 .course-setup/materials.json 时先核对其中的版本、实际 PackageRoot 与 SetupGuide，使用该资料根；无有效记录时，资料包根目录优先为当前目录；没有 `setup-guide.md` 时向上和向子目录按距离搜索最近的说明。使用资料包中的 `Install-CourseSkills.ps1`（或已安装环境助手的同名脚本）自动定位与安装：`-WorkingDirectory workspace`。多个等距离完整包、搜索上限或缺文件时报告实际结果，不猜测盘符、用户名或桌面位置。只有外层 ZIP 时先核对实际条目，再自动解压到当前目录内的资料子目录。确定根目录后，按统一清单查找技能 ZIP 与各自 SHA-256；不下载未知替代版。
+## 服务接续和最终检查
 
-2. 将两个 ZIP 分别解压到 当前用户的 Trae 全局技能目录 `%USERPROFILE%\.trae-cn\skills\ai-coding-env` 和 `%USERPROFILE%\.trae-cn\skills\ai-coding-project`。先备份再更新同名目录，不改其他技能；当前 workspace 的同名项目副本保存在 .course-setup/skill-backups 后移出发现目录。按 [Trae 官方目录说明](https://docs.trae.cn/ide_skills)使用当前平台位置，直接本地安装，不要求用户上传插件市场。
+工具检查后继续调用 ai-coding-cloudbase、ai-coding-github、ai-coding-siliconflow。复用有效身份、授权和服务引用；登录/实名/验证码/费用由本人在官网处理。E-08 由本人登录、查看当前优惠和费用并决定充值；只记录账号准备，不要求提前保存 Key 或调用模型。V4 程序设置就绪后，由本人在“设置 → AI 服务”填写自己的 Key 和模型；Key仅经受保护接口保存至服务端，不写聊天、前端产物、Git、镜像或 APK。旧用户级加密存储只作明确来源的兼容恢复。不扫描 HOME 找秘密；只按明确旧来源安全导入，验证加密存储前保留来源。
 
-3. 两个根部 `SKILL.md` 的 name 必须分别为 `ai-coding-env`、`ai-coding-project`；保留脚本与资产目录，检查引用完整，实际确认能被工具识别和加载。复制成功不等于启用成功；不能识别时报告实际客户端障碍，不能猜测已启用。
+使用 Invoke-CoursePreparation.ps1 -WorkingDirectory <A> -Action Status/Record 保存工具→CloudBase→GitHub→AI→汇总的进度。云端管理授权、PostgreSQL 能力、GitHub 身份/邮箱、AI 账号与费用准备分别留证；V4 的模型调用按已授权范围另行验收；配置成功不等于真实授权/调用成功。
 
-4. 若资料包有 `case-profile.json`，安装脚本必须读取其中声明的案例技能 ZIP 与名称，核对 SHA-256、ZIP 根部 SKILL.md 的 name 与引用，安装到当前用户的对应全局技能目录；声明的文件缺失时报告失败，不能静默跳过。只有用户明确选择该案例时才使用。通用环境与启动器不依赖案例资料。没有案例包仍能创建其他作品。
+E-05 按完整 SkillNames 执行 Install-CourseSkills.ps1 -VerifyOnly，复查根部名称、用户目录及项目同名副本；在真实 Trae 新会话观察加载，安装位置正确不等于实际加载。报告本次工具、存储、技能、平台和模型各自结果；缺项不标整体完成。给学员可打开的清单和当前一个必要动作，不让学员逐项审日志或手工勾助手结果。
 
-5. 将通用技能位置合并到当前资料目录已有的 `AGENTS.md`，让后续功能语言请求能发现助手，不覆盖已有约束。作品启动后，将助手引用合并进作品 AGENTS；业务规则从该作品自己的材料读取。
+## 新目录 B 的使用
 
-当前资料包另含 `ai-coding-cloudbase-skill.zip` 与校验文件。安装脚本会一并校验并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-cloudbase`，同样保留根部 `SKILL.md` 并检查识别状态；旧的两技能包仍可使用。将此助手也加入技能引用。课程在 E-06 课前云服务准备中调用它，提前完成账号、实名、官方接入、管理授权及练习环境。容器环境助手只验收所选引擎的工具；云端操作由 CloudBase 陪练调用官方 Skill 执行，不创建业务数据或发布作品。
+P-01 由 ai-coding-project 一次完成发现准备、空 B 创建/已有工程恢复、GitHub/CloudBase 接入、AI 默认文件与后续设置路线、Android 准备、规范与起始页检查。A 暂不可用时只用用户索引允许的脱敏摘要；不创建第二套凭证或工具镜像。后续开发由 ai-coding-development，Android 由 ai-coding-android/Build-Android.ps1 执行。Web、服务、APK、安装、启动、同步和本人试用分别留证；本人未试不得记通过。
 
-当前资料包还含 `ai-coding-github-skill.zip` 与校验文件。安装脚本一并安装到 `%USERPROFILE%\.trae-cn\skills\ai-coding-github` 并保留其他技能；旧包没有此项时仍可安装原有助手。课程 E-07 调用它，一步一步带本人注册或登录 GitHub 免费个人账号、完成邮箱验证，已有账号直接复用。检查准备结果后继续 E-08 的 AI 服务准备，不在课前创建仓库或配置推送凭据；平台要求的本人验证与条款在官网完成。
-
-已有对话仍报告案例技能不可调用时，先核对案例技能确已安装，再在同一作品新建对话，请求使用该助手并读取当前步骤。应看到技能调用记录和正确项目路径；只读资料里的 SKILL.md 不算加载成功。安装位置固定为当前用户的 Trae 全局技能目录，切换作品继续使用，不再复制到项目 .trae/skills。旧用户副本由脚本先备份再更新；当前 workspace 的同名项目副本先备份再移出技能目录，避免旧规则遮蔽。其他已打开作品若仍有同名副本，按实际路径备份后迁出，不删除其他技能或源码。
-
-## 准备工具，与创建作品分开
-
-当前安装包由 E-01 的助手从官方原始地址获取；位置和来源记录在 workspace 的 `.course-setup`、`.docker-setup`。复用已有 release、releases 或 software 中的安装程序；缺项才按固定清单自动下载。不要求学员选择安装包目录、解压软件合集或移动文件，从实际位置传入 InstallerDirectory。不要把公司云盘分享页当安装程序直接执行，也不使用带到期时间的临时 WSL 链接。下载、摘要与签名检查由脚本完成；失败后检查实际网络和下载记录，按官方地址继续处理；不退回 GitHub Release 完整包或旧网盘安装包，不能声称已安装。
-
-调用 `ai-coding-env`，按前文选择对应 Windows 路线。以下为 Docker 专用流程；Podman 按其 reference 和独立脚本执行。助手连续执行自动定位/解压、`Start-Process powershell.exe ... -Verb RunAs -Wait` 运行 Prepare、自动安装和启动 Desktop、同样主动提权 Verify、digest 拉取和容器内检查，最后写 `workspace\toolchain-verification.json`。Prepare/Verify 不得先非管理员失败后再提权。仅在 UAC 前告知“请点击是”及首次条款前告知“请本人阅读并决定是否接受”；普通步骤不中断征询，不要求用户手动打开程序或观察 Engine running。诊断和安装记录只在 workspace 的 `.docker-setup`，不写 AppData。BIOS 未开启、系统需要重启或材料/策略确实阻塞时报告证据，不能自动跳过或声称完成。
-
-工具箱验收完成只报告工具可用并记录结果；本助手不创建产品目录或云资源。课程接着在 E-06 调用 CloudBase 陪练完成课前云准备，两项分别记录。用户要启动作品时才调用 `ai-coding-project`，只需确定保存位置，不强制先填名称、用途或业务目标；没有这些信息也先建立通用空白工作空间，需求和原型确认后由助手据此补全。空白页面、案例开发、工具验收和云准备分别检查。
-
-**结束前必须核对工具箱验收，不能在 Docker 就绪后停止。** Prepare/Verify 返回 `Decision=Ready` 后，直接执行已安装环境助手的 `scripts\Verify-Toolchain.ps1 -WorkingDirectory <原工作目录>`，不要求学员再发“继续”指令。实际退出码为 0，且本次生成的 `toolchain-verification.json` 中 VerifiedAt 有效、Image/imageDigest 匹配固定配置、Architecture=amd64、Os=linux、ToolchainCheck.ExitCode=0 并有检查输出，才可报告工具箱准备完成。缺记录或未通过时报告实际停在哪一步，读取安装/工具记录继续诊断。
-
-脚本同时生成当前工作目录的 `environment-checklist.md`，展示系统、WSL、所选容器工具、镜像获取、摘要、平台和容器工具的逐项结果及证据。E-01 内就按 `.course-setup/materials.json` 的完整 SkillNames（直接安装资料包时用 `skills-installation.json`）实际检查技能用户级安装，逐项展示清单规定的课程技能的用户路径、项目同名副本和检查时间，保存 `skills-verification.json`；缺项由助手修复后重验，不等到 E-05 才检查。工具检查和用户级安装都通过才能完成；位置检查不代替 Trae 实际识别加载。助手结束时打开或链接这份报告；“未检查”或“未通过”的必要项不能当作完成。
-
-## 课前准备 CloudBase，作品建立后复用
-
-项目 SDK/离线编译依赖不代表 CloudBase Skill/MCP 已连接。课程 E-06 在课前调用 CloudBase 陪练，按 `https://docs.cloudbase.net/skill.md` 和实际客户端官方说明完成云服务准备，核对 MCP 的进程位置及授权。若通过本地 npx 启动，必须检查其所在环境的 Node/npx 和首次下载条件；容器里有 Node 不能代表 Windows 已满足。不要承诺云服务完全离线。必须本人安装额外工具时给一步官方指引，不静默改变其系统。
-
-账号登录、实名认证、开通费用、管理授权及模型调用凭证由本人在指定页面完成。只记录状态，秘密不进聊天、通用镜像、资料包或代码。
-
-开通课堂 CloudBase 时调用已安装的 `ai-coding-cloudbase`。用 Trae BrowserUse 一次一个动作带学员完成注册、登录与实名；再实际读取 `https://docs.cloudbase.net/skill.md`，在学员当前 Trae 环境中接入腾讯云官方 Skill，由其 MCP 或官方 CLI 完成免费资格核对、PostgreSQL 环境与同环境 Publishable Key 的所有云端操作。取得值后实际绑定、读取环境，并保存检查两个连接值。没有作品时使用当前工作区 `.cloudbase-setup/connection.env` 和准备记录；已有作品时合并到真实源码 `.env`。创建作品后由助手自动读取准备结果并接入，不切换 V1 本地模式。已有账号可直接发送“帮我把 CloudBase 接好，按官方说明完成接入并建议下一步”。不能把配置保存、插件安装或控制台登录当作管理接入成功，也不能把管理接入当作作品的数据同步成功。密码、实名资料与授权批准由本人在页面处理，管理密钥仍由本人保管。
-
-## 功能开发的交接顺序
-
-工具检查与当前作品打开完成后（首次新建空白项目，已有作品直接恢复），进入通用项目 Skill 的功能迭代流程。每一次本机、云端、安卓或 AI 功能迭代都由用户在 Gemini 更新 PRD.md、在 Canvas 更新设计 HTML 并试用确认，再交 Trae 实现与测试、亲自验收。资料已覆盖本轮目标且用户已确认时直接继续，不重复确认。账号或技术准备不能代替产品需求与设计。
-
-## E-08：课前准备硅基流动
-
-资料包包含 ai-coding-siliconflow-skill.zip 和校验文件，安装到当前用户的 %USERPROFILE%/.trae-cn/skills/ai-coding-siliconflow，旧资料包没有此项仍保留原助手。调用此陪练用 BrowserUse 带本人登录、核对余额/额度有效期与模型当前费用、创建或复用 Key；基础 URL 自动填好，本人只在隐藏输入窗口粘贴 Key。Key 固定保存在当前用户加密存储；workspace/.ai-setup 只留引用和脱敏证据，旧 env 可安全导入并保留来源。课前模型ID从通用ai-coding-siliconflow/assets/default-models.json读取；已有作品优先使用服务端当前选择，未配置才用项目默认文件；课前检查直接测试硅基流动，不需要产品或云函数已存在。费用决定由本人处理，配置已保存和真实调用通过分别记录。作品创建后由助手绑定凭证引用并核对服务证据，V4-04 只复查补缺，V4-05 才将 Key 接到本轮对应云函数服务端。
-
-## 学员网页入口
-
-课前先看在线 preparation.html；资料下载由 Trae 完成，已有离线页面也可直接使用，按当前课前准备阶段推进。工具、云服务、GitHub 与硅基流动分别检查，勾选不代替真实验收。上课打开 index.html 的 AI Coding 操作手册，从建立作品开始；已有作品按原进度继续。两页相邻存放，切换不要求重新解压或重新准备。
-
-当前使用 GitHub Pages 中的 aicoding-student-kit.zip 小资料包。Trae 从官方地址取得 Docker 和 WSL，不下载完整软件合集。课前顺序为 E-02 → E-01 → E-06 → E-07 → E-08 → E-05，共六步；原 E-03/E-04 进度映射到合并后的 E-01。E-05 先按课程助手内部名单执行已安装环境助手的 Install-CourseSkills.ps1 -VerifyOnly -SkillNames <完整名单> -WorkingDirectory <原workspace>，实际核对用户目录位置、完整名单的根部 SKILL.md 名称和项目同名副本，保存 skills-verification.json；缺项由助手修复并复查，不要求学员代检。位置检查不代替实际识别加载。E-05 最后由课程助手汇总工具、云服务、GitHub 与 AI 的各自准备证据；必要项通过后进入操作手册，不要求学员审查配置或日志。
-
-## 2.0 工程接续
-
-环境在 A 准备，作品在新的 B 初始化；ai-coding-project 自动从用户级索引发现准备，接入 GitHub/CloudBase/AI，准备 Android 并生成项目根 AGENTS、技术基线和接续记录。大型环境数据默认 D 盘；本地运行、Web 编译和 APK 构建使用准备阶段同一 Docker 镜像。API Key 使用用户级加密存储与项目引用，不逐项目复制。
-
-通用技能名单以 course-contract.json（维护源 course-contract/skills.json）为准：七项通用，明确选择某教学案例时另加其案例技能。通用开发调用 ai-coding-development，Android 调用 ai-coding-android；明确选择案例才读取案例业务。本人只做必要授权/费用决定、需求设计与亲自试用。配置、实际服务、构建、安装与本人试用分别留证。
-
-## 完整课前请求的执行约定
-
-E-01的一次短提示连续覆盖工具→CloudBase→GitHub→硅基流动→E-05汇总；按当前用户ai-coding-env/references/preparation-workflow.md接续，工具通过不在E-01停下。后续各页是进度说明与缺项恢复入口，已完成不用再发提示。必要本人动作完成后继续，重启/中断保存续接点；仅单独要求工具排障时保持范围。
-
-P-01为B生成根AGENTS、Trae项目规则引用、工程工作流与技术spec模板。按用户目标路由Skill，指引必须包含实施顺序和失败恢复，不能只有验收清单。原型/产品由本项目确认材料决定；技术操作与记录由助手完成。
-
-## 模型默认值与后续设置
-
-E-08从用户级ai-coding-siliconflow/assets/default-models.json读取通用默认值：文本deepseek-ai/DeepSeek-V4-Flash，图片理解Qwen/Qwen3.8-27B；核本人当前可用性和费用。B初始化生成非秘密config/ai-models.defaults.json，不提前做产品功能。V4在现有界面提供“设置 → AI 模型”，保存服务端项目配置，网页/Android共享；后续模型升级通过设置更换，不复制Key或重打APK。已有有效配置优先，旧默认文件不能覆盖选择。
+本地候选资料不表示线上已发布；新版本仅由 teacher/build-distribution.py 生成页面、章节、Skill 副本和 ZIP，历史发布不可覆盖。

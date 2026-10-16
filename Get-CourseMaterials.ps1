@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([string]$WorkingDirectory, [string]$CourseVersion, [string]$PreviewId, [switch]$SkipInstallers,
-      [ValidateSet('docker','podman')][string]$ContainerRuntime='docker')
+      [ValidateSet('docker','podman')][string]$ContainerRuntime='podman')
 
 function Receive-CourseFile {
     param([string]$Url, [string]$Destination)
@@ -34,10 +34,27 @@ function Expand-CourseMaterials {
     } finally { $zip.Dispose() }
 }
 
+function Resolve-CourseBootstrapRuntime([string]$Workspace) {
+    # This is the zero-material entry: no adjacent helper is guaranteed to exist yet.
+    foreach($relative in @('.ai-coding\project.json','.course-setup\container-runtime.json','.course-setup\materials.json','toolchain-verification.json')){
+        $path=Join-Path $Workspace $relative
+        if(Test-Path -LiteralPath $path){
+            $record=Get-Content -LiteralPath $path -Raw -Encoding UTF8 -ErrorAction Stop|ConvertFrom-Json
+            if($record.containerRuntime -in @('docker','podman')){return $record.containerRuntime}
+            if($record.containerRuntime){throw 'Invalid recorded runtime; preserve workspace and resolve selection.'}
+            if($relative -eq 'toolchain-verification.json'){return 'docker'}
+        }
+    }
+    return 'podman'
+}
+
 function Get-CourseMaterials {
     param([string]$Workspace, [string]$Version, [string]$Preview, [switch]$WithoutInstallers,
-          [ValidateSet('docker','podman')][string]$Runtime='docker')
+          [ValidateSet('docker','podman')][string]$Runtime='podman')
     $workspacePath = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
+    if(-not $PSBoundParameters.ContainsKey('Runtime')){
+        $Runtime=Resolve-CourseBootstrapRuntime $workspacePath
+    }
     $baseUrl = 'https://siatwangmin.github.io/aicoding-course'
     $records = Join-Path $workspacePath '.course-setup'
     [void](New-Item -ItemType Directory -Path $records -Force)
@@ -74,7 +91,9 @@ function Get-CourseMaterials {
     $courseRoot = Join-Path $workspacePath ("course-materials-$cacheId")
     try {
         Expand-CourseMaterials $archive $staging
-        foreach ($required in @('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')) {
+        $requiredFiles=@('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')
+        if([version]$Version -ge [version]'2.1.0'){$requiredFiles+=@('Course-Native.ps1','Setup-Podman.ps1')}
+        foreach ($required in $requiredFiles) {
             if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) { throw "Missing course file: $required" }
         }
         if ((Get-Content -LiteralPath (Join-Path $staging 'VERSION.json') -Raw | ConvertFrom-Json).version -ne $Version) { throw 'Course archive version mismatch.' }
@@ -106,9 +125,18 @@ function Get-CourseMaterials {
             $manifest = Join-Path $courseRoot 'windows-installers.json'
             if ($Runtime -eq 'podman') {
                 $envSkill=@($installedSkills | Where-Object Name -eq 'ai-coding-env')[0].Destination
-                . (Join-Path $envSkill 'scripts\Setup-PodmanDesktop.ps1')
-                if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
-                if (-not (Get-PodmanPaths).Desktop) {$installerFiles += Resolve-PodmanInstaller $workspacePath ''}
+                $engineEntry=Join-Path $envSkill 'scripts\Setup-Podman.ps1'
+                if(Test-Path -LiteralPath $engineEntry){
+                    . $engineEntry
+                    if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
+                    if (-not (Get-PodmanPaths).Cli) {$installerFiles += Resolve-PodmanComponent $workspacePath 'engine'}
+                    $installerFiles += Resolve-PodmanComponent $workspacePath 'compose'
+                }else{
+                    # Explicit historical releases retain their original setup route.
+                    . (Join-Path $envSkill 'scripts\Setup-PodmanDesktop.ps1')
+                    if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
+                    if (-not (Get-PodmanPaths).Desktop) {$installerFiles += Resolve-PodmanInstaller $workspacePath ''}
+                }
             } else {
                 $installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest
                 $installerFiles += Resolve-SetupInstaller 'docker' '' $manifest
@@ -120,7 +148,7 @@ function Get-CourseMaterials {
     @{ContainerRuntime=$Runtime;SelectedAt=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $records 'container-runtime.json') -Encoding UTF8
     $agents = Join-Path $workspacePath 'AGENTS.md'
     $entry = "<!-- ai-coding:materials-entry:1 -->`n## Course preparation entry`nRead .course-setup/materials.json to locate setup-guide.md and user-level SkillsDirectory. For a full preparation request, read ai-coding-env/references/preparation-workflow.md and continue E-01 tools -> E-06 CloudBase -> E-07 GitHub -> E-08 SiliconFlow -> E-05 summary in the same task. Tools ready is only one stage; do not stop and ask the learner to say continue. Save the current stage and resume after necessary identity/terms/fees/restart actions. A tool-only troubleshooting request keeps its scope. Reuse existing installers and valid service results; register user-level preparation and service references for a new B. Downloads, installed skills, saved configuration and real service checks are separate. Preserve work; do not create a product or copy secrets/skills into a project.`n<!-- ai-coding:materials-entry:end -->"
-    $entry=$entry.Replace('Read .course-setup/materials.json', "Selected container runtime: $Runtime. Prepare only this runtime; use its local engine, Compose and reports. Browser selection is a preference, never verification. Read .course-setup/materials.json")
+    $entry=$entry.Replace('Read .course-setup/materials.json', "Selected container runtime: $Runtime. Prepare only this runtime; use its local engine, Compose and reports. New preparations use Podman CLI plus managed standalone Docker Compose, without either Desktop. Existing project runtime bindings remain authoritative; selection is never verification. Read .course-setup/materials.json")
     $text = if (Test-Path -LiteralPath $agents) { Get-Content -LiteralPath $agents -Raw } else { '' }
     if ($text -match '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->') { $text = [regex]::Replace($text, '(?s)<!-- ai-coding:materials-entry:1 -->.*?<!-- ai-coding:materials-entry:end -->', $entry) } else { $text = $text.TrimEnd() + "`n`n" + $entry }
     Set-Content -LiteralPath $agents -Value $text -Encoding UTF8
@@ -137,5 +165,7 @@ function Get-CourseMaterials {
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
-    Get-CourseMaterials -Workspace $WorkingDirectory -Version $CourseVersion -Preview $PreviewId -WithoutInstallers:$SkipInstallers -Runtime $ContainerRuntime
+    $arguments=@{Workspace=$WorkingDirectory;Version=$CourseVersion;Preview=$PreviewId;WithoutInstallers=$SkipInstallers}
+    if($PSBoundParameters.ContainsKey('ContainerRuntime')){$arguments.Runtime=$ContainerRuntime}
+    Get-CourseMaterials @arguments
 }

@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[string]$StorageRoot='D:\AI-Coding',[ValidateSet('docker','podman')][string]$ContainerRuntime='docker',[switch]$Verify,[long]$RequiredBytes=20GB)
+param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[string]$StorageRoot='D:\AI-Practice',[ValidateSet('docker','podman')][string]$ContainerRuntime='podman',[switch]$Verify,[long]$RequiredBytes=20GB)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Storage.ps1')
 $workspace=(Resolve-Path -LiteralPath $WorkingDirectory).Path
