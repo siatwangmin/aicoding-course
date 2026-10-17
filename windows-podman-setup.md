@@ -32,3 +32,6 @@ B 继承 runtime=podman、原 connection、同镜像、网络模式和 compose.p
 
 
 2.1 镜像获取前先验实际存储：新 machine 的 VHDX、受管程序与 dataHome 必须落在选定非系统盘，再执行大镜像拉取/导入。已有有效本地镜像直接核验，不联系仓库。旧离线镜像在原归档摘要、固定配置ID、原connection和实际镜像ID均匹配时可复用历史归档证据，报告明确 ArchiveEvidenceReused，不声称本轮重验归档或在线RepoDigest。旧C盘环境保留资源并进入定位/迁移流程，不在C盘继续获取大镜像。
+
+
+已验证的CLI 6.1.4 / server 6.0.2组合同样支持原machine管道恢复，仍核helper路径/摘要和真实Compose API；其他组合保留诊断，不循环重建。迁移计划与Apply使用同一参数，不导入带param的可执行安装器；目标为空目录可以安全移除空目录，已有内容保留。VerifyAfterRestart同步restartStatus与资源证据。

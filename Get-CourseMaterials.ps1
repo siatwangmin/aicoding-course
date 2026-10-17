@@ -92,6 +92,7 @@ function Get-CourseMaterials {
     try {
         Expand-CourseMaterials $archive $staging
         $requiredFiles=@('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')
+        if([version]$Version -ge [version]'2.1.1'){$requiredFiles+=@('Course-Docker.ps1','Course-Podman.ps1')}
         if([version]$Version -ge [version]'2.1.0'){$requiredFiles+=@('Course-Native.ps1','Setup-Podman.ps1')}
         foreach ($required in $requiredFiles) {
             if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) { throw "Missing course file: $required" }
@@ -121,7 +122,7 @@ function Get-CourseMaterials {
         $priorLocation = Get-Location
         try {
             Set-Location -LiteralPath $workspacePath
-            . (Join-Path $courseRoot 'Setup-DockerDesktop.ps1')
+            if(Test-Path -LiteralPath (Join-Path $courseRoot 'Course-Docker.ps1')){. (Join-Path $courseRoot 'Course-Docker.ps1')}else{. (Join-Path $courseRoot 'Setup-DockerDesktop.ps1')}
             $manifest = Join-Path $courseRoot 'windows-installers.json'
             if ($Runtime -eq 'podman') {
                 $envSkill=@($installedSkills | Where-Object Name -eq 'ai-coding-env')[0].Destination

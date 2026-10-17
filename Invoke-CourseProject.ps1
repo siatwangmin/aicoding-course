@@ -2,21 +2,37 @@
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$ProjectDirectory,
       [ValidateSet('Start','Verify','RunScript','Install','Add','Remove','Repair')][string]$Action='Verify',
+      [switch]$ReuseBuild,
       [string]$Script,[string[]]$Packages,[string[]]$ScriptArguments,[switch]$DevDependency,
       [ValidateRange(10,3600)][int]$TimeoutSeconds=600)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Runtime.ps1')
+function Get-CourseFilesDigest([string]$Base,[string[]]$Paths) {
+    $parts=@()
+    foreach($relative in $Paths){
+        $path=Join-Path $Base $relative
+        if(-not(Test-Path -LiteralPath $path)){continue}
+        Assert-CoursePlainPath $path
+        $files=if(Test-Path -LiteralPath $path -PathType Container){@(Get-ChildItem -LiteralPath $path -Recurse -File)}else{@(Get-Item -LiteralPath $path)}
+        foreach($file in $files|Sort-Object FullName){Assert-CoursePlainPath $file.FullName;$parts+=($file.FullName.Substring($Base.Length)+':'+(Get-FileHash -LiteralPath $file.FullName).Hash)}
+    }
+    $sha=[Security.Cryptography.SHA256]::Create()
+    try{return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($parts -join "`n"))))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}
+}
 function Invoke-CourseProjectAction {
-    param([string]$Root,[string]$Operation,[string]$NpmScript,[string[]]$PackageNames,[string[]]$ExtraArguments,[bool]$Development,[int]$Timeout)
+    param([string]$Root,[string]$Operation,[string]$NpmScript,[string[]]$PackageNames,[string[]]$ExtraArguments,[bool]$Development,[int]$Timeout,[bool]$Reuse)
     if($Operation -eq 'RunScript' -and $NpmScript -notmatch '^[a-zA-Z][a-zA-Z0-9:_-]*$'){throw 'PROJECT_SCRIPT_NAME_REQUIRED'}
     if($Operation -in @('Add','Remove') -and (-not $PackageNames.Count -or @($PackageNames|Where-Object {$_ -match '^-' -or $_ -match '\s'}).Count)){throw 'EXPLICIT_PACKAGE_NAMES_REQUIRED'}
     $maintenance=$Operation -in @('Install','Add','Remove','Repair')
     $result=$null
-    $ctx=Get-CourseProjectRuntime $Root -Start -ForDependencyMaintenance:$maintenance
-    $recordPath=Join-Path $ctx.Root '.ai-coding\command.json'
-    $record=@{schemaVersion=2;action=$Operation;image=$ctx.Project.image;imageId=$ctx.ImageId;containerRuntime=$ctx.Project.containerRuntime;startedAt=(Get-Date).ToString('o');status='running'}
+    $started=(Get-Date).ToUniversalTime().ToString('o');$timer=[Diagnostics.Stopwatch]::StartNew()
+    $resolvedRoot=(Resolve-Path -LiteralPath $Root).Path;Assert-CoursePlainPath $resolvedRoot
+    $recordPath=Join-Path $resolvedRoot '.ai-coding\command.json'
+    $record=@{schemaVersion=2;operationId=[guid]::NewGuid().ToString('N');action=$Operation;startedAt=$started;status='running'}
     Write-CourseJson $recordPath $record
     try{
+        $ctx=Get-CourseProjectRuntime $resolvedRoot -Start -ForDependencyMaintenance:$maintenance
+        $record.image=$ctx.Project.image;$record.imageId=$ctx.ImageId;$record.containerRuntime=$ctx.Project.containerRuntime
         if($maintenance){
             $backup=Join-Path $ctx.Root ('.local\dependency-changes\'+[guid]::NewGuid().ToString('N'))
             Assert-CoursePlainPath $backup;[void](New-Item -ItemType Directory -Path $backup -Force)
@@ -47,26 +63,40 @@ function Invoke-CourseProjectAction {
             if($marked.ExitCode -ne 0){throw 'DEPENDENCY_SEED_MARKER_UPDATE_FAILED: keep app stopped and inspect.'}
             $ctx=Get-CourseProjectRuntime $ctx.Root -Start
         }elseif($Operation -eq 'RunScript'){
-            $arguments=$ctx.Prefix+@('compose','exec','-T','app','npm','run',$NpmScript)
-            if($ExtraArguments){$arguments+=@('--')+$ExtraArguments}
-            $result=Invoke-SetupNative $ctx.Cli $arguments $Timeout $ctx.Root
-            if($result.ExitCode -ne 0){throw 'CONTAINER_PROJECT_SCRIPT_FAILED'}
+            $build=$NpmScript -eq 'build' -and -not $ExtraArguments
+            $buildFile=Join-Path $ctx.Root '.ai-coding\web-build.json'
+            $fingerprint=Get-CourseFilesDigest $ctx.Source @('src','public','package.json','package-lock.json','index.html','vite.config.ts','tsconfig.json','tailwind.config.js','postcss.config.js','.env','.env.local','.env.production','.env.production.local')
+            $cached=if($build -and $Reuse -and (Test-Path -LiteralPath $buildFile)){Read-CourseJson $buildFile}else{$null}
+            $reuseValid=$cached -and $cached.imageId -eq $ctx.ImageId -and $cached.inputFingerprint -eq $fingerprint -and (Test-Path -LiteralPath (Join-Path $ctx.Source 'dist\index.html')) -and $cached.outputFingerprint -eq (Get-CourseFilesDigest $ctx.Source @('dist'))
+            if($reuseValid){$record.reused=$true;$record.inputFingerprint=$fingerprint}
+            else{
+                $arguments=$ctx.Prefix+@('compose','exec','-T','app','npm','run',$NpmScript)
+                if($ExtraArguments){$arguments+=@('--')+$ExtraArguments}
+                $result=Invoke-SetupNative $ctx.Cli $arguments $Timeout $ctx.Root
+                if($result.ExitCode -ne 0){throw 'CONTAINER_PROJECT_SCRIPT_FAILED'}
+                if($build){
+                    if(-not(Test-Path -LiteralPath (Join-Path $ctx.Source 'dist\index.html'))){throw 'CURRENT_WEB_OUTPUT_MISSING'}
+                    Write-CourseJson $buildFile @{schemaVersion=2;imageId=$ctx.ImageId;inputFingerprint=$fingerprint;outputFingerprint=(Get-CourseFilesDigest $ctx.Source @('dist'));checkedAt=(Get-Date).ToUniversalTime().ToString('o')}
+                    $record.inputFingerprint=$fingerprint
+                }
+            }
         }
         $record.status='verified'
     }catch{
-        $record.status='failed';$record.error=$_.Exception.Message
+        $record.status='failed';$record.error=Protect-CourseOutput $_.Exception.Message
         throw
     }finally{
         if($result){
             $log=Join-Path $ctx.Root '.local\course-command.log';Assert-CoursePlainPath $log
             [void](New-Item -ItemType Directory -Path (Split-Path $log -Parent) -Force)
-            [IO.File]::WriteAllText($log,$result.Output,[Text.UTF8Encoding]::new($false))
+            [IO.File]::WriteAllText($log,(Protect-CourseOutput $result.Output),[Text.UTF8Encoding]::new($false))
             $record.exitCode=$result.ExitCode;$record.log=$log
         }
-        $record.finishedAt=(Get-Date).ToString('o');Write-CourseJson $recordPath $record
+        $record.finishedAt=(Get-Date).ToUniversalTime().ToString('o');$record.durationMs=$timer.ElapsedMilliseconds;Write-CourseJson $recordPath $record
+        Write-CourseEvent $resolvedRoot @{operationId=$record.operationId;stage='project-command';action=$Operation;status=$record.status;startedAt=$started;finishedAt=$record.finishedAt;durationMs=$record.durationMs;runtime=$record.containerRuntime;imageId=$record.imageId;inputFingerprint=$record.inputFingerprint;evidence='.ai-coding/command.json'}
     }
     return [pscustomobject]@{status=$record.status;projectDirectory=$ctx.Root;action=$Operation;url=('http://127.0.0.1:'+$ctx.Project.port);evidence=$recordPath}
 }
 if($MyInvocation.InvocationName -ne '.'){
-    Invoke-CourseProjectAction $ProjectDirectory $Action $Script $Packages $ScriptArguments ([bool]$DevDependency) $TimeoutSeconds|ConvertTo-Json
+    Invoke-CourseProjectAction $ProjectDirectory $Action $Script $Packages $ScriptArguments ([bool]$DevDependency) $TimeoutSeconds ([bool]$ReuseBuild)|ConvertTo-Json
 }

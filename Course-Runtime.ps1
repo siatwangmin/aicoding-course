@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
-. (Join-Path $PSScriptRoot 'Setup-DockerDesktop.ps1')
+. (Join-Path $PSScriptRoot 'Course-Docker.ps1')
 function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     if($Actual -match '^/(?:run/desktop/mnt/host|mnt|host_mnt)/([a-zA-Z])/(.*)$'){
         $Actual=$Matches[1]+':\'+($Matches[2] -replace '/','\')
@@ -26,7 +26,7 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
             }
         }
     }else{
-        . (Join-Path $PSScriptRoot 'Setup-Podman.ps1')
+        . (Join-Path $PSScriptRoot 'Course-Podman.ps1')
         $paths=Get-PodmanPaths;$cli=$paths.Cli
         $composeBinding=Get-CourseComposeBinding
         if(-not $cli -or $p.connection -notmatch '^podman-machine-[a-zA-Z0-9_-]+$'){throw 'PODMAN_LOCAL_CONNECTION_REQUIRED'}

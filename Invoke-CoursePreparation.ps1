@@ -20,7 +20,19 @@ function Test-PreparationStage([string]$Name,$Item){
     if($Name -eq 'tools'){
         if(-not $e.VerifiedAt -or $e.ToolchainCheck.ExitCode -ne 0 -or -not $e.SkillInstallationVerified){return $false}
         $storage=Join-Path $root '.course-setup\storage.json'
-        return (Test-Path -LiteralPath $storage) -and (Read-CourseJson $storage).status -eq 'verified'
+        if(-not(Test-Path -LiteralPath $storage) -or (Read-CourseJson $storage).status -ne 'verified'){return $false}
+        $migration=Join-Path $root '.course-setup\storage-migration.json'
+        if(Test-Path -LiteralPath $migration){$m=Read-CourseJson $migration;if($m.movedAt -and $m.restartStatus -ne 'verified'){return $false}}
+        if($e.ContainerRuntime -eq 'podman'){
+            try{
+                . (Join-Path $PSScriptRoot 'Course-Native.ps1')
+                $binding=Get-CoursePodmanBinding
+                if(-not $binding.cli -or -not(Test-Path -LiteralPath $binding.cli) -or -not $binding.dataHome -or -not(Test-Path -LiteralPath $binding.dataHome)){return $false}
+                $provider=Get-CourseComposeBinding
+                if($provider.sha256 -ne $e.ComposeBinding.sha256 -or $provider.path -ne $e.ComposeBinding.path){return $false}
+            }catch{return $false}
+        }
+        return $true
     }
     if($Name -eq 'ai'){
         if($e.mode -eq 'account-readiness'){
@@ -40,6 +52,7 @@ if($Action -eq 'Record'){
     $item=[pscustomobject]@{path=$path;sha256=(Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()}
     if(-not(Test-PreparationStage $Stage $item)){throw 'Incomplete or outdated evidence; stage not recorded.'}
     $state.stages|Add-Member -MemberType NoteProperty -Name $Stage -Value $item -Force
+    Write-CourseEvent $root @{operationId=$state.runId;stage=$Stage;action='PreparationRecord';status='verified';evidence=$path}
 }
 $pending=@($order|Where-Object {-not(Test-PreparationStage $_ $state.stages.$_)})
 $next=if($pending.Count){$pending[0]}else{$null}

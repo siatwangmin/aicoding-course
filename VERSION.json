@@ -1,10 +1,10 @@
 {
-  "version": "2.1.0",
-  "date": "2026-10-16",
-  "gitTag": "course-v2.1.0",
+  "version": "2.1.1",
+  "date": "2026-10-17",
+  "gitTag": "course-v2.1.1",
   "status": "candidate",
-  "distributionId": "18515e73bb8c",
-  "distributionPath": "previews/v2.1.0/18515e73bb8c",
-  "packageSha256": "18515e73bb8c35ebc903398ad9744bd56840ac6d6e474a93bc1082f9badf06b0",
+  "distributionId": "22dc2aa86091",
+  "distributionPath": "previews/v2.1.1/22dc2aa86091",
+  "packageSha256": "22dc2aa86091fb5c084b4a3c1d7b8561560eeaa782ea07223291cdbf41f7c8fa",
   "testCandidate": true
 }

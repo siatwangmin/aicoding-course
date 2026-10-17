@@ -16,7 +16,7 @@ function Test-CourseStorageLocation([string]$Workspace,[string]$Runtime='podman'
             }
         }
     }elseif($Runtime -eq 'podman'){
-        if(-not(Get-Command Get-PodmanPaths -ErrorAction SilentlyContinue)){. (Join-Path $PSScriptRoot 'Setup-Podman.ps1')}
+        if(-not(Get-Command Get-PodmanPaths -ErrorAction SilentlyContinue)){. (Join-Path $PSScriptRoot 'Course-Podman.ps1')}
         $installed=Get-PodmanPaths;$programs=@($installed.Cli,$installed.Compose)|Where-Object {$_ -and (Test-Path -LiteralPath $_)}
         $cacheVerified=[bool]$installed.DataHome -and (Test-Path -LiteralPath $installed.DataHome -PathType Container)
         if($installed.DataHome){$cachePaths+=@([IO.Path]::GetFullPath($installed.DataHome))}

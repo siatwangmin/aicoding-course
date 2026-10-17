@@ -28,7 +28,7 @@ if($VerifyAfterRestart){
     if($saved.runtime -ne 'podman' -or $saved.distribution -ne $DistributionName -or -not $saved.movedAt){throw 'Matching completed move record required.'}
     $boot=(Get-CimInstance Win32_OperatingSystem).LastBootUpTime
     if($boot -le [datetime]::Parse($saved.movedAt)){throw 'Windows restart not yet observed; keep restart verification pending.'}
-    . (Join-Path $PSScriptRoot 'Setup-Podman.ps1');$paths=Get-PodmanPaths
+    . (Join-Path $PSScriptRoot 'Course-Podman.ps1');$paths=Get-PodmanPaths
     $started=Invoke-SetupNative $paths.Cli @('machine','start',$DistributionName) 180
     $engine=Get-SetupPodman $DistributionName $root
     if($engine.Connection -ne $saved.connection){throw 'Original connection not restored.'}
@@ -36,6 +36,8 @@ if($VerifyAfterRestart){
     if(-not(Test-CourseInventoryPreserved $saved.inventoryBefore $current)){throw 'Original resources not fully observed after restart.'}
     $locations=Test-CourseStorageLocation $root 'podman' $StorageRoot
     if($locations.status -ne 'verified'){throw 'Actual program/cache/VHD positions still pending.'}
+    $saved|Add-Member -MemberType NoteProperty -Name restartStatus -Value 'verified' -Force
+    $saved|Add-Member -MemberType NoteProperty -Name inventoryAfter -Value $current -Force
     $saved|Add-Member -MemberType NoteProperty -Name restartVerifiedAt -Value (Get-Date).ToString('o') -Force
     $saved|Add-Member -MemberType NoteProperty -Name status -Value 'restart-and-resources-verified-workload-trial-pending' -Force
     Write-CourseJson $recordPath $saved
@@ -63,11 +65,15 @@ Write-CourseJson $recordPath $record
 if(-not $Apply){Write-Output 'Migration plan saved. Coordinate affected workloads before -Apply; program/cache migration is separate.';exit 0}
 Protect-CourseDirectory $backupDir
 if($source -eq $target){$record.status='already-at-target';Write-CourseJson $recordPath $record;exit 0}
-if(Test-Path -LiteralPath $target){throw 'Existing migration target preserved; do not merge or overwrite virtual disks.'}
+if(Test-Path -LiteralPath $target){
+    Assert-CoursePlainPath $target
+    if(-not(Test-Path -LiteralPath $target -PathType Container) -or @(Get-ChildItem -LiteralPath $target -Force).Count){throw 'Existing migration target preserved; do not merge or overwrite virtual disks.'}
+    Remove-Item -LiteralPath $target -Force # Verified empty directory inside confirmed root; no recursive removal.
+}
 $wsl=Join-Path $env:SystemRoot 'System32\wsl.exe';$help=Invoke-SetupNative $wsl @('--help') 20
 if($help.Output -notmatch '--move'){throw 'Installed WSL does not advertise supported --manage --move; preserve data and restore prerequisites.'}
 if($ContainerRuntime -eq 'podman'){
- . (Join-Path $PSScriptRoot 'Setup-Podman.ps1');$paths=Get-PodmanPaths
+ . (Join-Path $PSScriptRoot 'Course-Podman.ps1');$paths=Get-PodmanPaths
  $inspect=Invoke-SetupNative $paths.Cli @('machine','inspect',$DistributionName) 20
  if($inspect.ExitCode -ne 0){throw 'Selected Podman machine cannot be inspected.'}
  $machine=@($(if($inspect.Stdout){$inspect.Stdout}else{$inspect.Output})|ConvertFrom-Json)[0]
@@ -87,7 +93,7 @@ $export=Invoke-SetupNative $wsl @('--export',$DistributionName,$backup) 1800 $ro
 if($export.ExitCode -ne 0 -or -not(Test-Path -LiteralPath $backup) -or (Get-Item -LiteralPath $backup).Length -lt 512){throw 'WSL backup failed; original distribution preserved.'}
 $record.backupSha256=(Get-FileHash -LiteralPath $backup).Hash.ToLowerInvariant();$record.status='backup-created';Write-CourseJson $recordPath $record
 $move=Invoke-SetupNative $wsl @('--manage',$DistributionName,'--move',$target) 1800 $root
-if($move.ExitCode -ne 0){$record.status='move-needs-inspection';Write-CourseJson $recordPath $record;throw 'WSL move failed; inspect actual registration and retained backup, do not unregister/recreate.'}
+if($move.ExitCode -ne 0){$record.status='move-needs-inspection';$record.moveExitCode=$move.ExitCode;$record.moveDetail=Protect-CourseOutput $move.Output;Write-CourseJson $recordPath $record;throw 'WSL move failed; inspect actual registration and retained backup, do not unregister/recreate.'}
 $actual=@(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss'|ForEach-Object {Get-ItemProperty $_.PSPath}|Where-Object {$_.DistributionName -eq $DistributionName})
 if($actual.Count -ne 1 -or [IO.Path]::GetFullPath(($actual[0].BasePath -replace '^\\\\\?\\','')) -ne $target -or -not @(Get-ChildItem -LiteralPath $target -Filter '*.vhdx' -File).Count){throw 'Moved WSL registration/VHD location not verified.'}
 $record.status='vhd-location-verified';$record.checkedAt=(Get-Date).ToString('o');Write-CourseJson $recordPath $record

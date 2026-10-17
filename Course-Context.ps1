@@ -33,6 +33,35 @@ function Read-CourseJson([string]$Path) {
     Assert-CoursePlainPath $Path
     return Get-Content -LiteralPath $Path -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
 }
+function Protect-CourseOutput([string]$Text) {
+    $value=[regex]::Replace($Text,'(?i)\bsk-[a-z0-9_-]{12,}|\beyJ[a-zA-Z0-9_.-]{30,}','[REDACTED]')
+    $value=[regex]::Replace($value,'(?im)(["'']?(?:[a-z0-9_]*(?:api_?key|access_?key|secret|password|authorization|token)[a-z0-9_]*)["'']?\s*[:=]\s*)[^\r\n,}]+','$1[REDACTED]')
+    return $value
+}
+function Write-CourseEvent([string]$Root,[hashtable]$Value) {
+    # Fixed allowlist: never record command arguments, credentials, env, or arbitrary errors.
+    $event=[ordered]@{recordedAt=(Get-Date).ToUniversalTime().ToString('o')}
+    foreach($key in @('operationId','stage','action','status','startedAt','finishedAt','durationMs','runtime','imageId','inputFingerprint','evidence','waitKind','nextAction','errorCode')){
+        if($Value.ContainsKey($key)){$event[$key]=$Value[$key]}
+    }
+    $folder=Join-Path $Root '.local';Assert-CoursePlainPath $folder
+    [void](New-Item -ItemType Directory -Path $folder -Force)
+    $path=Join-Path $folder 'course-execution.jsonl';Assert-CoursePlainPath $path
+    $bytes=[Text.UTF8Encoding]::new($false).GetBytes((Protect-CourseOutput ($event|ConvertTo-Json -Depth 5 -Compress))+"`n")
+    $stream=[IO.File]::Open($path,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::Write,[IO.FileShare]::Read)
+    try{[void]$stream.Seek(0,[IO.SeekOrigin]::End);$stream.Write($bytes,0,$bytes.Length);$stream.Flush()}finally{$stream.Dispose()}
+}
+function Get-CoursePriorToolchain([string]$Workspace) {
+    $current=Join-Path $Workspace 'toolchain-verification.json'
+    if(Test-Path -LiteralPath $current){$report=Read-CourseJson $current;if($report.VerifiedAt){return [pscustomobject]@{path=$current;report=$report}}}
+    # Only the explicit selected preparation, never a workspace/HOME search.
+    try{
+        $known=Find-CoursePreparation
+        $path=Join-Path $known.workspace 'toolchain-verification.json'
+        if(Test-Path -LiteralPath $path){$report=Read-CourseJson $path;if($report.VerifiedAt){return [pscustomobject]@{path=$path;report=$report}}}
+    }catch{ return $null }
+    return $null
+}
 function Resolve-CourseRecordedRuntime([string]$Workspace) {
     foreach($relative in @('.ai-coding\project.json','.course-setup\container-runtime.json','.course-setup\materials.json','toolchain-verification.json')){
         $path=Join-Path $Workspace $relative
