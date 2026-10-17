@@ -8,18 +8,18 @@
 
 已有作品以 .ai-coding/project.json 为准；已有准备先读原始报告和 .course-setup/materials.json、container-runtime.json。没有 runtime 的旧报告按原 Docker 兼容处理，不因课程新默认静默换引擎。Docker 旧工程按用户级 ai-coding-env/references/windows-docker-setup.md 恢复；不运行 Docker Prepare 来补 Podman 缺项。
 
-完整课前请求连续推进 E-01 工具 → E-06 CloudBase → E-07 GitHub → E-08 AI → E-05 汇总。工具 Ready 只是一个子阶段，不能在此停止或让学员再说“继续”。仅请求工具排障时保持该范围。本阶段不创建业务工程、数据库表、函数或 APK。
+课前按已选择学习范围连续推进；默认E-01工具→E-05汇总，明确完整课程才加入CloudBase/GitHub/AI账号准备。离线APK不注册无关平台，已有账号记录留作以后复用。仅请求工具排障时保持该范围。本阶段不创建业务工程、数据库表、函数或 APK。
 
 ## E-01：从零取得课程资料
 
-1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.2.0/61b6788bad04/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.2.0 -PreviewId 61b6788bad04 -ContainerRuntime podman`。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
+1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.2.1/c0677f3b03ad/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.2.1 -PreviewId c0677f3b03ad -ContainerRuntime podman`。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
 2. 从 A/.course-setup/materials.json 定位实际 PackageRoot、SetupGuide 和 SkillsDirectory。按 course-contract/skills.json 安装七项通用技能及明确选定案例；同名用户副本先备份再更新，项目同名副本先备份移出发现目录，不复制 Skill 到 B。
 3. 已有完整本地包时，运行其 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <实际目录>，脚本保护旧文件并核对 ZIP 摘要和根部 SKILL.md 名称；缺文件或多个等距来源时报告真实缺项，不猜用户名或盘符。
 4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，继续准备、工具验收与服务阶段。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
 
 ## 工具准备与恢复
 
-1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -CourseVersion 2.2.0 -PreviewId 61b6788bad04 -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
+1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -CourseVersion 2.2.1 -PreviewId c0677f3b03ad -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
 2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
 3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到 D:/AI-Practice/programs/compose/docker-compose.exe，登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
 4. 共同 Course-Native.ps1/Course-Runtime.ps1 将 PODMAN_COMPOSE_PROVIDER 仅注入本次子进程，绑定受管 EXE、项目 connection 及目标 API；隔离旧 DOCKER_HOST/CONTEXT/TLS 变量。不得修改全局默认连接或抢占 docker_engine 管道。Podman info、Compose version、真实 API 与容器操作分别验证。
@@ -39,7 +39,7 @@ E-05 按完整 SkillNames 执行 Install-CourseSkills.ps1 -VerifyOnly，复查�
 
 ## 新目录 B 的使用
 
-P-01 由 ai-coding-project 一次完成发现准备、空 B 创建/已有工程恢复、GitHub/CloudBase 接入、AI 默认文件与后续设置路线、Android 准备、规范与起始页检查。A 暂不可用时只用用户索引允许的脱敏摘要；不创建第二套凭证或工具镜像。后续开发由 ai-coding-development，Android 由 ai-coding-android/Build-Android.ps1 执行。Web、服务、APK、安装、启动、同步和本人试用分别留证；本人未试不得记通过。
+P-01由ai-coding-project完成发现准备、空B创建/已有工程恢复、本地运行/构建、规范与起始页/热更新/规则检查。新工程只启用local，不建GitHub仓库、不自动接云端/AI或Android。当前需求触发后由Enable-ProjectCapability接续对应Skill；旧绑定保留，未启用项不作为初始化缺项。A 暂不可用时只用用户索引允许的脱敏摘要；不创建第二套凭证或工具镜像。后续开发由 ai-coding-development，Android 由 ai-coding-android/Build-Android.ps1 执行。Web、服务、APK、安装、启动、同步和本人试用分别留证；本人未试不得记通过。
 
 本地候选资料不表示线上已发布；新版本仅由 teacher/build-distribution.py 生成页面、章节、Skill 副本和 ZIP，历史发布不可覆盖。
 ## 升级后的课程环境卸载

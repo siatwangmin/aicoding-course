@@ -1,15 +1,18 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[ValidateSet('Status','Record')][string]$Action='Status',
-      [ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$EvidencePath)
+      [ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$EvidencePath,[ValidateSet('tools','cloudbase','github','ai','summary')][string[]]$RequiredStages)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
 . (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
 $file=Join-Path $root '.course-setup\preparation-progress.json'
-$order=@('tools','cloudbase','github','ai','summary')
+$canonicalOrder=@('tools','cloudbase','github','ai','summary')
 $skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';ai='ai-coding-siliconflow';summary='ai-coding-env'}
 $state=if(Test-Path -LiteralPath $file){Read-CourseJson $file}else{[pscustomobject]@{schemaVersion=2;runId=[guid]::NewGuid().ToString();stages=[pscustomobject]@{}}}
+if($PSBoundParameters.ContainsKey('RequiredStages')){$selected=@('tools')+@($RequiredStages)+@('summary')}elseif($state.requiredStages){$selected=@($state.requiredStages)}else{$selected=@('tools','summary')}
+$order=@($canonicalOrder|Where-Object {$selected -contains $_})
+$state|Add-Member NoteProperty requiredStages $order -Force
 function Test-PreparationStage([string]$Name,$Item){
     if(-not $Item -or -not(Test-Path -LiteralPath $Item.path)){return $false}
     Assert-CoursePlainPath $Item.path
