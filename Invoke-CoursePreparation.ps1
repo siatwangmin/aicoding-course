@@ -4,6 +4,7 @@ param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[ValidateSet('Status
       [ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$EvidencePath)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
+. (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
 $file=Join-Path $root '.course-setup\preparation-progress.json'
 $order=@('tools','cloudbase','github','ai','summary')
@@ -14,6 +15,7 @@ function Test-PreparationStage([string]$Name,$Item){
     Assert-CoursePlainPath $Item.path
     if((Get-FileHash -LiteralPath $Item.path).Hash.ToLowerInvariant() -ne $Item.sha256){return $false}
     $e=Read-CourseJson $Item.path
+    try{Assert-CourseEvidenceSources $e}catch{return $false}
     $time=if($Name -eq 'tools'){$e.VerifiedAt}else{$e.checkedAt}
     try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
     if($age -lt 0 -or $age -gt 24){return $false}
@@ -22,7 +24,7 @@ function Test-PreparationStage([string]$Name,$Item){
         $storage=Join-Path $root '.course-setup\storage.json'
         if(-not(Test-Path -LiteralPath $storage) -or (Read-CourseJson $storage).status -ne 'verified'){return $false}
         $migration=Join-Path $root '.course-setup\storage-migration.json'
-        if(Test-Path -LiteralPath $migration){$m=Read-CourseJson $migration;if($m.movedAt -and $m.restartStatus -ne 'verified'){return $false}}
+        if(Test-Path -LiteralPath $migration){try{$m=Convert-CourseMigrationRecord (Read-CourseJson $migration)}catch{return $false};if($m.movedAt -and $m.restartStatus -ne 'verified'){return $false}}
         if($e.ContainerRuntime -eq 'podman'){
             try{
                 . (Join-Path $PSScriptRoot 'Course-Native.ps1')
@@ -46,11 +48,12 @@ function Test-PreparationStage([string]$Name,$Item){
     return $e.status -eq 'verified' -and @($required|Where-Object {$e.checks.$_ -ne $true}).Count -eq 0 -and @($e.evidence).Count -gt 0
 }
 if($Action -eq 'Record'){
-    if(-not $Stage -or -not $EvidencePath){throw 'Stage and actual evidence path are required.'}
+    if(-not $Stage){throw 'PREPARATION_STAGE_REQUIRED'}
+    if(-not $EvidencePath){$EvidencePath=Get-CourseEvidencePath $root $Stage}
     $path=(Resolve-Path -LiteralPath $EvidencePath).Path;Assert-CoursePlainPath $path
     if(-not $path.StartsWith($root.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Preparation evidence must belong to A.'}
     $item=[pscustomobject]@{path=$path;sha256=(Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()}
-    if(-not(Test-PreparationStage $Stage $item)){throw 'Incomplete or outdated evidence; stage not recorded.'}
+    if(-not(Test-PreparationStage $Stage $item)){throw ('PREPARATION_EVIDENCE_INVALID:'+ $Stage+': verify the current source, required checks, age and migration/runtime binding; do not edit timestamps to pass.')}
     $state.stages|Add-Member -MemberType NoteProperty -Name $Stage -Value $item -Force
     Write-CourseEvent $root @{operationId=$state.runId;stage=$Stage;action='PreparationRecord';status='verified';evidence=$path}
 }

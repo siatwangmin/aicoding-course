@@ -24,9 +24,10 @@ function Invoke-CourseProjectAction {
     if($Operation -eq 'RunScript' -and $NpmScript -notmatch '^[a-zA-Z][a-zA-Z0-9:_-]*$'){throw 'PROJECT_SCRIPT_NAME_REQUIRED'}
     if($Operation -in @('Add','Remove') -and (-not $PackageNames.Count -or @($PackageNames|Where-Object {$_ -match '^-' -or $_ -match '\s'}).Count)){throw 'EXPLICIT_PACKAGE_NAMES_REQUIRED'}
     $maintenance=$Operation -in @('Install','Add','Remove','Repair')
-    $result=$null
+    $resolvedRoot=Resolve-CourseProjectRoot $Root
+    $result=$null;$lifecycleLease=$null
+    if(Get-Command Enter-CourseOperation -ErrorAction SilentlyContinue){$lifecycleLease=Enter-CourseOperation $resolvedRoot $Operation}
     $started=(Get-Date).ToUniversalTime().ToString('o');$timer=[Diagnostics.Stopwatch]::StartNew()
-    $resolvedRoot=(Resolve-Path -LiteralPath $Root).Path;Assert-CoursePlainPath $resolvedRoot
     $recordPath=Join-Path $resolvedRoot '.ai-coding\command.json'
     $record=@{schemaVersion=2;operationId=[guid]::NewGuid().ToString('N');action=$Operation;startedAt=$started;status='running'}
     Write-CourseJson $recordPath $record
@@ -86,6 +87,7 @@ function Invoke-CourseProjectAction {
         $record.status='failed';$record.error=Protect-CourseOutput $_.Exception.Message
         throw
     }finally{
+        if($lifecycleLease){Exit-CourseOperation $lifecycleLease}
         if($result){
             $log=Join-Path $ctx.Root '.local\course-command.log';Assert-CoursePlainPath $log
             [void](New-Item -ItemType Directory -Path (Split-Path $log -Parent) -Force)

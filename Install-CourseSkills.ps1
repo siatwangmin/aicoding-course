@@ -2,6 +2,9 @@
 [CmdletBinding()]
 param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames)
 
+$lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
+
 function Get-TraeUserSkillsDirectory {
     if (-not $env:USERPROFILE -or -not [IO.Path]::IsPathRooted($env:USERPROFILE)) { throw '无法确认当前用户目录，不能猜测技能安装位置。' }
     return [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.trae-cn\skills'))
@@ -196,6 +199,11 @@ function Install-CourseSkills {
     if (-not $Root) { $Root = Find-CoursePackageRoot $Workspace }
     $Root = (Resolve-Path -LiteralPath $Root).Path
     if (-not (Test-Path -LiteralPath (Join-Path $Root 'setup-guide.md'))) { throw '指定目录没有 setup-guide.md。' }
+    $versionPath=Join-Path $Root 'VERSION.json'
+    if(Test-Path -LiteralPath $versionPath){
+        $releaseVersion=(Get-Content -LiteralPath $versionPath -Raw -Encoding UTF8|ConvertFrom-Json).version
+        if($releaseVersion -and [version]$releaseVersion -ge [version]'2.2.0' -and -not(Get-Command Register-CourseInstallation -ErrorAction SilentlyContinue)){throw 'LIFECYCLE_INSTALLER_DEPENDENCIES_REQUIRED'}
+    }
     $skillNames = @('ai-coding-env', 'ai-coding-project')
     # New packages include the cloud setup guide; older two-skill packages still work.
     if (Test-Path -LiteralPath (Join-Path $Root 'ai-coding-cloudbase-skill.zip')) { $skillNames += 'ai-coding-cloudbase' }
@@ -266,6 +274,13 @@ function Install-CourseSkills {
         Assert-CourseSkillDirectory $skillsRoot $userTraeRoot
         Assert-CourseSkillDirectory $projectSkillsRoot $Workspace
         [void](New-Item -ItemType Directory -Path $skillsRoot, $userStage -Force)
+        $lifecycleInstallation=$null;$lifecycleLease=$null
+        if(Get-Command Register-CourseInstallation -ErrorAction SilentlyContinue){
+            $versionFile=Join-Path $Root 'VERSION.json'
+            $packageVersion=if(Test-Path -LiteralPath $versionFile){(Read-CourseJson $versionFile).version}else{$null}
+            $lifecycleInstallation=Register-CourseInstallation $Workspace $packageVersion
+            $lifecycleLease=Enter-CourseOperation $Workspace 'InstallSkills'
+        }
         try {
             # Prepare the new user-level copies on the same volume before replacing old ones.
             foreach ($name in $skillNames) {
@@ -276,13 +291,21 @@ function Install-CourseSkills {
             foreach ($name in $skillNames) {
                 $destination = Join-Path $skillsRoot $name
                 $prior = Join-Path $userBackup $name
+                if($lifecycleInstallation){$null=Start-CourseCreationIntent $lifecycleInstallation.installationId skill $destination ([bool](Test-Path -LiteralPath $destination))}
                 if (Test-Path -LiteralPath $destination) {
                     Assert-CourseSkillDirectory $destination $skillsRoot
                     Assert-CourseSkillDirectory $prior $userTraeRoot
                     [void](New-Item -ItemType Directory -Path $userBackup -Force)
                     Move-Item -LiteralPath $destination -Destination $prior
                 }
-                try { Move-Item -LiteralPath (Join-Path $userStage $name) -Destination $destination }
+                try {
+                    Move-Item -LiteralPath (Join-Path $userStage $name) -Destination $destination
+                    if($lifecycleInstallation){
+                        $saved=if(Test-Path -LiteralPath $prior){$prior}else{$null}
+                        $registered=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind skill -Locator $destination -Ownership created -AllowedRoot $skillsRoot -BackupPath $saved
+                        if($saved){$null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind directory -Locator $saved -Ownership created -AllowedRoot (Split-Path $saved -Parent) -Metadata @{backupFor=$registered.resourceKey}}
+                    }
+                }
                 catch {
                     if ((Test-Path -LiteralPath $prior) -and -not (Test-Path -LiteralPath $destination)) { Move-Item -LiteralPath $prior -Destination $destination }
                     throw
@@ -298,15 +321,17 @@ function Install-CourseSkills {
                     Assert-CourseSkillDirectory $savedProjectCopy $Workspace
                     [void](New-Item -ItemType Directory -Path $projectBackup -Force)
                     Move-Item -LiteralPath $projectCopy -Destination $savedProjectCopy
+                    if($lifecycleInstallation){$null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind directory -Locator $savedProjectCopy -Ownership created -DataClass source -AllowedRoot $projectBackup}
                 }
                 $prior = Join-Path $userBackup $name
                 [pscustomobject]@{ PackageRoot = $Root; Name = $name; Destination = (Join-Path $skillsRoot $name); Scope = 'user'; BackupPath = $(if (Test-Path -LiteralPath $prior) { $prior } else { $null }); ProjectBackupPath = $savedProjectCopy }
             }
             $records = Join-Path $Workspace '.course-setup'
             [void](New-Item -ItemType Directory -Path $records -Force)
-            @{ InstalledAt = (Get-Date).ToString('o'); ContractVersion = $(if ($contract) { $contract.baselineVersion } else { '1' }); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames) } |
+            @{ InstalledAt = (Get-Date).ToString('o'); ContractVersion = $(if ($contract) { $contract.baselineVersion } else { '1' }); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames); InstallationId=$lifecycleInstallation.installationId; UserBackupDirectory=$userBackup; ProjectBackupDirectory=$projectBackup } |
                 ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $records 'skills-installation.json') -Encoding UTF8
         } finally {
+            if($lifecycleLease){Exit-CourseOperation $lifecycleLease}
             Assert-CourseSkillDirectory $userStage $userTraeRoot
             if (Test-Path -LiteralPath $userStage) { Remove-Item -LiteralPath $userStage -Recurse -Force }
         }

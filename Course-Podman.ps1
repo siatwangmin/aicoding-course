@@ -4,6 +4,8 @@ function Test-CoursePodmanProxyPair([string]$Client,[string]$Server) {
     return ($Client -in @('6.0.2','6.1.4') -and $Client -eq $Server) -or ($Client -eq '6.1.4' -and $Server -eq '6.0.2')
 }
 . (Join-Path $PSScriptRoot 'Course-Native.ps1')
+$lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
 
 function Get-PodmanPaths {
     $registered=Get-CoursePodmanBinding
@@ -57,6 +59,7 @@ function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compo
     $plan=Get-CourseStoragePlan $StorageRoot
     [void](New-Item -ItemType Directory -Path $plan.installers -Force)
     $file=Join-Path $plan.installers $entry.file
+    $componentExisted=Test-Path -LiteralPath $file
     if(-not(Test-Path -LiteralPath $file) -and $InstallerDirectory){
         $localFile=Join-Path $InstallerDirectory $entry.file
         if(Test-Path -LiteralPath $localFile){
@@ -72,6 +75,10 @@ function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compo
     if((Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component SHA-256 mismatch.'}
     if($entry.publisher){$sig=Get-AuthenticodeSignature -LiteralPath $file;if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName,$false) -cne $entry.publisher){throw 'Component publisher mismatch.'}}
     Write-CourseJson (Join-Path $Workspace ('.podman-setup\installer-'+$Kind+'.json')) @{file=$file;source=$entry.downloadUrl;sha256=$entry.sha256;checkedAt=(Get-Date).ToString('o')}
+    if(Get-Command Find-CourseInstallation -ErrorAction SilentlyContinue){
+        $installation=Find-CourseInstallation $Workspace
+        if($installation){$null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $file -Ownership $(if($componentExisted){'reused'}else{'created'}) -DataClass rebuildable -AllowedRoot $plan.installers}
+    }
     return $file
 }
 
@@ -118,7 +125,12 @@ function Get-SetupPodman {
             }
         }
     }
-    if ($composeApi.ExitCode -ne 0) {throw "Compose cannot reach the selected local Podman API: $($composeApi.Output)"}
+    if ($composeApi.ExitCode -ne 0) {
+        . (Join-Path $PSScriptRoot 'Course-PodmanDiagnostics.ps1')
+        $diagnostic=Get-CoursePodmanApiDiagnostic $machineInfo $paths.Cli $connection $composeApi
+        if($RepairWorkspace){Write-CourseJson (Join-Path $RepairWorkspace '.podman-setup\api-diagnostic.json') $diagnostic}
+        throw 'PODMAN_API_UNAVAILABLE: selected machine API failed; inspect the scoped API diagnostic and restore the original helper/connection. Legacy sockets and workloads were preserved.'
+    }
     return [pscustomobject]@{ Cli=$paths.Cli; ComposeBinding=$provider; Machine=$Machine; Connection=$connection; Endpoint=$local[0].URI; ApiEndpoint=("npipe:////./pipe/$Machine");
         ServerVersion=$engine.version.Version; Rootless=[bool]$engine.host.security.rootless; Compose=$compose.Output;
         NetworkMode=$(if($engine.host.security.rootless){'pasta'}else{'bridge'}) }
@@ -129,6 +141,9 @@ function Invoke-PodmanSetup {
     if ($Machine -notmatch '^podman-machine-[a-zA-Z0-9_-]+$') { throw 'Use a local named Podman machine.' }
     $folder=Join-Path $Workspace '.podman-setup'; [void](New-Item -ItemType Directory -Path $folder -Force)
     $record=[ordered]@{CheckedAt=(Get-Date).ToString('o');ContainerRuntime='podman';Mode=$Action;Decision='Incomplete';Machine=$Machine;Snapshot=$null;NotVerified=@()}
+    $lifecycleInstallation=if(Get-Command Find-CourseInstallation -ErrorAction SilentlyContinue){Find-CourseInstallation $Workspace}else{$null}
+    $lifecycleLease=$null
+    if($lifecycleInstallation){$lifecycleLease=Enter-CourseOperation $Workspace 'PreparePodman'}
     try {
         if ($Action -eq 'Prepare') {
             Initialize-PodmanPrerequisites $Workspace
@@ -136,19 +151,26 @@ function Invoke-PodmanSetup {
             . (Join-Path $PSScriptRoot 'Course-Context.ps1');$plan=Get-CourseStoragePlan $StorageRoot
             if (-not $paths.Cli) {
                 $msi=Resolve-PodmanComponent $Workspace 'engine'
+                if($lifecycleInstallation){$null=Start-CourseCreationIntent $lifecycleInstallation.installationId tool (Join-Path $plan.programs 'podman\podman.exe') $false}
                 $install=Invoke-SetupNative (Join-Path $env:SystemRoot 'System32\msiexec.exe') @('/i',$msi,'/passive','/norestart','ALLUSERS=2','MSIINSTALLPERUSER=1',('INSTALLDIR='+(Join-Path $plan.programs 'podman')),'MACHINE_PROVIDER=wsl') 900
                 if($install.ExitCode -eq 3010){throw 'Podman engine installed; Windows restart required.'}
                 if($install.ExitCode -ne 0){throw 'Podman engine installation failed.'}
                 $paths=Get-PodmanPaths
+                if($lifecycleInstallation -and $paths.Cli){
+                    $identity=Get-CourseMsiIdentity $msi
+                    $null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind tool -Locator $paths.Cli -Ownership created -AllowedRoot (Split-Path $paths.Cli -Parent) -Metadata @{installer='msi';productCode=$identity.ProductCode;productVersion=$identity.ProductVersion;productName=$identity.ProductName;scope='current-user'}
+                }
             }
             if(-not $paths.Cli){throw 'Installed engine path not confirmed; do not report readiness.'}
             if(-not $paths.Compose -or -not(Test-Path -LiteralPath $paths.Compose) -or (Get-FileHash -LiteralPath $paths.Compose).Hash.ToLowerInvariant() -cne (Get-CoursePodmanManifest).compose.sha256 -or $paths.Compose -match '(?i)[\\/]Docker[\\/]Docker[\\/]|podman-desktop'){
                 $composeAsset=Resolve-PodmanComponent $Workspace 'compose';$composeDir=Join-Path $plan.programs 'compose'
                 [void](New-Item -ItemType Directory -Path $composeDir -Force)
-                $priorCompose=Join-Path $composeDir 'docker-compose.exe'
+                $priorCompose=Join-Path $composeDir 'docker-compose.exe';$priorComposeExisted=Test-Path -LiteralPath $priorCompose
+                if($lifecycleInstallation){$null=Start-CourseCreationIntent $lifecycleInstallation.installationId tool $priorCompose ([bool]$priorComposeExisted)}
                 if(Test-Path -LiteralPath $priorCompose){Copy-Item -LiteralPath $priorCompose -Destination ($priorCompose+'.backup-'+(Get-Date -Format 'yyyyMMddHHmmssfff'))}
                 Copy-Item -LiteralPath $composeAsset -Destination (Join-Path $composeDir 'docker-compose.exe')
                 $paths|Add-Member -MemberType NoteProperty -Name Compose -Value (Join-Path $composeDir 'docker-compose.exe') -Force
+                if($lifecycleInstallation){$null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind tool -Locator $paths.Compose -Ownership $(if($priorComposeExisted){'reused'}else{'created'}) -AllowedRoot $composeDir -Metadata @{installer='portable'}}
             }
             $userRoot=Get-CourseUserRoot;Protect-CourseDirectory $userRoot
             $toolPaths=Join-Path $userRoot 'tool-paths.json';$recorded=if(Test-Path -LiteralPath $toolPaths){Read-CourseJson $toolPaths}else{[pscustomobject]@{schemaVersion=2}}
@@ -165,18 +187,34 @@ function Invoke-PodmanSetup {
                 # Podman v6.1.4 env.GetDataDir uses homedir.GetDataHome; set only this process/children.
                 # Both the image cache and WSL --import destination then originate on the data drive.
                 $dataHome=Join-Path $plan.podmanData 'data-home';Assert-CoursePlainPath $dataHome
+                $dataHomeExisted=Test-Path -LiteralPath $dataHome
                 [void](New-Item -ItemType Directory -Path $dataHome -Force)
                 $recorded.podman['dataHome']=$dataHome;Write-CourseJson $toolPaths $recorded
+                if($lifecycleInstallation){$null=Start-CourseCreationIntent $lifecycleInstallation.installationId machine $Machine $false}
                 $operation=Invoke-SetupNative $paths.Cli @('machine','init','--rootful=false','--now',$Machine) 900
+                if($operation.ExitCode -eq 0 -and $lifecycleInstallation){
+                    $inspection=Invoke-SetupNative $paths.Cli @('machine','inspect',$Machine) 20
+                    if($inspection.ExitCode -ne 0){throw 'CREATED_MACHINE_UNVERIFIED'}
+                    $actual=@($(if($inspection.Stdout){$inspection.Stdout}else{$inspection.Output})|ConvertFrom-Json)[0]
+                    $null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind machine -Locator $Machine -Ownership created -Metadata @{runtime='podman';cli=$paths.Cli;cliHash=(Get-FileHash -LiteralPath $paths.Cli).Hash.ToLowerInvariant();machineName=$Machine;createdAt=[string]$actual.Created;dataHome=$dataHome;dataHomeOwned=(-not $dataHomeExisted);dataHomeParent=$plan.podmanData;provider='wsl'}
+                }
             }
             elseif (-not $existing.Running) { $operation=Invoke-SetupNative $paths.Cli @('machine','start',$Machine) 300 }
             if ($operation -and $operation.ExitCode -ne 0) { throw $operation.Output }
         }
         $record.Snapshot=if($Action -eq 'Prepare'){Get-SetupPodman $Machine $Workspace}else{Get-SetupPodman $Machine}
+        if($lifecycleInstallation){
+            $bindingPaths=Get-PodmanPaths
+            foreach($tool in @($bindingPaths.Cli,$bindingPaths.Compose)){
+                if($tool -and (Test-Path -LiteralPath $tool)){$null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind tool -Locator $tool -Ownership reused -AllowedRoot (Split-Path $tool -Parent) -Metadata @{installer='portable'}}
+            }
+            $null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind machine -Locator $Machine -Ownership reused -Metadata @{runtime='podman';cli=$bindingPaths.Cli;cliHash=(Get-FileHash -LiteralPath $bindingPaths.Cli).Hash.ToLowerInvariant();machineName=$Machine}
+        }
         $record.Decision='Ready'
         return 0
     } catch { $record.NotVerified+= $_.Exception.Message; Write-Host $_.Exception.Message; return 2 }
     finally {
+        if($lifecycleLease){Exit-CourseOperation $lifecycleLease}
         $record | ConvertTo-Json -Depth 7 | Set-Content (Join-Path $folder 'report.json') -Encoding UTF8
         $choice=Join-Path $Workspace '.course-setup'; [void](New-Item -ItemType Directory -Path $choice -Force)
         @{ContainerRuntime='podman';Machine=$Machine;SelectedAt=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $choice 'container-runtime.json') -Encoding UTF8

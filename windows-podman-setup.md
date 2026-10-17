@@ -35,3 +35,7 @@ B 继承 runtime=podman、原 connection、同镜像、网络模式和 compose.p
 
 
 已验证的CLI 6.1.4 / server 6.0.2组合同样支持原machine管道恢复，仍核helper路径/摘要和真实Compose API；其他组合保留诊断，不循环重建。迁移计划与Apply使用同一参数，不导入带param的可执行安装器；目标为空目录可以安全移除空目录，已有内容保留。VerifyAfterRestart同步restartStatus与资源证据。
+
+API失败现由Course-PodmanDiagnostics记录所选connection、pipe与可确认代理状态；Prepare沿现有官方helper在新的受管目录恢复，不停共享负载。旧socket归属/占用不明时保留，不按0字节或通配符删除。迁移写入完整restart-continuation，重启后用A内生成的resume-preparation.ps1接续；已知旧时间字段有来源地规范化，冲突不猜。
+
+Podman项目模板的HTTP健康探针支持AI_CODING_HEALTH_TIMEOUT，默认10s；来自实测请求约4.8s而原3s误判的修复，不是任意加sleep。旧工程只自动更新完全匹配的旧受管模板，自定义健康检查按项目Spec和测量调整；标记文件等不同探针不套用该预算。

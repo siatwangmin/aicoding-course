@@ -7,7 +7,7 @@ $timer=[Diagnostics.Stopwatch]::StartNew();$id=[guid]::NewGuid().ToString('N');$
 $root=$null;$result=@{schemaVersion=2;status='pending';checkedAt=$started;operationId=$id;checks=@{};nextSkill='ai-coding-env'}
 try{
     if($ProjectDirectory){
-        $root=(Resolve-Path -LiteralPath $ProjectDirectory).Path
+        $root=Resolve-CourseProjectRoot $ProjectDirectory
         $prepared=Find-CourseProjectPreparation $root $PreparationDirectory
         $ctx=Get-CourseProjectRuntime $root
         $result.checks=@{preparationId=$prepared.record.preparationId;runtime=$ctx.Project.containerRuntime;connection=$ctx.Project.connection;imageId=$ctx.ImageId;sourceDirectory=$ctx.Project.sourceDirectory;port=$ctx.Project.port;provider=$ctx.Project.compose.provider}

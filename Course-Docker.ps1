@@ -1,6 +1,8 @@
 ﻿#Requires -Version 5.1
 # Function library: no parameter block, installation or state mutation on import.
 . (Join-Path $PSScriptRoot 'Course-Native.ps1')
+$lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
 
 function Get-SetupDockerPaths {
     $desktop = $null
@@ -502,6 +504,8 @@ function Invoke-DockerSetup {
     [void](New-Item -ItemType Directory -Path $recordDirectory -Force)
     $transcript = Join-Path $recordDirectory ('setup-' + (Get-Date -Format 'yyyyMMdd-HHmmssfff') + '.log')
     Start-Transcript -Path $transcript -ErrorAction Stop | Out-Null
+    $lifecycleLease=$null
+    if(Get-Command Enter-CourseOperation -ErrorAction SilentlyContinue){$lifecycleLease=Enter-CourseOperation $Workspace 'PrepareDocker'}
     try {
         # A run has at most five actions; stop if an action does not change observed state.
         for ($attempt = 0; $attempt -lt 6; $attempt++) {
@@ -546,6 +550,6 @@ function Invoke-DockerSetup {
         Write-EnvironmentChecklist $Workspace $failure $null $null $null
         Write-Host "检查记录：$recordDirectory"
         return 1
-    } finally { Stop-Transcript | Out-Null }
+    } finally { if($lifecycleLease){Exit-CourseOperation $lifecycleLease};Stop-Transcript | Out-Null }
 }
 

@@ -89,11 +89,13 @@ function Get-CourseMaterials {
     }
     $staging = Join-Path $records ('stage-' + [guid]::NewGuid())
     $courseRoot = Join-Path $workspacePath ("course-materials-$cacheId")
+    $courseRootExisted=Test-Path -LiteralPath $courseRoot
     try {
         Expand-CourseMaterials $archive $staging
         $requiredFiles=@('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')
         if([version]$Version -ge [version]'2.1.1'){$requiredFiles+=@('Course-Docker.ps1','Course-Podman.ps1')}
         if([version]$Version -ge [version]'2.1.0'){$requiredFiles+=@('Course-Native.ps1','Setup-Podman.ps1')}
+        if([version]$Version -ge [version]'2.2.0'){$requiredFiles+=@('Course-Lifecycle.ps1','Course-Uninstall.ps1','Course-UninstallAdapters.ps1','Uninstall-Course.ps1','Start-CourseUninstall.ps1','lifecycle-contract.json','uninstall.md','卸载课程环境.cmd')}
         foreach ($required in $requiredFiles) {
             if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) { throw "Missing course file: $required" }
         }
@@ -128,7 +130,8 @@ function Get-CourseMaterials {
                 $envSkill=@($installedSkills | Where-Object Name -eq 'ai-coding-env')[0].Destination
                 $engineEntry=Join-Path $envSkill 'scripts\Setup-Podman.ps1'
                 if(Test-Path -LiteralPath $engineEntry){
-                    . $engineEntry
+                    $podmanLibrary=Join-Path $envSkill 'scripts\Course-Podman.ps1'
+                    if(Test-Path -LiteralPath $podmanLibrary){. $podmanLibrary}else{. $engineEntry}
                     if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
                     if (-not (Get-PodmanPaths).Cli) {$installerFiles += Resolve-PodmanComponent $workspacePath 'engine'}
                     $installerFiles += Resolve-PodmanComponent $workspacePath 'compose'
@@ -160,6 +163,17 @@ function Get-CourseMaterials {
     }
     [void](New-Item -ItemType Directory -Path (Split-Path $rule -Parent) -Force)
     Set-Content -LiteralPath $rule -Value $ruleText -Encoding UTF8
+    $lifecycleHelper=Join-Path $courseRoot 'Course-Lifecycle.ps1'
+    if(Test-Path -LiteralPath $lifecycleHelper){
+        . $lifecycleHelper
+        $installation=Register-CourseInstallation $workspacePath $Version $expectedHash
+        $null=Register-CourseResource -InstallationId $installation.installationId -Kind directory -Locator $courseRoot -Ownership $(if($courseRootExisted){'reused'}else{'created'}) -DataClass rebuildable -AllowedRoot $workspacePath
+        $null=Register-CourseResource -InstallationId $installation.installationId -Kind managedBlock -Locator $agents -Ownership created -Metadata @{start='<!-- ai-coding:materials-entry:1 -->';end='<!-- ai-coding:materials-entry:end -->'}
+        $null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $rule -Ownership created -AllowedRoot $workspacePath
+        foreach($download in @($archive,$checksumFile)){
+            $null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $download -Ownership created -DataClass rebuildable -AllowedRoot $records
+        }
+    }
     return [pscustomobject]$result
 }
 

@@ -7,7 +7,8 @@ param([Parameter(Mandatory=$true)][string]$ProjectDirectory,
  [ValidateSet('none','download','migration','deployment','model','learner','diagnosis')][string]$WaitKind='none')
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
-$root=(Resolve-Path -LiteralPath $ProjectDirectory).Path;Assert-CoursePlainPath $root
+. (Join-Path $PSScriptRoot 'Course-ProjectRoot.ps1')
+$root=Resolve-CourseProjectRoot $ProjectDirectory
 $p=Read-CourseJson (Join-Path $root '.ai-coding\project.json')
 $progress=Join-Path $root '.ai-coding\progress.json'
 $old=if(Test-Path -LiteralPath $progress){Read-CourseJson $progress}else{$null}

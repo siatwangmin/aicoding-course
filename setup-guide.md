@@ -12,14 +12,14 @@
 
 ## E-01：从零取得课程资料
 
-1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.1.1/22dc2aa86091/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.1.1 -PreviewId 22dc2aa86091 -ContainerRuntime podman`。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
+1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.2.0/61b6788bad04/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.2.0 -PreviewId 61b6788bad04 -ContainerRuntime podman`。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
 2. 从 A/.course-setup/materials.json 定位实际 PackageRoot、SetupGuide 和 SkillsDirectory。按 course-contract/skills.json 安装七项通用技能及明确选定案例；同名用户副本先备份再更新，项目同名副本先备份移出发现目录，不复制 Skill 到 B。
 3. 已有完整本地包时，运行其 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <实际目录>，脚本保护旧文件并核对 ZIP 摘要和根部 SKILL.md 名称；缺文件或多个等距来源时报告真实缺项，不猜用户名或盘符。
 4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，继续准备、工具验收与服务阶段。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
 
 ## 工具准备与恢复
 
-1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -CourseVersion 2.1.1 -PreviewId 22dc2aa86091 -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
+1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -CourseVersion 2.2.0 -PreviewId 61b6788bad04 -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
 2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
 3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到 D:/AI-Practice/programs/compose/docker-compose.exe，登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
 4. 共同 Course-Native.ps1/Course-Runtime.ps1 将 PODMAN_COMPOSE_PROVIDER 仅注入本次子进程，绑定受管 EXE、项目 connection 及目标 API；隔离旧 DOCKER_HOST/CONTEXT/TLS 变量。不得修改全局默认连接或抢占 docker_engine 管道。Podman info、Compose version、真实 API 与容器操作分别验证。
@@ -42,3 +42,11 @@ E-05 按完整 SkillNames 执行 Install-CourseSkills.ps1 -VerifyOnly，复查�
 P-01 由 ai-coding-project 一次完成发现准备、空 B 创建/已有工程恢复、GitHub/CloudBase 接入、AI 默认文件与后续设置路线、Android 准备、规范与起始页检查。A 暂不可用时只用用户索引允许的脱敏摘要；不创建第二套凭证或工具镜像。后续开发由 ai-coding-development，Android 由 ai-coding-android/Build-Android.ps1 执行。Web、服务、APK、安装、启动、同步和本人试用分别留证；本人未试不得记通过。
 
 本地候选资料不表示线上已发布；新版本仅由 teacher/build-distribution.py 生成页面、章节、Skill 副本和 ZIP，历史发布不可覆盖。
+## 升级后的课程环境卸载
+
+保留作品时，在 Trae 中说“调用 ai-coding-env 卸载课程环境，保留我的作品”；也可双击资料包根目录的 **卸载课程环境.cmd**。助手或引导先列出真实清单，再按已明确范围执行。
+
+测试后可选择 TestClean 并指定测试项目；删除整个准备目录 A 必须单独选择。旧版缺少归属证据、共享资源或用户修改会保留并报告。失败后使用报告中的独立入口接续，不手动清空整个 D:/AI-Practice、用户配置目录或所有容器。
+
+云端资源、手机应用和系统组件保留；重新安装从课程下载入口重新解析已发布版本与摘要。技术细节见包内 `uninstall.md`。此功能为候选，整机软件卸载及 Trae 实际加载/移除需按真实验证结果记录。
+

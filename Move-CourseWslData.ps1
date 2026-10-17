@@ -5,6 +5,7 @@ param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[Parameter(Mandatory
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Runtime.ps1')
 . (Join-Path $PSScriptRoot 'Course-Storage.ps1')
+. (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
 $recordPath=Join-Path $root '.course-setup\storage-migration.json'
 function Get-CoursePodmanInventory([string]$Cli,[string]$Connection){
@@ -24,7 +25,7 @@ function Test-CourseInventoryPreserved($Before,$After){
 }
 if($VerifyAfterRestart){
     if($ContainerRuntime -ne 'podman'){throw 'Restart inventory verification currently applies to the Podman migration route.'}
-    $saved=Read-CourseJson $recordPath
+    $saved=Convert-CourseMigrationRecord (Read-CourseJson $recordPath)
     if($saved.runtime -ne 'podman' -or $saved.distribution -ne $DistributionName -or -not $saved.movedAt){throw 'Matching completed move record required.'}
     $boot=(Get-CimInstance Win32_OperatingSystem).LastBootUpTime
     if($boot -le [datetime]::Parse($saved.movedAt)){throw 'Windows restart not yet observed; keep restart verification pending.'}
@@ -99,6 +100,13 @@ if($actual.Count -ne 1 -or [IO.Path]::GetFullPath(($actual[0].BasePath -replace 
 $record.status='vhd-location-verified';$record.checkedAt=(Get-Date).ToString('o');Write-CourseJson $recordPath $record
 if($ContainerRuntime -eq 'podman'){
     $record.movedAt=(Get-Date).ToString('o');$record.restartStatus='pending';Write-CourseJson $recordPath $record
+    Write-CourseJson (Join-Path $root '.course-setup\restart-continuation.json') @{schemaVersion=1;workingDirectory=$root;distribution=$DistributionName;runtime=$ContainerRuntime;storageRoot=$StorageRoot;target=$target;createdAt=[datetimeoffset]::UtcNow.ToString('o')}
+    $resumeFile=Join-Path $root '.course-setup\resume-preparation.ps1'
+    $shell=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $entry=Join-Path $PSScriptRoot 'Resume-CoursePreparation.ps1'
+    # Generated script contains literal paths only, not credentials or arbitrary arguments.
+    $resumeText="& '$($shell.Replace("'","''"))' -NoProfile -File '$($entry.Replace("'","''"))' -WorkingDirectory '$($root.Replace("'","''"))'`nexit `$LASTEXITCODE`n"
+    [IO.File]::WriteAllText($resumeFile,$resumeText,[Text.UTF8Encoding]::new($true))
     $started=Invoke-SetupNative $paths.Cli @('machine','start',$DistributionName) 180
     if($started.ExitCode -ne 0){throw 'Moved machine could not restart; backup retained, inspect original connection.'}
     $engine=Get-SetupPodman $DistributionName $root

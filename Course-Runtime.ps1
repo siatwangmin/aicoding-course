@@ -1,6 +1,9 @@
 ﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
+. (Join-Path $PSScriptRoot 'Course-ProjectRoot.ps1')
 . (Join-Path $PSScriptRoot 'Course-Docker.ps1')
+$lifecycle=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+if(Test-Path -LiteralPath $lifecycle){. $lifecycle}
 function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     if($Actual -match '^/(?:run/desktop/mnt/host|mnt|host_mnt)/([a-zA-Z])/(.*)$'){
         $Actual=$Matches[1]+':\'+($Matches[2] -replace '/','\')
@@ -8,7 +11,11 @@ function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     return [IO.Path]::GetFullPath($Actual).TrimEnd('\') -eq [IO.Path]::GetFullPath($Expected).TrimEnd('\')
 }
 function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDependencyMaintenance) {
-    $Root=(Resolve-Path -LiteralPath $Root).Path;Assert-CoursePlainPath $Root
+    $Root=Resolve-CourseProjectRoot $Root
+    if(Get-Command Assert-CourseInstallationActive -ErrorAction SilentlyContinue){Assert-CourseInstallationActive $Root}
+    $lifecycleLease=$null
+    if(Get-Command Enter-CourseOperation -ErrorAction SilentlyContinue){$lifecycleLease=Enter-CourseOperation $Root 'Runtime'}
+    try{
     $p=Read-CourseJson (Join-Path $Root '.ai-coding\project.json')
     $composeBinding=$null
     if($p.containerRuntime -notin @('docker','podman') -or -not $p.image -or -not $p.toolchain.imageDigest){throw 'PROJECT_TOOLCHAIN_BINDING_REQUIRED'}
@@ -70,6 +77,17 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
         if($app.environment -and @($app.environment.Keys|Where-Object {$_ -match 'SILICONFLOW_API_KEY|TENCENTCLOUD_SECRET|CLOUDBASE_SECRET'}).Count){throw 'SERVER_SECRET_IN_APP_CONTAINER'}
         # Recovery must work even when the development process cannot start.
         if($ForDependencyMaintenance){return [pscustomobject]@{Root=$Root;Source=$source;Project=$p;Cli=$cli;Prefix=$prefix;ImageId=$actual.Id;CheckedAt=(Get-Date).ToString('o')}}
+        $lifecycleBeforeContainers=@();$lifecycleBeforeVolumes=@();$lifecycleBeforeNetworks=@()
+        $lifecycleRuntimeIntent=$null
+        $lifecycleInstallation=if($p.installationId){Get-CourseInstallation $p.installationId}else{$null}
+        if($lifecycleInstallation -and $Start){
+            $all=Invoke-SetupNative $cli ($prefix+@('ps','-a','--no-trunc','--format','{{.ID}}')) 20
+            $volumes=Invoke-SetupNative $cli ($prefix+@('volume','ls','-q')) 20
+            $networks=Invoke-SetupNative $cli ($prefix+@('network','ls','--format','{{.Name}}')) 20
+            if($all.ExitCode -ne 0 -or $volumes.ExitCode -ne 0 -or $networks.ExitCode -ne 0){throw 'RUNTIME_OWNERSHIP_SNAPSHOT_FAILED'}
+            $lifecycleBeforeContainers=@($all.Output -split '\r?\n');$lifecycleBeforeVolumes=@($volumes.Output -split '\r?\n');$lifecycleBeforeNetworks=@($networks.Output -split '\r?\n')
+            $lifecycleRuntimeIntent=Start-CourseCreationIntent $p.installationId runtimeGroup $Root $true
+        }
         if($Start){
             $up=Invoke-SetupNative $cli ($prefix+@('compose','up','-d','--pull','never','--no-build','--wait','--wait-timeout','90','app')) 180 $Root
             if($up.ExitCode -ne 0){throw 'PROJECT_CONTAINER_START_FAILED'}
@@ -81,7 +99,8 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
             if($containerIds.Count -ne 1){throw 'EXPECTED_ONE_PROJECT_APP_CONTAINER'}
             $inspected=Invoke-SetupNative $cli ($prefix+@('inspect',$containerIds[0])) 20 $Root
             if($inspected.ExitCode -ne 0){throw 'PROJECT_CONTAINER_INSPECT_FAILED'}
-            $container=@($(if($inspected.Stdout){$inspected.Stdout}else{$inspected.Output})|ConvertFrom-Json)[0]
+            $parsedContainer=ConvertFrom-Json -InputObject $(if($inspected.Stdout){$inspected.Stdout}else{$inspected.Output})
+            $container=@($parsedContainer)[0]
             if(($container.Image -replace '^sha256:','') -ne ($actual.Id -replace '^sha256:','')){throw 'RUNNING_CONTAINER_IMAGE_MISMATCH'}
             if(-not @($container.Mounts|Where-Object {$_.Destination -eq '/workspace' -and $_.Type -eq 'bind' -and (Test-CourseSourceMount $_.Source $source)}).Count -or
                -not @($container.Mounts|Where-Object {$_.Destination -eq '/workspace/node_modules' -and $_.Type -eq 'volume'}).Count){throw 'ACTUAL_CONTAINER_MOUNT_MISMATCH'}
@@ -103,6 +122,25 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
                 }
             }
             Write-CourseJson (Join-Path $Root '.ai-coding\runtime-check.json') @{schemaVersion=2;runtime=$p.containerRuntime;connection=$p.connection;compose=$composeBinding;containerId=$containerIds[0];imageId=$actual.Id;actualMountsVerified=$true;mountRoundtripAndHostHttp=$(if($Start){'verified'}else{'not-checked'});checkedAt=(Get-Date).ToString('o')}
+            if($lifecycleInstallation -and $Start){
+                . (Join-Path $PSScriptRoot 'Course-UninstallAdapters.ps1')
+                $projectId=Get-CourseLifecycleHash $Root.ToLowerInvariant()
+                $connection=if($p.containerRuntime -eq 'podman'){$p.connection}else{'npipe:////./pipe/dockerDesktopLinuxEngine'}
+                $ownership=if($lifecycleBeforeContainers -contains $container.Id){'reused'}else{'created'}
+                $registeredContainer=Register-CourseEngineResource $p.installationId container $container.Id $ownership rebuildable $cli $p.containerRuntime $connection $projectId
+                foreach($volume in @($container.Mounts|Where-Object Type -eq 'volume')){
+                    $ownership=if($lifecycleBeforeVolumes -contains $volume.Name){'reused'}else{'created'}
+                    $class=if($volume.Destination -eq '/workspace/node_modules'){'rebuildable'}else{'businessData'}
+                    $null=Register-CourseEngineResource $p.installationId volume $volume.Name $ownership $class $cli $p.containerRuntime $connection $projectId
+                }
+                foreach($network in @($container.NetworkSettings.Networks.PSObject.Properties|Where-Object {$_ -and $_.Name -and $_.MemberType -eq 'NoteProperty'})){
+                    if($network.Name -in @('bridge','host','none','podman','pasta','slirp4netns')){continue}
+                    $ownership=if($lifecycleBeforeNetworks -contains $network.Name){'reused'}else{'created'}
+                    $null=Register-CourseEngineResource $p.installationId network $network.Name $ownership rebuildable $cli $p.containerRuntime $connection $projectId
+                }
+                Complete-CourseCreationIntent $lifecycleRuntimeIntent
+                Complete-CourseRuntimeIntentRecovery $p.installationId $Root $container.Config.Labels.'com.docker.compose.project' $registeredContainer.metadata
+            }
         }
         # Check the actual project volume, not only the template in the tool image.
         $probe='const fs=require("fs"),crypto=require("crypto"),{createRequire}=require("module");const r=createRequire("/workspace/package.json"),bytes=fs.readFileSync("/workspace/package-lock.json"),lock=JSON.parse(bytes),versions={};for(const n of ["typescript","vite","rollup","@ionic/react","@capacitor/android"]){const v=JSON.parse(fs.readFileSync("/workspace/node_modules/"+n+"/package.json")).version;if(v!==lock.packages["node_modules/"+n]?.version)throw Error("LOCKFILE_DEPENDENCY_VERSION_MISMATCH");versions[n]=v};for(const n of ["typescript","vite","rollup"]){r(n)};if(process.platform!=="linux"||process.arch!=="x64")process.exit(2);console.log(JSON.stringify({lockfileSha256:crypto.createHash("sha256").update(bytes).digest("hex"),platform:process.platform,arch:process.arch,versions}))'
@@ -115,4 +153,5 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
         Write-CourseJson (Join-Path $Root '.ai-coding\dependencies.json') $dependencyState
     }finally{Set-Location -LiteralPath $prior}
     return [pscustomobject]@{Root=$Root;Source=$source;Project=$p;Cli=$cli;Prefix=$prefix;ImageId=$actual.Id;CheckedAt=(Get-Date).ToString('o')}
+    }finally{if($lifecycleLease){Exit-CourseOperation $lifecycleLease}}
 }

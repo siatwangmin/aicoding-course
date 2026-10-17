@@ -104,6 +104,15 @@ function Register-CoursePreparation([string]$Workspace) {
     if(Test-Path -LiteralPath $indexPath){$entries=@((Read-CourseJson $indexPath).preparations | Where-Object {$_.preparationId -ne $id})}
     $entries+=@{preparationId=$id;path=$path;record=$value}
     Write-CourseJson $indexPath @{schemaVersion=2;selectedId=$id;preparations=@($entries)}
+    $lifecycle=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+    if(Test-Path -LiteralPath $lifecycle){
+        . $lifecycle
+        $installation=Find-CourseInstallation $Workspace
+        if($installation){
+            $gate=Get-CourseLifecycleLock
+            try{$db=Read-CourseLifecycle;$entry=@($db.installations|Where-Object installationId -eq $installation.installationId)[0];$entry.preparationId=$id;Write-CourseLifecycle $db}finally{Close-CourseLifecycleLock $gate}
+        }
+    }
     return [pscustomobject]@{preparationId=$id;path=$path;status='registered'}
 }
 function Find-CoursePreparation([string]$Source,[string]$PreparationId) {
@@ -114,6 +123,13 @@ function Find-CoursePreparation([string]$Source,[string]$PreparationId) {
         if($entries.Count -ne 1){throw 'Preparation missing or ambiguous; ask for preparation location.'}; $path=$entries[0].path
     }
     $record=if(Test-Path -LiteralPath $path){Read-CourseJson $path}elseif(-not $Source -and $entries[0].record){$entries[0].record}else{throw 'Preparation record unavailable.'}
+    $catalog=Join-Path (Get-CourseUserRoot) 'lifecycle\catalog.json'
+    if(Test-Path -LiteralPath $catalog){
+        $db=Read-CourseJson $catalog
+        $active=@($db.installations|Where-Object {$_.preparationId -eq $record.preparationId -and $_.status -eq 'active'})
+        $retired=@($db.installations|Where-Object {$_.preparationId -eq $record.preparationId -and $_.status -ne 'active'})
+        if($retired.Count -and -not $active.Count){throw 'PREPARATION_REMOVED_OR_UNINSTALLING: restore and verify the original approved environment before reconnecting.'}
+    }
     if($record.schemaVersion -ne 2 -or $record.userSid -ne [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -or $record.machine -ne $env:COMPUTERNAME){throw 'Preparation schema, user or machine mismatch.'}
     return [pscustomobject]@{path=$path;workspace=(Split-Path (Split-Path $path -Parent) -Parent);record=$record}
 }
@@ -180,6 +196,14 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
     }
     $remaining=@($registry.preparations|Where-Object {$_.preparationId -ne $entry.preparationId})
     Write-CourseJson $registryPath @{schemaVersion=2;preparations=@($remaining)+@($entry)}
+    $lifecycle=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
+    if(Test-Path -LiteralPath $lifecycle){
+        . $lifecycle;$installation=Find-CourseInstallation $Workspace
+        $credential=Join-Path (Get-CourseUserRoot) 'credentials\siliconflow-course-default.json'
+        if($installation -and $entry.ai.credentialRef -eq 'siliconflow/course-default' -and (Test-Path -LiteralPath $credential)){
+            $null=Register-CourseResource -InstallationId $installation.installationId -Kind credential -Locator $credential -Ownership reused -DataClass credential -AllowedRoot (Split-Path $credential -Parent)
+        }
+    }
     return [pscustomobject]@{preparationId=$entry.preparationId;status='service-records-registered';authorizationStatus='pending'}
 }
 function Get-CourseStoragePlan([string]$Root='D:\AI-Practice',[long]$RequiredBytes=20GB) {
