@@ -17,7 +17,7 @@ function Get-PodmanPaths {
     return [pscustomobject]@{Cli=$cliPath;Compose=$registered.compose;DataHome=$registered.dataHome}
 }
 
-function Initialize-PodmanPrerequisites([string]$Workspace) {
+function Assert-CoursePodmanHost {
     $os=Get-CimInstance Win32_OperatingSystem
     if([int]$os.BuildNumber -lt 22000 -or -not [Environment]::Is64BitOperatingSystem){throw 'Windows 11 x64 is required by this course route.'}
     $system=Get-CimInstance Win32_ComputerSystem
@@ -25,38 +25,26 @@ function Initialize-PodmanPrerequisites([string]$Workspace) {
         $cpu=Get-CimInstance Win32_Processor|Select-Object -First 1
         if(-not $cpu.VirtualizationFirmwareEnabled){throw 'Firmware virtualization requires the learner/system administrator; preserve state and resume.'}
     }
+}
+function Initialize-PodmanPrerequisites([string]$Workspace) {
+    Assert-CoursePodmanHost
     $optional=Get-CimInstance Win32_OptionalFeature -Filter "Name='VirtualMachinePlatform'" -ErrorAction Stop
     if((Get-SetupWsl).Ready -and $optional.InstallState -eq 1){return}
-    if(-not(Test-SetupAdministrator)){throw 'WSL_PREREQUISITES_REQUIRE_ELEVATION'}
-    $feature=Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -ErrorAction Stop
-    if($feature.State -ne 'Enabled'){
-        if($feature.State -ne 'EnablePending'){Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart -ErrorAction Stop|Out-Null}
-        throw 'RESTART_REQUIRED: VirtualMachinePlatform; save work, restart and rerun Prepare. No automatic reboot.'
-    }
-    if((Get-SetupWsl).Ready){return}
-    $manifest=Join-Path $PSScriptRoot '..\assets\windows-installers.json'
-    if(-not(Test-Path -LiteralPath $manifest)){$manifest=Join-Path $PSScriptRoot 'windows-installers.json'}
-    $entry=(Read-CourseJson $manifest).wsl
-    if($entry.downloadUrl -cne 'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi'){throw 'Unapproved WSL asset.'}
-    $plan=Get-CourseStoragePlan $StorageRoot
-    [void](New-Item -ItemType Directory -Path $plan.installers -Force)
-    $asset=Join-Path $plan.installers $entry.file
-    if(-not(Test-Path -LiteralPath $asset)){
-        Receive-SetupInstaller $entry.downloadUrl ($asset+'.partial')
-        if((Get-FileHash -LiteralPath ($asset+'.partial')).Hash.ToLowerInvariant() -cne $entry.sha256){throw 'WSL SHA-256 mismatch.'}
-        Move-Item -LiteralPath ($asset+'.partial') -Destination $asset
-    }
-    if((Get-FileHash -LiteralPath $asset).Hash.ToLowerInvariant() -cne $entry.sha256){throw 'WSL SHA-256 mismatch.'}
-    Write-CourseJson (Join-Path $Workspace '.podman-setup\installer-wsl.json') @{path=$asset;sha256=$entry.sha256;source=$entry.downloadUrl;checkedAt=(Get-Date).ToString('o')}
-    $installed=Invoke-SetupNative (Join-Path $env:SystemRoot 'System32\msiexec.exe') @('/i',$asset,'/passive','/norestart','/L*v',(Join-Path $Workspace '.podman-setup\wsl-install.log')) 900
-    if($installed.ExitCode -in @(3010,1641)){throw 'RESTART_REQUIRED: WSL installed; rerun Prepare after restart.'}
-    if($installed.ExitCode -ne 0 -or -not(Get-SetupWsl).Ready){throw 'WSL installation unverified; inspect the installation log.'}
+    $systemCode=Install-CourseSystemPrerequisites $Workspace
+    if($systemCode -eq 3010){throw 'RESTART_REQUIRED: system prerequisites installed; save work, restart and rerun Prepare. No automatic reboot.'}
 }
-function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compose')][string]$Kind){
+function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compose','wsl')][string]$Kind){
     . (Join-Path $PSScriptRoot 'Course-Context.ps1')
-    $entry=(Get-CoursePodmanManifest).$Kind
-    if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or $entry.downloadUrl -notmatch '^https://github\.com/(podman-container-tools/podman|docker/compose)/releases/download/'){throw 'Unapproved Podman component manifest.'}
-    $plan=Get-CourseStoragePlan $StorageRoot
+    $entry=if($Kind -eq 'wsl'){
+        $manifest=Join-Path $PSScriptRoot '..\assets\windows-installers.json'
+        if(-not(Test-Path -LiteralPath $manifest)){$manifest=Join-Path $PSScriptRoot 'windows-installers.json'}
+        (Read-CourseJson $manifest).wsl
+    }else{(Get-CoursePodmanManifest).$Kind}
+    $approved=if($Kind -eq 'wsl'){$entry.downloadUrl -ceq 'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi'}else{$entry.downloadUrl -match '^https://github\.com/(podman-container-tools/podman|docker/compose)/releases/download/'}
+    if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or -not $approved -or [IO.Path]::GetFileName($entry.file) -cne $entry.file){throw 'Unapproved Podman component manifest.'}
+    $componentRoot=if($StorageRoot){$StorageRoot}else{(Get-CoursePodmanBinding).storageRoot}
+    if(-not $componentRoot){$componentRoot='D:\AI-Practice'}
+    $plan=Get-CourseStoragePlan $componentRoot
     [void](New-Item -ItemType Directory -Path $plan.installers -Force)
     $file=Join-Path $plan.installers $entry.file
     $componentExisted=Test-Path -LiteralPath $file
@@ -80,6 +68,49 @@ function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compo
         if($installation){$null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $file -Ownership $(if($componentExisted){'reused'}else{'created'}) -DataClass rebuildable -AllowedRoot $plan.installers}
     }
     return $file
+}
+
+function Save-CoursePodmanInstallers([string]$Workspace) {
+    # One download phase before elevation/restart. Never starts an installer.
+    $items=@();$failures=@()
+    foreach($kind in @('engine','compose','wsl')){
+        try {
+            $asset=Resolve-PodmanComponent $Workspace $kind
+            $items+=@{kind=$kind;path=$asset;sha256=(Get-FileHash -LiteralPath $asset).Hash.ToLowerInvariant();status='Verified'}
+        }catch{$failures+=@{kind=$kind;message=$_.Exception.Message}}
+    }
+    Write-CourseJson (Join-Path $Workspace '.podman-setup\downloads.json') @{stage='Downloads';status=$(if($failures.Count){'Incomplete'}else{'Verified'});items=$items;failures=$failures;checkedAt=(Get-Date).ToString('o');installationVerified=$false}
+    if($failures.Count){throw ('INSTALLER_PREFETCH_INCOMPLETE: '+(($failures|ForEach-Object {$_.kind+': '+$_.message}) -join '; '))}
+}
+
+function Install-CourseSystemPrerequisites([string]$Workspace) {
+    # This is the only elevated phase. User bindings and machine creation remain
+    # in the original user's process; do not elevate the complete preparation.
+    if(-not(Test-SetupAdministrator)){throw 'WSL_PREREQUISITES_REQUIRE_ELEVATION'}
+    Write-CourseJson (Join-Path $Workspace '.podman-setup\system-install.json') @{stage='SystemInstall';status='Installing';checkedAt=(Get-Date).ToString('o');runtimeVerified=$false}
+    try {
+    $restart=$false
+    $feature=Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -ErrorAction Stop
+    if($feature.State -eq 'EnablePending'){$restart=$true}
+    elseif($feature.State -ne 'Enabled'){
+        $result=Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart -ErrorAction Stop
+        $restart=[bool]$result.RestartNeeded
+    }
+    # WSL MSI may be installed while feature activation awaits a reboot.
+    if(-not(Get-SetupWsl).Ready){
+        $asset=Resolve-PodmanComponent $Workspace 'wsl'
+        $installed=Invoke-SetupNative (Join-Path $env:SystemRoot 'System32\msiexec.exe') @('/i',$asset,'/passive','/norestart','/L*v',(Join-Path $Workspace '.podman-setup\wsl-install.log')) 900
+        if($installed.ExitCode -in @(3010,1641)){$restart=$true}
+        elseif($installed.ExitCode -ne 0){throw 'WSL installation failed; inspect wsl-install.log; verified downloads retained.'}
+    }
+    Write-CourseJson (Join-Path $Workspace '.podman-setup\system-install.json') @{stage='SystemInstall';status=$(if($restart){'RestartRequired'}else{'Installed'});restartRequired=$restart;checkedAt=(Get-Date).ToString('o');runtimeVerified=$false}
+    if($restart){return 3010}
+    if(-not(Get-SetupWsl).Ready){throw 'WSL installation unverified; inspect the installation log.'}
+    return 0
+    }catch{
+        Write-CourseJson (Join-Path $Workspace '.podman-setup\system-install.json') @{stage='SystemInstall';status='Failed';checkedAt=(Get-Date).ToString('o');runtimeVerified=$false;next='Inspect system state and wsl-install.log; preserve verified cache and resume Prepare.'}
+        throw
+    }
 }
 
 function Get-SetupPodman {
@@ -146,6 +177,7 @@ function Invoke-PodmanSetup {
     if($lifecycleInstallation){$lifecycleLease=Enter-CourseOperation $Workspace 'PreparePodman'}
     try {
         if ($Action -eq 'Prepare') {
+            Save-CoursePodmanInstallers $Workspace
             Initialize-PodmanPrerequisites $Workspace
             $paths=Get-PodmanPaths
             . (Join-Path $PSScriptRoot 'Course-Context.ps1');$plan=Get-CourseStoragePlan $StorageRoot

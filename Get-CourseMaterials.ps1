@@ -205,9 +205,15 @@ function Get-CourseMaterials {
                 if(Test-Path -LiteralPath $engineEntry){
                     $podmanLibrary=Join-Path $envSkill 'scripts\Course-Podman.ps1'
                     if(Test-Path -LiteralPath $podmanLibrary){. $podmanLibrary}else{. $engineEntry}
-                    if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
-                    if (-not (Get-PodmanPaths).Cli) {$installerFiles += Resolve-PodmanComponent $workspacePath 'engine'}
-                    $installerFiles += Resolve-PodmanComponent $workspacePath 'compose'
+                    if([version]$Version -ge [version]'2.2.4'){
+                        Save-CoursePodmanInstallers $workspacePath
+                        $downloads=Read-CourseJson (Join-Path $workspacePath '.podman-setup\downloads.json')
+                        $installerFiles+=@($downloads.items|ForEach-Object {$_.path})
+                    }else{
+                        if (-not (Get-SetupWsl).Ready) {$installerFiles += Resolve-SetupInstaller 'wsl' '' $manifest}
+                        if (-not (Get-PodmanPaths).Cli) {$installerFiles += Resolve-PodmanComponent $workspacePath 'engine'}
+                        $installerFiles += Resolve-PodmanComponent $workspacePath 'compose'
+                    }
                 }else{
                     # Explicit historical releases retain their original setup route.
                     . (Join-Path $envSkill 'scripts\Setup-PodmanDesktop.ps1')

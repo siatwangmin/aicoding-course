@@ -14,7 +14,7 @@
 
 ## E-01：从零取得课程资料
 
-1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.2.3/a7346c76ef51/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.2.3 -PreviewId a7346c76ef51 -ContainerRuntime podman -PackageProfile generic`。默认取得七项通用技能执行包；已明确选择案例可传 -PackageProfile knowstar；已有同版本通用准备时只增量取得案例Skill。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
+1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/previews/v2.2.4/18693cba0261/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -CourseVersion 2.2.4 -PreviewId 18693cba0261 -ContainerRuntime podman -PackageProfile generic`。默认取得七项通用技能执行包；已明确选择案例可传 -PackageProfile knowstar；已有同版本通用准备时只增量取得案例Skill。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。候选版本使用其明确的 distributionId，不能把候选当正式发布。
 2. 从 A/.course-setup/materials.json 定位实际 PackageRoot、SetupGuide 和 SkillsDirectory。按 course-contract/skills.json 安装七项通用技能及明确选定案例；同名用户副本先备份再更新，项目同名副本先备份移出发现目录，不复制 Skill 到 B。
 3. 已有完整本地包时，运行其 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <实际目录>，脚本保护旧文件并核对 ZIP 摘要和根部 SKILL.md 名称；缺文件或多个等距来源时报告真实缺项，不猜用户名或盘符。
 4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，继续准备、工具验收与服务阶段。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
