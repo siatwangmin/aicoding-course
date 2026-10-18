@@ -3,7 +3,7 @@
 新课前准备统一使用 **Podman CLI + 独立 Docker Compose**，由 Trae 下载、配置和实际验证。无需 Docker Desktop 或 Podman Desktop，也无需为编排安装 Python。已有作品沿用原 runtime、connection 和镜像；助手保留数据并处理必要迁移，学员不执行命令。
 
 
-**课前：打开 `preparation.html`，先安装 Trae，后续下载和准备由助手完成。上课：打开 `index.html`。** 在线与离线都有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。
+**课前：打开 `preparation.html`，先安装 Trae，后续下载和准备由助手完成。上课：打开 `index.html`。** 网页和下载资料均有两个入口：[课前环境准备](course/preparation.html)和[AI Coding 操作手册](course/index.html)。教程截图和动图保存在课程网站，下载包不包含图片；本地页面看图需要联网。
 
 当前资料版本见 [VERSION.json](VERSION.json)，变化见 [更新记录](CHANGELOG.md)。每个正式版本都有固定资料包；在线旧版入口见 [版本下载](https://siatwangmin.github.io/aicoding-course/releases/course/)。
 
