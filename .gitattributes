@@ -11,3 +11,4 @@
 /course/** -text
 /releases/course/** -text
 /.gitattributes -text
+/course-contract/** -text

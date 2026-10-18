@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames)
+param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames, [switch]$CaseOnly)
 
 $lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
 if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
@@ -194,7 +194,7 @@ function Find-CoursePackageRoot {
 }
 
 function Install-CourseSkills {
-    param([string]$Workspace, [string]$Root)
+    param([string]$Workspace, [string]$Root, [switch]$CaseOnly)
     $Workspace = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     if (-not $Root) { $Root = Find-CoursePackageRoot $Workspace }
     $Root = (Resolve-Path -LiteralPath $Root).Path
@@ -224,6 +224,12 @@ function Install-CourseSkills {
             $archives[$entry.name] = $entry.archive
         }
     } else { foreach ($name in $skillNames) { $archives[$name] = $name + '-skill.zip' } }
+    $genericNames=@($skillNames)
+    if($CaseOnly){
+        $check=Test-CourseSkills -Workspace $Workspace -Names $genericNames
+        if(-not $check.UserInstallationVerified){throw 'CASE_INCREMENT_REQUIRES_VERIFIED_GENERIC_SKILLS'}
+        $skillNames=@()
+    }
     $caseProfilePath = Join-Path $Root 'case-profile.json'
     if (Test-Path -LiteralPath $caseProfilePath) {
         $caseProfile = Get-Content -LiteralPath $caseProfilePath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -236,6 +242,7 @@ function Install-CourseSkills {
         $skillNames += $caseName
         $archives[$caseName] = $caseArchive
     }
+    if($CaseOnly -and -not $skillNames.Count){throw 'CASE_PROFILE_REQUIRED'}
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $stage = Join-Path $Workspace ('.skill-install-stage\' + [guid]::NewGuid())
     [void](New-Item -ItemType Directory -Path $stage -Force)
@@ -328,7 +335,7 @@ function Install-CourseSkills {
             }
             $records = Join-Path $Workspace '.course-setup'
             [void](New-Item -ItemType Directory -Path $records -Force)
-            @{ InstalledAt = (Get-Date).ToString('o'); ContractVersion = $(if ($contract) { $contract.baselineVersion } else { '1' }); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($skillNames); InstallationId=$lifecycleInstallation.installationId; UserBackupDirectory=$userBackup; ProjectBackupDirectory=$projectBackup } |
+            @{ InstalledAt = (Get-Date).ToString('o'); ContractVersion = $(if ($contract) { $contract.baselineVersion } else { '1' }); PackageRoot = $Root; SkillScope = 'user'; SkillsDirectory = $skillsRoot; SkillNames = @($(if($CaseOnly){$genericNames})+$skillNames|Select-Object -Unique); InstallationId=$lifecycleInstallation.installationId; UserBackupDirectory=$userBackup; ProjectBackupDirectory=$projectBackup } |
                 ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $records 'skills-installation.json') -Encoding UTF8
         } finally {
             if($lifecycleLease){Exit-CourseOperation $lifecycleLease}
@@ -356,5 +363,5 @@ if ($MyInvocation.InvocationName -ne '.') {
         if (-not $verification.UserInstallationVerified) { exit 2 }
         exit 0
     }
-    Install-CourseSkills $WorkingDirectory $PackageRoot
+    Install-CourseSkills $WorkingDirectory $PackageRoot -CaseOnly:$CaseOnly
 }

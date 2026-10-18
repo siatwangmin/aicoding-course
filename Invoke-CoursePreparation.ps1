@@ -10,7 +10,7 @@ $file=Join-Path $root '.course-setup\preparation-progress.json'
 $canonicalOrder=@('tools','cloudbase','github','ai','summary')
 $skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';ai='ai-coding-siliconflow';summary='ai-coding-env'}
 $state=if(Test-Path -LiteralPath $file){Read-CourseJson $file}else{[pscustomobject]@{schemaVersion=2;runId=[guid]::NewGuid().ToString();stages=[pscustomobject]@{}}}
-if($PSBoundParameters.ContainsKey('RequiredStages')){$selected=@('tools')+@($RequiredStages)+@('summary')}elseif($state.requiredStages){$selected=@($state.requiredStages)}else{$selected=@('tools','summary')}
+if($PSBoundParameters.ContainsKey('RequiredStages')){$selected=@('tools')+@($RequiredStages)+@('summary')}elseif($state.requiredStages){$selected=@($state.requiredStages)}else{$selected=@($canonicalOrder)}
 $order=@($canonicalOrder|Where-Object {$selected -contains $_})
 $state|Add-Member NoteProperty requiredStages $order -Force
 function Test-PreparationStage([string]$Name,$Item){

@@ -1,0 +1,10 @@
+{
+  "version": "2.2.3",
+  "date": "2026-10-18",
+  "gitTag": "course-v2.2.3",
+  "status": "candidate",
+  "distributionId": "a7346c76ef51",
+  "distributionPath": "previews/v2.2.3/a7346c76ef51",
+  "packageSha256": "a7346c76ef512d9e798bcc3855661fd4bf1676aa4188755fa633cc33e5cb029b",
+  "testCandidate": true
+}
