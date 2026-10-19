@@ -8,6 +8,8 @@
 
 ## 当前路线与范围
 
+当前准备网页按顺序显示 E-01安装Trae、E-02启动准备、E-03 GitHub、E-04硅基流动、E-05 CloudBase、E-06汇总。学员报告网页编号时按当前版本步骤数据的displayId定位；本文历史编号和内部检查使用稳定id，映射由环境Skill的preparation-workflow维护，不让学员自行转换。
+
 新准备统一 Windows 11 x64 / WSL2 + Podman CLI + 独立 Docker Compose EXE，容器由 Podman 运行。无需 Docker Desktop、Podman Desktop 或编排用 Python。固定工具镜像由准备记录提供，后续 Web、测试、APK 构建均使用同一镜像，不在宿主安装 Node/JDK/Android 工具链。
 
 已有作品以 .ai-coding/project.json 为准；已有准备先读原始报告和 .course-setup/materials.json、container-runtime.json。没有 runtime 的旧报告按原 Docker 兼容处理，不因课程新默认静默换引擎。Docker 旧工程按用户级 ai-coding-env/references/windows-docker-setup.md 恢复；不运行 Docker Prepare 来补 Podman 缺项。

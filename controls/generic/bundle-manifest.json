@@ -78,7 +78,7 @@
   "skills": {
     "ai-coding-env": {
       "archive": "ai-coding-env-skill.zip",
-      "sha256": "821364f7e7f284002599ea0888984ac1eea425f40661436985cad6ee9e16059c",
+      "sha256": "104a7e6cc07a2416f7c907231d95bdc41b5a8c1865d3be9f8862d10bd3265b49",
       "kind": "generic",
       "files": {
         "assets/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
@@ -91,7 +91,7 @@
         "assets/windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
         "references/course-updates.md": "3e39643bcc45c1997a9eb51aa625c25dce7bdeef4e66b3ab08b99987868696ac",
         "references/installation-downloads.md": "0580c0bd9a1a77381a05bbdcd893d62eed4233eb95daed57b9bb498404cf15be",
-        "references/preparation-workflow.md": "67050a9af4dfbe499a468ad8e6983de9488baa1e0cb799433ff4e1e8a5b93839",
+        "references/preparation-workflow.md": "37e0e0f06ebf9fb9e1ab6d9f3f407115c4134737e714e140e83a564c71e68b6e",
         "references/project-execution.md": "8334718590c640ddc1991d46f3178a6af23bf98bae903687af2d288ef7d06874",
         "references/uninstall.md": "f5136d1bcbed14f0de5ddf3e9ac15b517b1f0f6b939ca7d97350df6b4224c653",
         "references/windows-docker-setup.md": "2bea737b41e6fe0d359f817fd3e7b53cace44e5b722a2d90bffa7bf2bac31b81",
@@ -135,7 +135,7 @@
         "scripts/Verify-Toolchain.ps1": "6e23b57c889f0cf9c683eb058546a83c4fd2d73366f14c1caeaebbacecdb595b",
         "scripts/卸载课程环境.cmd": "9f8875d343705643606283b3dfa1e4a0eb7a0555932e28771feebb75b0e6e918",
         "scripts/开始安装Docker.cmd": "cb419287f0007aee08eefb17c528b02fbbc777096933500c528523148e6072f8",
-        "SKILL.md": "5d754bb303cec64777723e8b3272f527a5c81122366d0d78ae8f9e86f5a46d4e"
+        "SKILL.md": "5e743e2a71f82ea5b0f5a978b3517a8e52a5489cb23ed28cc109f49a7eedb34d"
       },
       "requires": []
     },
@@ -326,10 +326,10 @@
     "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
     "podman-installers.json": "c73cd7c4129eeb9de32e2bb73f3308023c8680b067d2dcd9fca915d560ed81f2",
     "windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
-    "VERSION.json": "1de7a09ff7484d7e1729bfc9a1527afce3e4c0b441399b0051491425db5c5782",
-    "setup-guide.md": "e19e9db1d482bab118fd3531d44cf31b59884e6c3d9ae0ab1cb2ce615e521e38",
+    "VERSION.json": "c98097284c9d6d58c48ad34bbad4f07a651a321d1f1baf611f42fa6a29e6adf6",
+    "setup-guide.md": "e7780477b52a87185b1699e931563d093243f241a44c646ae092bfd3ea0ce385",
     "course-contract/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
-    "ai-coding-env-skill.sha256": "53ecf9f5c05eb2857f643e7c7d05e5d2cda6c90882daa5731e8d76910944f11e",
+    "ai-coding-env-skill.sha256": "8ae587dd1091203537a7539292b1e29351b89fb5d3db0a627c2497b44e31e120",
     "ai-coding-project-skill.sha256": "a556b59035c13cd336f14b191194956f654988a1b82b37af11528db345eb9d41",
     "ai-coding-cloudbase-skill.sha256": "8d01b2ef9b5db4ec47a7114874cb6aab3371867d99b58d3d746fbec840922732",
     "ai-coding-github-skill.sha256": "69f6d5c00156d8c32dfa2020a13ca4724d63870b9400f0decc3276badef264df",
@@ -337,5 +337,5 @@
     "ai-coding-development-skill.sha256": "00c6f43936f7056200d6fc47b282747c6178a9d60314af5d46cc57038ba7c2d7",
     "ai-coding-android-skill.sha256": "e59022c28bf7711e1b03d068c3439ece7bec4a0bacb53c9ad8de6da8688ff52e"
   },
-  "contentId": "a61397c7b936f58d47fdfff0353713fbb15e589fb8a20c6908c77b50c08aba81"
+  "contentId": "6eb30fea6967c81da5d883cd0437bda6eed5bb5f7c3b706b1a93ef5e5a940555"
 }
