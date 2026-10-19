@@ -80,7 +80,7 @@ function Invoke-CourseMaterialsUpdate {
         $selection=Resolve-CourseRelease -Workspace $Workspace -Version $Version -Preview $preview
         $release=$selection.manifest;$entry=$selection.entry
         if($pending.status -in @('Downloading','Downloaded','Applying') -and $pending.version -ceq $entry.version -and $pending.distributionId -ceq $entry.distributionId -and $pending.manifestSha256 -cne $selection.manifestSha256){throw 'PENDING_RELEASE_LOCK_CHANGED'}
-        Write-Host ('当前课程 v'+$prior.CourseVersion+'；目标课程 v'+$entry.version+$(if($entry.status -eq 'candidate'){'（候选版）'}else{''})+'。')
+        Write-Host ('当前资料 v'+$prior.CourseVersion+'；目标资料 v'+$entry.version+$(if($entry.status -eq 'candidate'){'（候选版）'}else{''})+'。')
         $id=$entry.version+'-'+$(if($entry.distributionId){$entry.distributionId}else{'release'})
         $root=Join-Path $Workspace ('.course-setup/update-cache/'+$id+'-'+$Profile)
         Assert-CoursePlainPath $root
@@ -118,7 +118,7 @@ function Invoke-CourseMaterialsUpdate {
         if((Read-CourseJson (Join-Path $root 'VERSION.json')).version -cne $entry.version){throw 'BUNDLE_VERSION_MISMATCH'}
         if($Mode -eq 'Download'){
             $pending.status='Downloaded';Write-CourseJson $pendingFile $pending
-            Write-Host ('课程 v'+$entry.version+' 的资料已下载校验，尚未应用；当前课程和技能保持原状态。')
+            Write-Host ('资料 v'+$entry.version+' 的资料已下载校验，尚未应用；当前资料和技能保持原状态。')
             return [pscustomobject]@{status='Downloaded';version=$entry.version;PackageRoot=$root;applied=$false;environmentChanged=$false}
         }
         $compatibility=Test-CourseRuntimeCompatibility $Workspace $bundle.compatibility -AllowUnprepared:$AllowUnprepared
@@ -155,8 +155,8 @@ function Invoke-CourseMaterialsUpdate {
         $pending.status='Applied';Write-CourseJson $pendingFile $pending
         $result=[pscustomobject]@{status='FilesApplied';version=$entry.version;CourseVersion=$(if($allMatched){$entry.version}else{$prior.CourseVersion});Changed=$installed.Changed;Unchanged=$installed.Unchanged;SkillNames=@($bundle.skills.PSObject.Properties.Name);PackageRoot=$root;CaseSupplementRoot=$root;SkillsDirectory=$skills;PackageProfile=$Profile;environmentChanged=$false;EnvironmentCompatibility=$compatibility;TraeLoadVerified=$false;TransactionRoot=$installed.TransactionRoot}
         if($installed.Changed.Count -or $prior.CourseVersion -cne $entry.version -or $prior.ReleaseId -cne $id){Write-CourseJson (Join-Path $Workspace '.course-setup/last-update.json') $result}
-        if(-not $allMatched){Write-Host ('本次仅更新所选技能；课程资料仍为 v'+$prior.CourseVersion+'，尚未切换整套课程版本。')}
-        Write-Host ('课程资料/技能文件已校验；实际更新 '+$installed.Changed.Count+' 项技能，编程环境未更换。Trae 实际加载待核对，未据此宣布完整课前准备通过。')
+        if(-not $allMatched){Write-Host ('本次仅更新所选技能；资料仍为 v'+$prior.CourseVersion+'，尚未切换整套资料版本。')}
+        Write-Host ('资料/技能文件已校验；实际更新 '+$installed.Changed.Count+' 项技能，编程环境未更换。Trae 实际加载待核对，未据此宣布完整环境准备通过。')
         return $result
     }finally{Exit-CourseUpgradeLock $lock}
 }

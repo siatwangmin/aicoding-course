@@ -13,7 +13,7 @@ function Start-CourseUninstall {
         if(-not $Preparation){return 0}
         $installs=@(Import-CourseLegacyInstallation $Preparation)
     }
-    Write-Host '课程环境卸载：云端作品、手机应用和 Windows 系统组件默认保留。'
+    Write-Host '环境卸载：云端作品、手机应用和 Windows 系统组件默认保留。'
     for($n=0;$n -lt $installs.Count;$n++){Write-Host (($n+1).ToString()+'. '+$installs[$n].workspace+' ['+$installs[$n].status+']')}
     $choice=Read-Host '输入安装编号（留空取消）'
     if(-not $choice){return 0}
@@ -38,7 +38,7 @@ function Start-CourseUninstall {
     $removeMachines=@()
     if($machines.Count){
         for($n=0;$n -lt $machines.Count;$n++){Write-Host (($n+1).ToString()+'. '+$machines[$n].locator)}
-        $selection=Read-Host '删除虚拟机会清除其全部数据（包括手工放入的文件）。确认仅课程使用后输入要删除的编号，逗号分隔；留空保留'
+        $selection=Read-Host '删除虚拟机会清除其全部数据（包括手工放入的文件）。确认仅此环境使用后输入要删除的编号，逗号分隔；留空保留'
         if($selection){foreach($value in ($selection -split ',')){$num=0;if(-not [int]::TryParse($value.Trim(),[ref]$num) -or $num -lt 1 -or $num -gt $machines.Count){throw 'INVALID_MACHINE_SELECTION'};$removeMachines+=@($machines[$num-1].locator)}}
     }
     $plan=New-CourseUninstallPlan $install.installationId $scope $projects $output -RemovePreparationDirectory:$removePreparation -RemoveMachineNames $removeMachines

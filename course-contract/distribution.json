@@ -17,7 +17,12 @@
     "course/course-steps.json",
     "course/download-links.json",
     "course-contract/distribution.json",
-    "course-contract/compatibility.json"
+    "course-contract/compatibility.json",
+    "course/preparation-updates.html",
+    "installation-downloads.md",
+    "uninstall.md",
+    "windows-podman-setup.md",
+    "windows-docker-setup.md"
   ],
   "websiteMarkdown": "course/*.md",
   "packageProfiles": {

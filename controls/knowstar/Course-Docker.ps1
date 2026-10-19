@@ -71,7 +71,7 @@ function Get-SetupDocker {
             break
         }
         if ($data.OperatingSystem -notmatch 'Docker Desktop') {
-            $result.Detail = '本地引擎不是 Docker Desktop；请打开课程使用的 Docker Desktop'
+            $result.Detail = '本地引擎不是 Docker Desktop；请打开已配置的 Docker Desktop'
             break
         }
         $version = Invoke-SetupNative $paths.Cli @('--host', $endpoint, 'version', '--format', '{{json .}}') $TimeoutSeconds
@@ -248,17 +248,17 @@ function Write-SetupSummary {
 function Get-SetupNextStep {
     param([string]$Decision, $Snapshot)
     switch ($Decision) {
-        'Unsupported' { return '请把检查记录交给课程支持人员：本地安装包仅用于 x64 的 Windows 10 22H2 / Windows 11 23H2 及以上、至少 8 GB 内存，不用于 Windows Server 或 ARM 电脑。Windows 版本是否仍受支持另按官方说明核对。' }
-        'Firmware' { return "请按 Ctrl+Shift+Esc 打开任务管理器 → 性能 → CPU，看右侧‘虚拟化’。若显示‘已禁用’，保存工作，通过 Windows 设置 → 系统 → 恢复（Windows 10：更新和安全 → 恢复）→ 高级启动 → 疑难解答 → 高级选项 → UEFI 固件设置进入 BIOS，把 Intel Virtualization Technology / VT-x / AMD SVM 设为 Enabled，保存退出，再运行助手。这台电脑是 $($Snapshot.Manufacturer) $($Snapshot.Model)。不同品牌菜单不同，找不到或有密码时请课程支持人员协助；虚拟机/远程云电脑需管理员开启嵌套虚拟化。检测为 Unknown 或任务管理器已开启时，先核实记录，不能直接判定未开启。" }
+        'Unsupported' { return '请把检查记录交给支持人员：本地安装包仅用于 x64 的 Windows 10 22H2 / Windows 11 23H2 及以上、至少 8 GB 内存，不用于 Windows Server 或 ARM 电脑。Windows 版本是否仍受支持另按官方说明核对。' }
+        'Firmware' { return "请按 Ctrl+Shift+Esc 打开任务管理器 → 性能 → CPU，看右侧‘虚拟化’。若显示‘已禁用’，保存工作，通过 Windows 设置 → 系统 → 恢复（Windows 10：更新和安全 → 恢复）→ 高级启动 → 疑难解答 → 高级选项 → UEFI 固件设置进入 BIOS，把 Intel Virtualization Technology / VT-x / AMD SVM 设为 Enabled，保存退出，再运行助手。这台电脑是 $($Snapshot.Manufacturer) $($Snapshot.Model)。不同品牌菜单不同，找不到或有密码时请支持人员协助；虚拟机/远程云电脑需管理员开启嵌套虚拟化。检测为 Unknown 或任务管理器已开启时，先核实记录，不能直接判定未开启。" }
         'Permissions' { return '助手会以管理员身份运行 Prepare/Verify；UAC 窗口出现时请点击“是”。若单位策略拒绝或必须使用别人的管理员账号，请 IT 协助，不能把另一账号的状态当作你的检查结果。' }
         'Restart' { return '系统条件需要重启才能生效。请先保存工作，通过 Windows 电源菜单重启；返回后助手在原工作目录继续同一脚本。不会跳过重启或自动丢弃未保存内容。' }
         'BootConfiguration' { return 'Windows 的虚拟机启动项被关闭。安装助手的 Prepare 模式会把 hypervisorlaunchtype 设为 Auto，然后请你保存工作并重启。' }
         'Feature' { return '下一步开启 Windows 虚拟机平台。安装助手的 Prepare 模式执行 Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart，完成后请保存工作并重启，再运行同一助手。' }
-        'Wsl' { return '下一步使用课程提供的 wsl.3.0.1.0.x64.msi 本地安装 WSL；Prepare 模式会校验并安装，不需要下载 Ubuntu，也不要求注册 Linux 账号。' }
+        'Wsl' { return '下一步使用提供的 wsl.3.0.1.0.x64.msi 本地安装 WSL；Prepare 模式会校验并安装，不需要下载 Ubuntu，也不要求注册 Linux 账号。' }
         'Service' { return 'Docker 所需的 Windows Server 服务尚未自动运行。Prepare 模式将 LanmanServer 设为自动并启动；如果单位策略禁止操作，请让 IT 协助。' }
         'DockerInstall' { return '助手将运行已校验的本地 Docker 安装程序，固定使用 WSL 2，随后自动启动并验收；首次条款由你本人决定。' }
         'DockerStart' { return "助手负责启动 Docker Desktop 并自动轮询 Server/Compose；首次条款出现时请本人阅读并决定是否接受。当前结果：$($Snapshot.Docker.Detail)。超时仍未就绪时读取本机报告中的错误，不能凭窗口字样判定通过。" }
-        'Ready' { return 'Docker Desktop 已安装，本机 Linux 引擎和 Compose 已通过检查；这只代表 Docker 就绪，课程工具箱尚未验收。助手应立即继续执行 Verify-Toolchain.ps1，自动拉取镜像并检查容器内工具，不等待学员再发指令。' }
+        'Ready' { return 'Docker Desktop 已安装，本机 Linux 引擎和 Compose 已通过检查；这只代表 Docker 就绪，工具箱尚未验收。助手应立即继续执行 Verify-Toolchain.ps1，自动拉取镜像并检查容器内工具，不等待使用者再发指令。' }
     }
 }
 
@@ -294,7 +294,7 @@ function Resolve-SetupInstaller {
     param([string]$Kind, [string]$Directory, [string]$Manifest)
     if (-not (Test-Path -LiteralPath $Manifest)) { throw '找不到安装包校验清单 windows-installers.json，请重新解压完整资料包。' }
     $entry = (Get-Content -LiteralPath $Manifest -Raw | ConvertFrom-Json).$Kind
-    if (-not $entry -or $entry.sha256 -notmatch '^[0-9a-fA-F]{64}$') { throw '安装包清单格式不正确，请使用完整课程资料。' }
+    if (-not $entry -or $entry.sha256 -notmatch '^[0-9a-fA-F]{64}$') { throw '安装包清单格式不正确，请使用完整资料。' }
     $folders = @()
     if ($Directory) { $folders += $Directory }
     $starts = @()
@@ -356,7 +356,7 @@ function Resolve-SetupInstaller {
         }
         throw ($sourceFailures -join '; ')
     } catch {
-        throw "安装包获取未完成：$($_.Exception.Message)。助手应读取下载记录，复用已有安装程序或从上述官方地址继续处理；不要求学员下载软件合集或移动文件。"
+        throw "安装包获取未完成：$($_.Exception.Message)。助手应读取下载记录，复用已有安装程序或从上述官方地址继续处理；不要求使用者下载软件合集或移动文件。"
     } finally {
         if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
     }
@@ -380,7 +380,7 @@ function Invoke-SetupAction {
             Write-Host '正在开启虚拟机平台，请等待；助手不会自动重启。'
             $result = Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart -ErrorAction Stop
             if ((Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -ErrorAction Stop).State -notmatch '^Enabled$|^EnablePending$') {
-                throw '开启虚拟机平台后未确认成功，请把记录交给课程支持人员。'
+                throw '开启虚拟机平台后未确认成功，请把记录交给支持人员。'
             }
             # Reboot even if DISM reports no restart: this run changed the prerequisite.
             Save-SetupRestart $RecordDirectory $Snapshot.Boot '已开启虚拟机平台'
@@ -418,7 +418,7 @@ function Invoke-SetupAction {
                 return 'Restart'
             }
             if ($process.ExitCode -ne 0) { throw "Docker 安装未完成，返回码 $($process.ExitCode)。请记录安装窗口提示，排除取消、权限或磁盘空间问题后再运行。" }
-            if (-not (Get-SetupDockerPaths).Desktop) { throw '安装程序已退出，但未找到 Docker Desktop。请将安装目录或错误画面交给课程支持人员，不把它算作通过。' }
+            if (-not (Get-SetupDockerPaths).Desktop) { throw '安装程序已退出，但未找到 Docker Desktop。请将安装目录或错误画面交给支持人员，不把它算作通过。' }
             return 'Continue'
         }
         default { return $Decision }
@@ -555,12 +555,12 @@ function Invoke-DockerSetup {
                 return 3010
             }
             $fresh = Get-SetupSnapshot $recordDirectory
-            if ((Get-SetupDecision $fresh) -eq $decision) { throw '本步操作后状态没有改变。请把检查记录交给课程支持人员，不重复安装。' }
+            if ((Get-SetupDecision $fresh) -eq $decision) { throw '本步操作后状态没有改变。请把检查记录交给支持人员，不重复安装。' }
         }
         throw '本轮步骤已达到上限，请检查记录后继续。'
     } catch {
         Write-Host "`n本轮未完成：$($_.Exception.Message)" -ForegroundColor Red
-        $failure = @{ CheckedAt = (Get-Date).ToString('o'); Mode = $SetupMode; Decision = 'Error'; Error = $_.Exception.Message; NextStep = '请将本次日志与 report.json 交给课程支持人员，解决原因后重跑同一助手。' }
+        $failure = @{ CheckedAt = (Get-Date).ToString('o'); Mode = $SetupMode; Decision = 'Error'; Error = $_.Exception.Message; NextStep = '请将本次日志与 report.json 交给支持人员，解决原因后重跑同一助手。' }
         $failure | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $recordDirectory 'report.json') -Encoding UTF8
         Write-EnvironmentChecklist $Workspace $failure $null $null $null
         Write-Host "检查记录：$recordDirectory"

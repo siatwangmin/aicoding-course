@@ -107,7 +107,7 @@ function Get-SkillsChecklistLines {
     param($Verification)
     function ConvertTo-SkillCell($Value) { return ([string]$Value -replace '\|', '\\|' -replace '[\r\n]+', ' ') }
     '<!-- ai-coding:user-skills:start -->'
-    '## 课程技能：用户级安装检查'
+    '## 技能：用户级安装检查'
     ''
     '检查时间：' + $Verification.CheckedAt
     '用户技能目录：`' + $Verification.SkillsDirectory + '`'
@@ -155,8 +155,8 @@ function Update-ExistingSkillsChecklist {
     if ([regex]::IsMatch($text, $pattern)) { $text = [regex]::Replace($text, $pattern, [Text.RegularExpressions.MatchEvaluator]{ param($match) $section }) }
     else { $text = $text.TrimEnd() + "`r`n`r`n" + $section + "`r`n" }
     if (-not $Verification.UserInstallationVerified) {
-        $text = $text -replace '(?m)\*\*结论：已完成[^\r\n]*', '**结论：未完成（课程技能用户级安装未通过）**'
-        $text = $text -replace '(?m)^# 容器工具准备：已完成', '# 容器工具准备：未完成（课程技能用户级安装未通过）'
+        $text = $text -replace '(?m)\*\*结论：已完成[^\r\n]*', '**结论：未完成（技能用户级安装未通过）**'
+        $text = $text -replace '(?m)^# 容器工具准备：已完成', '# 容器工具准备：未完成（技能用户级安装未通过）'
     }
     $storage=Get-WorkspaceStorageEvidence $Workspace
     if($storage.Required -and -not $storage.Verified){

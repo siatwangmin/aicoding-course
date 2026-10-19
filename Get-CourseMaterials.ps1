@@ -169,7 +169,7 @@ function Get-CourseMaterials {
             . $upgrade
             $existingBundle=Assert-CourseBundle $priorActive.PackageRoot
             if(Test-CourseInstalledCompatibility $existingBundle){
-                Write-Host ('沿课程 v'+$Version+' 恢复；共享技能按已验证内容与兼容约定复用，不因恢复任务自动降级或重装。')
+                Write-Host ('沿资料 v'+$Version+' 恢复；共享技能按已验证内容与兼容约定复用，不因恢复任务自动降级或重装。')
                 return $priorActive
             }
             if(Test-Path -LiteralPath (Join-Path (Get-CourseUserRoot) 'installed-skills.json')){throw 'SHARED_SKILL_SET_CHANGED: preserve the active preparation and use the update compatibility check; never downgrade shared skills while resuming.'}
@@ -224,7 +224,7 @@ function Get-CourseMaterials {
         $requiredFiles=@('VERSION.json', 'setup-guide.md', 'Install-CourseSkills.ps1', 'Setup-DockerDesktop.ps1', 'windows-installers.json', 'ai-coding-env-skill.zip', 'ai-coding-project-skill.zip')
         if([version]$Version -ge [version]'2.1.1'){$requiredFiles+=@('Course-Docker.ps1','Course-Podman.ps1')}
         if([version]$Version -ge [version]'2.1.0'){$requiredFiles+=@('Course-Native.ps1','Setup-Podman.ps1')}
-        if([version]$Version -ge [version]'2.2.0'){$requiredFiles+=@('Course-Lifecycle.ps1','Course-Uninstall.ps1','Course-UninstallAdapters.ps1','Uninstall-Course.ps1','Start-CourseUninstall.ps1','lifecycle-contract.json','卸载课程环境.cmd');if(-not $modern){$requiredFiles+='uninstall.md'}}
+        if([version]$Version -ge [version]'2.2.0'){$requiredFiles+=@('Course-Lifecycle.ps1','Course-Uninstall.ps1','Course-UninstallAdapters.ps1','Uninstall-Course.ps1','Start-CourseUninstall.ps1','lifecycle-contract.json',$(if([version]$Version -ge [version]'2.3.8'){'卸载环境.cmd'}else{'卸载课程环境.cmd'}));if(-not $modern){$requiredFiles+='uninstall.md'}}
         foreach ($required in $requiredFiles) {
             if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) { throw "Missing course file: $required" }
         }
@@ -249,7 +249,7 @@ function Get-CourseMaterials {
         if (-not $resolvedStage.StartsWith([IO.Path]::GetFullPath($records).TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe staging cleanup path.' }
         if (Test-Path -LiteralPath $resolvedStage) { Remove-Item -LiteralPath $resolvedStage -Recurse -Force }
     }
-    Write-Host ('本次使用课程 v'+$Version+$(if($Preview){'（候选版）'}else{''})+'。正在准备资料与助手技能。')
+    Write-Host ('本次使用资料 v'+$Version+$(if($Preview){'（候选版）'}else{''})+'。正在准备资料与助手技能。')
     $installedSkills = @(& (Join-Path $courseRoot 'Install-CourseSkills.ps1') -WorkingDirectory $workspacePath -PackageRoot $courseRoot)
     $installedSkills | Out-Host
     $installerFiles = @()
@@ -319,7 +319,7 @@ function Get-CourseMaterials {
             $null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $download -Ownership created -DataClass rebuildable -AllowedRoot $records
         }
     }
-    Write-Host ('课程 v'+$Version+'：资料和用户级技能文件安装完成。Trae 实际加载、工具与账号准备继续分别验收。')
+    Write-Host ('资料 v'+$Version+'：资料和用户级技能文件安装完成。Trae 实际加载、工具与账号准备继续分别验收。')
     return [pscustomobject]$result
 }
 

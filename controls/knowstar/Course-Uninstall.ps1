@@ -356,7 +356,7 @@ function Test-CourseUninstallResult([string]$OperationId,[switch]$Finalize) {
     $lines+=@('','云端、手机和系统组件保留。源码等保留项按计划验证；Trae 新会话实际加载/移除需另行观察。','报告与脱敏操作记录保留；未完成资源按原计划 Resume，不清空共享目录。')
     if($result.retainedPreparation){$lines+=('保留准备目录（含原报告）：'+$result.retainedPreparation)}
     foreach($cache in $remainingCaches){$lines+=('提供程序缓存目录保留，内部创建归属未逐项证明：'+$cache)}
-    if(@($resourceResults|Where-Object {$_.action -eq 'restorePrevious' -and $_.status -eq 'done'}).Count){$lines+='安装前副本已恢复（restorePrevious）；这不表示之前安装的课程/其他工具也已卸载。'}
+    if(@($resourceResults|Where-Object {$_.action -eq 'restorePrevious' -and $_.status -eq 'done'}).Count){$lines+='安装前副本已恢复（restorePrevious）；这不表示之前安装的其他工具也已卸载。'}
     [IO.File]::WriteAllLines($result.report,[string[]]$lines,[Text.UTF8Encoding]::new($false))
     return $result
 }

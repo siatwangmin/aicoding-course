@@ -43,7 +43,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     }
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     if ($ExpectedUserSid -and $ExpectedUserSid -ne $sid) {
-        Write-Host '权限窗口使用了不同的 Windows 账号。请让 IT 协助在原学员账号中完成准备，避免检查或安装到另一个人的用户环境。'
+        Write-Host '权限窗口使用了不同的 Windows 账号。请让 IT 协助在原使用者账号中完成准备，避免检查或安装到另一个人的用户环境。'
         exit 2
     }
     if ($Mode -in @('Prepare', 'Verify') -and -not (Test-SetupAdministrator)) {
@@ -65,9 +65,9 @@ if ($MyInvocation.InvocationName -ne '.') {
                     Write-Host ("`n下一步：" + $lastReport.NextStep) -ForegroundColor Cyan
                     if ($lastReport.Error) { Write-Host $lastReport.Error -ForegroundColor Red }
                     Write-Host "检查记录：$reportPath"
-                } else { Write-Host '本次未产生新检查记录，请确认提升权限使用的是原学员账号，并请课程支持人员协助。' }
+                } else { Write-Host '本次未产生新检查记录，请确认提升权限使用的是原使用者账号，并请支持人员协助。' }
             } else {
-                Write-Host '本次未产生检查记录，请确认提升权限使用的是原学员账号，并请课程支持人员协助。'
+                Write-Host '本次未产生检查记录，请确认提升权限使用的是原使用者账号，并请支持人员协助。'
             }
             exit $child.ExitCode
         } catch {
