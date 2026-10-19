@@ -44,9 +44,22 @@ function Test-CourseSkills {
                 if (-not $nameMatches) { $issues += 'SKILL.md 的技能名称不匹配。' }
             } catch { $issues += '无法读取用户目录中的 SKILL.md。' }
         }
+        $contentVerified=$null
+        $baseline=Join-Path $env:USERPROFILE '.ai-coding/installed-skills.json'
+        if(Test-Path -LiteralPath $baseline){
+            $upgrade=Join-Path $PSScriptRoot 'Course-Upgrade.ps1'
+            if(Test-Path -LiteralPath $upgrade){
+                . $upgrade
+                $installed=Read-CourseJson $baseline
+                if($installed.skills.PSObject.Properties[$name]){
+                    $contentVerified=Test-CourseTree (Get-CourseTreeHashes $directory) $installed.skills.$name.files
+                    if(-not $contentVerified){$issues+='已安装技能内容与记录的版本摘要不同。'}
+                }
+            }
+        }
         $projectCopy = Test-Path -LiteralPath $projectDirectory
         if ($projectCopy) { $issues += '当前项目仍有同名技能副本，需要先备份并移出发现目录。' }
-        [pscustomobject]@{ Name = $name; ExpectedDirectory = $directory; NameMatches = $nameMatches; ProjectCopyFound = [bool]$projectCopy; ProjectDirectory = $projectDirectory; UserDirectoryVerified = ($issues.Count -eq 0); Issues = @($issues) }
+        [pscustomobject]@{ Name = $name; ExpectedDirectory = $directory; NameMatches = $nameMatches; ContentVerified=$contentVerified; ProjectCopyFound = [bool]$projectCopy; ProjectDirectory = $projectDirectory; UserDirectoryVerified = ($issues.Count -eq 0); Issues = @($issues) }
     }
     $verified = @($checks | Where-Object { -not $_.UserDirectoryVerified }).Count -eq 0
     $result = [pscustomobject][ordered]@{ CheckedAt = (Get-Date).ToString('o'); UserInstallationVerified = $verified; SkillsDirectory = $skillsRoot; Checks = @($checks); NotVerified = @('Trae 中的实际识别和加载由助手另行核对；位置检查不代替工具、云服务、GitHub 或 AI 服务验收。') }
@@ -203,6 +216,23 @@ function Install-CourseSkills {
     if(Test-Path -LiteralPath $versionPath){
         $releaseVersion=(Get-Content -LiteralPath $versionPath -Raw -Encoding UTF8|ConvertFrom-Json).version
         if($releaseVersion -and [version]$releaseVersion -ge [version]'2.2.0' -and -not(Get-Command Register-CourseInstallation -ErrorAction SilentlyContinue)){throw 'LIFECYCLE_INSTALLER_DEPENDENCIES_REQUIRED'}
+    }
+    if($releaseVersion -and [version]$releaseVersion -ge [version]'2.3.0'){
+        if(-not(Get-Command Expand-CourseMaterials -ErrorAction SilentlyContinue)){. (Join-Path $PSScriptRoot 'Get-CourseMaterials.ps1')}
+        . (Join-Path $PSScriptRoot 'Course-Upgrade.ps1')
+        $bundle=Assert-CourseBundle $Root
+        $names=@($bundle.skills.PSObject.Properties|Where-Object {-not $CaseOnly -or $_.Value.kind -eq 'case'}|ForEach-Object {$_.Name})
+        if(-not $names.Count){throw 'CASE_PROFILE_REQUIRED'}
+        $installed=Invoke-CourseSkillTransaction -Workspace $Workspace -PackageRoot $Root -Names $names -ReleaseId $releaseVersion -AllowUnprepared
+        $installation=Register-CourseInstallation $Workspace $releaseVersion
+        foreach($name in $names){
+            $destination=Join-Path $installed.SkillsDirectory $name
+            $backup=Join-Path $installed.TransactionRoot ('backup/'+$name)
+            $saved=if(Test-Path -LiteralPath $backup){$backup}else{$null}
+            $null=Register-CourseResource -InstallationId $installation.installationId -Kind skill -Locator $destination -Ownership $(if($installed.Changed -contains $name){'created'}else{'reused'}) -AllowedRoot $installed.SkillsDirectory -BackupPath $saved
+            [pscustomobject]@{PackageRoot=$Root;Name=$name;Destination=$destination;Scope='user';BackupPath=$saved;ProjectBackupPath=$null}
+        }
+        return
     }
     $skillNames = @('ai-coding-env', 'ai-coding-project')
     # New packages include the cloud setup guide; older two-skill packages still work.

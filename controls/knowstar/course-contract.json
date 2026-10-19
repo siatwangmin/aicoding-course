@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "baselineVersion": "2.0.0",
+  "defaultRuntime": "podman",
+  "defaultStorageRoot": "D:\\AI-Practice",
+  "skills": [
+    {
+      "name": "ai-coding-env",
+      "source": "ai-coding-env",
+      "archive": "ai-coding-env-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-project",
+      "source": "ai-coding-project",
+      "archive": "ai-coding-project-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-cloudbase",
+      "source": "ai-coding-cloudbase",
+      "archive": "ai-coding-cloudbase-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-github",
+      "source": "ai-coding-github",
+      "archive": "ai-coding-github-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-siliconflow",
+      "source": "ai-coding-siliconflow",
+      "archive": "ai-coding-siliconflow-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-development",
+      "source": "ai-coding-development",
+      "archive": "ai-coding-development-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "ai-coding-android",
+      "source": "ai-coding-android",
+      "archive": "ai-coding-android-skill.zip",
+      "kind": "generic"
+    },
+    {
+      "name": "knowstar-course",
+      "source": "knowstar-course-skill",
+      "archive": "knowstar-course-skill.zip",
+      "kind": "case"
+    }
+  ]
+}

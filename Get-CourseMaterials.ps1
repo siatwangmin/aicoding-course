@@ -18,6 +18,32 @@ function Receive-CourseFile {
     }
 }
 
+function Resolve-CourseRelease {
+    param([string]$Workspace,[string]$Version,[string]$Preview)
+    $base='https://siatwangmin.github.io/aicoding-course'
+    $records=Join-Path $Workspace '.course-setup'
+    [void](New-Item -ItemType Directory -Path $records -Force)
+    $indexFile=Join-Path $records ('release-index-'+[guid]::NewGuid().ToString('N')+'.json')
+    Receive-CourseFile "$base/release-index.json" $indexFile
+    $index=Get-Content -LiteralPath $indexFile -Raw -Encoding UTF8|ConvertFrom-Json
+    if($index.schemaVersion -ne 1){throw 'UNSUPPORTED_RELEASE_INDEX'}
+    if(-not $Version){$Version=$index.latest}
+    if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'INVALID_COURSE_VERSION'}
+    $entry=if($Preview){$index.builds.($Version+'-'+$Preview)}else{$index.versions.$Version}
+    if(-not $entry -or $entry.version -cne $Version){throw 'REQUESTED_VERSION_NOT_PUBLISHED'}
+    if($entry.manifestUrl -notmatch '^https://siatwangmin\.github\.io/aicoding-course/(?:previews/v\d+\.\d+\.\d+/[a-f0-9]{12}|releases/course/v\d+\.\d+\.\d+)/[a-z-]+\.json$' -or $entry.manifestSha256 -notmatch '^[a-f0-9]{64}$'){throw 'INVALID_RELEASE_POINTER'}
+    $path=Join-Path $records ('release-'+$Version+'-'+$entry.manifestSha256.Substring(0,12)+'.json')
+    if(-not(Test-Path -LiteralPath $path) -or (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant() -cne $entry.manifestSha256){
+        Receive-CourseFile $entry.manifestUrl ($path+'.partial')
+        if((Get-FileHash -LiteralPath ($path+'.partial')).Hash.ToLowerInvariant() -cne $entry.manifestSha256){throw 'RELEASE_MANIFEST_MISMATCH'}
+        Move-Item -LiteralPath ($path+'.partial') -Destination $path -Force
+    }
+    $manifest=Get-Content -LiteralPath $path -Raw -Encoding UTF8|ConvertFrom-Json
+    if($manifest.version -cne $Version -or ($entry.distributionId -and $manifest.distributionId -cne $entry.distributionId)){throw 'RELEASE_IDENTITY_MISMATCH'}
+    if(-not $entry.legacy -and ($manifest.schemaVersion -ne 1 -or $manifest.materialsProtocol -ne 1 -or $manifest.baseUrl -cne $entry.baseUrl)){throw 'UNSUPPORTED_RELEASE_PROTOCOL'}
+    return [pscustomobject]@{entry=$entry;manifest=$manifest;path=$path;manifestSha256=$entry.manifestSha256}
+}
+
 function Expand-CourseMaterials {
     param([string]$Archive, [string]$Staging)
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -112,6 +138,14 @@ function Get-CourseMaterials {
     $records = Join-Path $workspacePath '.course-setup'
     [void](New-Item -ItemType Directory -Path $records -Force)
     $metadataInfo=$null
+    $priorActive=if(Test-Path -LiteralPath (Join-Path $records 'materials.json')){Get-Content -LiteralPath (Join-Path $records 'materials.json') -Raw -Encoding UTF8|ConvertFrom-Json}else{$null}
+    if($priorActive.SkillNames -contains 'knowstar-course'){$Profile='knowstar'}
+    # Resuming an A preserves its exact snapshot; an explicit upgrade uses Update-CourseMaterials.
+    if(-not $Version -and -not $Preview -and (Test-Path -LiteralPath (Join-Path $records 'materials.json'))){
+        $resume=Get-Content -LiteralPath (Join-Path $records 'materials.json') -Raw -Encoding UTF8|ConvertFrom-Json
+        $Version=$resume.CourseVersion;$Preview=$resume.DistributionId
+        if($resume.SkillNames -contains 'knowstar-course'){$Profile='knowstar'}
+    }
     if (-not $Version -or (-not $Preview -and $Version -match '^[2-9]\d*\.')) {
         $metadata = Join-Path $records 'VERSION.json'
         Receive-CourseFile "$baseUrl/VERSION.json" $metadata
@@ -122,8 +156,25 @@ function Get-CourseMaterials {
             if(-not $Preview){throw 'Candidate metadata has no pinned distribution. Do not download a formal-release path.'}
         }
     }
+    $lockedRelease=$null
+    if(($Version -and [version]$Version -ge [version]'2.3.0') -or ($metadataInfo -and [version]$metadataInfo.version -ge [version]'2.3.0')){
+        $lockedRelease=Resolve-CourseRelease -Workspace $workspacePath -Version $Version -Preview $Preview
+        $Version=$lockedRelease.entry.version;$Preview=$lockedRelease.entry.distributionId
+    }
     if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid course version.' }
     if($Preview -and $Preview -notmatch '^[a-f0-9]{12}$'){throw 'Invalid preview identity.'}
+    if($lockedRelease -and -not $lockedRelease.entry.legacy -and $priorActive.CourseVersion -ceq $Version -and $priorActive.DistributionId -ceq $Preview -and $priorActive.PackageProfile -ceq $Profile){
+        $upgrade=Join-Path $priorActive.PackageRoot 'Course-Upgrade.ps1'
+        if(Test-Path -LiteralPath $upgrade){
+            . $upgrade
+            $existingBundle=Assert-CourseBundle $priorActive.PackageRoot
+            if(Test-CourseInstalledCompatibility $existingBundle){
+                Write-Host ('沿课程 v'+$Version+' 恢复；共享技能按已验证内容与兼容约定复用，不因恢复任务自动降级或重装。')
+                return $priorActive
+            }
+            if(Test-Path -LiteralPath (Join-Path (Get-CourseUserRoot) 'installed-skills.json')){throw 'SHARED_SKILL_SET_CHANGED: preserve the active preparation and use the update compatibility check; never downgrade shared skills while resuming.'}
+        }
+    }
     $distribution=if($Preview){"previews/v$Version/$Preview"}else{"releases/course/v$Version"}
     $cacheId=if($Preview){"v$Version-preview-$Preview"}else{"v$Version"}
     $modern=[version]$Version -ge [version]'2.2.3'
@@ -134,6 +185,7 @@ function Get-CourseMaterials {
     $checksum = (Get-Content -LiteralPath $checksumFile -Raw).Trim()
     if ($checksum -notmatch ('^([a-fA-F0-9]{64})\s+'+[regex]::Escape($packageName)+'$')) { throw 'Invalid course checksum file.' }
     $expectedHash = $Matches[1].ToLowerInvariant()
+    if($lockedRelease -and -not $lockedRelease.entry.legacy -and $lockedRelease.manifest.profiles.$Profile.sha256 -cne $expectedHash){throw 'RELEASE_PACKAGE_MISMATCH'}
     if($Preview){
         if($packageName -eq 'aicoding-student-kit.zip'){
             if(-not $expectedHash.StartsWith($Preview)){throw 'Preview identity does not match its artifact checksum.'}
@@ -149,6 +201,10 @@ function Get-CourseMaterials {
     if($modern -and $Profile -eq 'knowstar' -and (Test-Path -LiteralPath $priorPath)){
         $prior=Get-Content -LiteralPath $priorPath -Raw -Encoding UTF8|ConvertFrom-Json
         if($prior.CourseVersion -eq $Version -and $prior.DistributionId -eq $Preview -and $prior.PackageProfile -eq 'generic'){
+            if([version]$Version -ge [version]'2.3.0'){
+                . (Join-Path $prior.PackageRoot 'Update-CourseMaterials.ps1')
+                return Invoke-CourseMaterialsUpdate -Workspace $workspacePath -Version $Version -Mode Skills -Profile knowstar -Names @('knowstar-course') -AllowUnprepared
+            }
             return Add-CourseCase -Workspace $workspacePath -Prior $prior -BaseUrl "$baseUrl/$distribution" -CacheId $cacheId
         }
     }
@@ -173,6 +229,9 @@ function Get-CourseMaterials {
             if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) { throw "Missing course file: $required" }
         }
         if ((Get-Content -LiteralPath (Join-Path $staging 'VERSION.json') -Raw | ConvertFrom-Json).version -ne $Version) { throw 'Course archive version mismatch.' }
+        if($lockedRelease -and -not $lockedRelease.entry.legacy){
+            if((Get-FileHash -LiteralPath (Join-Path $staging 'bundle-manifest.json')).Hash.ToLowerInvariant() -cne $lockedRelease.manifest.profiles.$Profile.bundleManifestSha256){throw 'RELEASE_BUNDLE_MISMATCH'}
+        }
         $files = Get-ChildItem -LiteralPath $staging -File -Recurse
         # Preflight all collisions so existing learner modifications remain intact.
         foreach ($file in $files) {
@@ -190,6 +249,7 @@ function Get-CourseMaterials {
         if (-not $resolvedStage.StartsWith([IO.Path]::GetFullPath($records).TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe staging cleanup path.' }
         if (Test-Path -LiteralPath $resolvedStage) { Remove-Item -LiteralPath $resolvedStage -Recurse -Force }
     }
+    Write-Host ('本次使用课程 v'+$Version+$(if($Preview){'（候选版）'}else{''})+'。正在准备资料与助手技能。')
     $installedSkills = @(& (Join-Path $courseRoot 'Install-CourseSkills.ps1') -WorkingDirectory $workspacePath -PackageRoot $courseRoot)
     $installedSkills | Out-Host
     $installerFiles = @()
@@ -228,6 +288,11 @@ function Get-CourseMaterials {
     }
     $result = [ordered]@{ PreparedAt = (Get-Date).ToString('o'); CourseVersion = $Version; DistributionId=$Preview; DistributionStatus=$(if($Preview){'candidate'}else{'release'}); ContainerRuntime=$Runtime; PackageUrl = $url; PackageSha256 = $expectedHash; PackageRoot = $courseRoot; SetupGuide = (Join-Path $courseRoot 'setup-guide.md'); SkillScope = 'user'; SkillsDirectory = (Split-Path $installedSkills[0].Destination -Parent); SkillNames = @($installedSkills.Name); InstallerFiles = $installerFiles; InstallersSkipped = [bool]$WithoutInstallers; EnvironmentVerified = $false }
     if($modern){$result.PackageProfile=$Profile}
+    if($lockedRelease -and -not $lockedRelease.entry.legacy){
+        $result.ReleaseId=$lockedRelease.manifest.releaseId
+        $result.ReleaseManifest=$lockedRelease.path
+        $result.RuntimeContractId=$lockedRelease.manifest.compatibility.runtimeContractId
+    }
     $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $records 'materials.json') -Encoding UTF8
     @{ContainerRuntime=$Runtime;SelectedAt=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $records 'container-runtime.json') -Encoding UTF8
     $agents = Join-Path $workspacePath 'AGENTS.md'
@@ -254,13 +319,15 @@ function Get-CourseMaterials {
             $null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $download -Ownership created -DataClass rebuildable -AllowedRoot $records
         }
     }
+    Write-Host ('课程 v'+$Version+'：资料和用户级技能文件安装完成。Trae 实际加载、工具与账号准备继续分别验收。')
     return [pscustomobject]$result
 }
 
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
-    $arguments=@{Workspace=$WorkingDirectory;Version=$CourseVersion;Preview=$PreviewId;WithoutInstallers=$SkipInstallers;Profile=$PackageProfile}
+    $arguments=@{Workspace=$WorkingDirectory;Version=$CourseVersion;Preview=$PreviewId;WithoutInstallers=$SkipInstallers}
+    if($PSBoundParameters.ContainsKey('PackageProfile')){$arguments.Profile=$PackageProfile}
     if($PSBoundParameters.ContainsKey('ContainerRuntime')){$arguments.Runtime=$ContainerRuntime}
     Get-CourseMaterials @arguments
 }

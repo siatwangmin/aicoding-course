@@ -1,5 +1,5 @@
 {
-  "version": "2.2.4",
+  "version": "2.3.0",
   "progressVersion": "2026-10-11",
   "title": "AI Coding 实操课",
   "subtitle": "按当前一步操作，确认自己看到的结果。",
@@ -117,7 +117,7 @@
             "在聊天框发送下方提示；需要选择模式时，选 Agent（智能体）。",
             "按助手提示处理必要授权、条款、费用或重启；完成后它会继续。重启后回原任务说“请继续未完成的课前准备”。"
           ],
-          "prompt": "按照课程准备说明：https://siatwangmin.github.io/aicoding-course/setup-guide.md,完成环境准备。",
+          "prompt": "请按照以下课程准备说明，完成本课程的环境准备：\nhttps://siatwangmin.github.io/aicoding-course/setup-guide.md",
           "expected": [
             "助手完成所选范围的准备与汇总，明确已验证、未启用和待本人操作的项目。"
           ],
@@ -1422,5 +1422,6 @@
   "requirementsAliases": [
     "PRD.md",
     "需求说明.md"
-  ]
+  ],
+  "upgradePrompt": "请按照以下说明更新课程资料与课程技能，复用已有的兼容编程环境：\nhttps://siatwangmin.github.io/aicoding-course/setup-guide.md"
 }

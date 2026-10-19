@@ -65,5 +65,7 @@ $next=if($pending.Count){$pending[0]}else{$null}
 $state|Add-Member -MemberType NoteProperty -Name status -Value $(if($next){'pending'}else{'verified'}) -Force
 $state|Add-Member -MemberType NoteProperty -Name checkedAt -Value (Get-Date).ToString('o') -Force
 Write-CourseJson $file $state
-[pscustomobject]@{status=$state.status;nextStage=$next;nextSkill=$(if($next){$skills[$next]}else{$null});pending=$pending;record=$file}|ConvertTo-Json
+$materialsFile=Join-Path $root '.course-setup/materials.json'
+$materials=if(Test-Path -LiteralPath $materialsFile){Read-CourseJson $materialsFile}else{$null}
+[pscustomobject]@{status=$state.status;courseVersion=$materials.CourseVersion;distributionStatus=$materials.DistributionStatus;releaseId=$materials.ReleaseId;nextStage=$next;nextSkill=$(if($next){$skills[$next]}else{$null});pending=$pending;record=$file}|ConvertTo-Json
 # A continuation plan, not an automatic authorization/login or product acceptance.
