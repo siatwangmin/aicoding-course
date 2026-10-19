@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "runtimeContractId": "course-runtime-20261019",
+  "materialsProtocol": 1,
+  "supportedProjectSchemas": [2],
+  "imageDigest": "sha256:874c72192fff872157598d86869c56dae38edc406b5705d232271fd998ad3409",
+  "profiles": {
+    "podman": {
+      "platform": "linux/amd64",
+      "wslMinimum": "2.1.5",
+      "supportedWslVersions": ["2.5.7", "3.0.1"],
+      "clientServerPairs": [["6.0.2", "6.0.2"], ["6.1.4", "6.0.2"], ["6.1.4", "6.1.4"]],
+      "composeSha256": "8aeaa0055e660e12cf07cd70680dc8333957fe6718528b91ec3da084eab62483"
+    },
+    "docker": {
+      "platform": "linux/amd64",
+      "preserveVerifiedLegacyBinding": true,
+      "requiredEvidence": ["VerifiedAt", "Image", "ToolchainCheck"]
+    }
+  },
+  "skillDependencies": {
+    "ai-coding-env": [],
+    "ai-coding-project": ["ai-coding-env"],
+    "ai-coding-cloudbase": ["ai-coding-env"],
+    "ai-coding-github": ["ai-coding-env"],
+    "ai-coding-siliconflow": ["ai-coding-env"],
+    "ai-coding-development": ["ai-coding-project", "ai-coding-cloudbase", "ai-coding-github", "ai-coding-siliconflow"],
+    "ai-coding-android": ["ai-coding-project", "ai-coding-development"],
+    "knowstar-course": ["ai-coding-development", "ai-coding-android"]
+  }
+}

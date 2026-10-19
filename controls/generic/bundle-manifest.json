@@ -78,7 +78,7 @@
   "skills": {
     "ai-coding-env": {
       "archive": "ai-coding-env-skill.zip",
-      "sha256": "e718f9e7e4c2c61dcdece66c953ff3b73904f07d0fb9bbc101465c594b1ad359",
+      "sha256": "3cb6d9aee09939371ce4ef6fa634e2bf367ee0c344fd21004dfa893ce4207971",
       "kind": "generic",
       "files": {
         "assets/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
@@ -90,7 +90,7 @@
         "assets/toolchain.json": "7b3ddaacf04c2e80131b88b70afc7c525c5989c7ee51220189a4c0e3c81e9407",
         "assets/windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
         "references/course-updates.md": "a569c16c11ec5434863748da246f1a8b5adfb7dadf29c71ce9e359e4ee51542a",
-        "references/installation-downloads.md": "165e827c3f41d3ddc9ac386949c81eccf5b209ed2e42b6d2714e58ce695e5809",
+        "references/installation-downloads.md": "875865fabaf5d0ef59c7141a4daed19dafeb66bc8354096bc22d909d709ebd57",
         "references/preparation-workflow.md": "8b6d48e041f95c3f96eb0048317b6c45085954c459d289c0e778a9e1c2e935be",
         "references/project-execution.md": "3ee6bd915c1081af00d540d81851656342379f7511178dd521c8ae060d14f947",
         "references/uninstall.md": "432b390d581f1347a70a712587a3c72d2cac43a5e2348c4f54de5e65f7ab5b28",
@@ -184,15 +184,15 @@
     },
     "ai-coding-cloudbase": {
       "archive": "ai-coding-cloudbase-skill.zip",
-      "sha256": "51ae995607ec41820beab88ba1eb51905c98d585e0f30756047794635389aef8",
+      "sha256": "2251a9ffde9fb6f009567c6d2f09a23981b5accf045db332d0eba60a90330e82",
       "kind": "generic",
       "files": {
         "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
-        "references/cloudbase-connection.md": "3f34b3d0556ef2af49cb1dc484730ef2a29cf2cf6573db9fb40cb6a5479c8411",
-        "references/management-operations.md": "bd7df94530026bcfb336edfb3650088830a306ef26c5d54c386601ff5f2c3d5d",
+        "references/cloudbase-connection.md": "e088284e59de27009d487f404a63e77451b1d3a7b0a7cc954e10886c2673e647",
+        "references/management-operations.md": "28294e1fdc5c7346ee789b25d6f57632d5e2db8a3348a5362951d26350843866",
         "scripts/Course-CloudBase.ps1": "dd8c0ccdce20a74aa638ce4bd81038799b5d0e694ad15800b116f2b099d2fecc",
         "scripts/Test-CloudBaseManagement.ps1": "f622007eac9eb232fb9324cfe8eefd58fa3ecef0590bfa4feb92ab11d101b9aa",
-        "SKILL.md": "614fdb2a3807902913312007b7f7544c5cbef52ea2dcea6b90177f3f9aa0c42a"
+        "SKILL.md": "3e59cef2d9c42443784b9b90faee0259f970307cc9ff2a10dd6507e6c159bb02"
       },
       "requires": [
         "ai-coding-env"
@@ -200,11 +200,11 @@
     },
     "ai-coding-github": {
       "archive": "ai-coding-github-skill.zip",
-      "sha256": "6ea17ad37b12a9f28785d403704afb89503263072458b35e0b2cbf8f65a54df0",
+      "sha256": "839872660cf99bd71e4ee1d6549397caadcbf2a073667a0f1fc49ad9738e1a58",
       "kind": "generic",
       "files": {
         "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
-        "SKILL.md": "9db4271f8ac1c2bcf260c4eef50b573e6643a83f0909d7fb1de09ab27d70bc59"
+        "SKILL.md": "c84ee2fb50940e46617ea631bb1783037ec3a5dd181c3f979a9d04aaa405da0c"
       },
       "requires": [
         "ai-coding-env"
@@ -212,19 +212,19 @@
     },
     "ai-coding-siliconflow": {
       "archive": "ai-coding-siliconflow-skill.zip",
-      "sha256": "6f719e88aa25ba4f0c35251ed49073a6147bb6323c68c1bd0025160c6507baf9",
+      "sha256": "4ddb83a309a205c021da3db126599d03463c5cc5d2360c8d3eb27d775f4debfd",
       "kind": "generic",
       "files": {
         "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
         "assets/default-models.json": "d5cd9908500e65d192c346c18717d66b222095a01cb64b28e4088b21750a0ac5",
         "assets/model-catalog.cjs": "c2bafe4aebb9893b65ea870236956573d31f8bac5cc077cd69a8ed6dd60b412e",
         "assets/test-expression.png": "c4c8f5bfdbdeea5dc124eb155e5828eec2f3092962e32dd88e04e932553dc87e",
-        "references/verification.md": "3e3ca1a36b0eace645c422a63ede626de1010a07404e812d01393678a8e74e19",
+        "references/verification.md": "d6f7732a6a0912b01855de4ba74ff2dcdb48cb25a5ef5d70facf25fccb4a0370",
         "scripts/Credential-Store.ps1": "669918d224c2ce5b1c9f9c4b0955ac4d485a6b5e9fe16ddf724c13fa12422ebf",
         "scripts/Invoke-SiliconFlowVerification.ps1": "ac466686017700d2be977a5277e1b619501990b3518abe52edd01aed63b28594",
         "scripts/Save-SiliconFlowKey.ps1": "de751e3d5863ea4be10fc41c4875ae8fb609b1c713d62b64272c6210b46f0d2a",
         "scripts/verify-siliconflow.mjs": "941d6f1dd185c15351517bab416370b4fbd710973c0e6dc16e388537b88d538f",
-        "SKILL.md": "55b0a48aca7996a9587a503ee151df128c1b8119178de31e4cf24ac25db44d7d"
+        "SKILL.md": "ae27a2cc33fbbb790abba658d9e1684c5b583de9cb203fc2858b8bba48014d77"
       },
       "requires": [
         "ai-coding-env"
@@ -326,16 +326,16 @@
     "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
     "podman-installers.json": "c73cd7c4129eeb9de32e2bb73f3308023c8680b067d2dcd9fca915d560ed81f2",
     "windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
-    "VERSION.json": "50ddf0ed28b93f70268698a10145043ad33ebe55693d079aabd1f736334ca269",
+    "VERSION.json": "0e4d7cf949e6a9760139e6d41b95297edaae593e384648b85077032ce9ef20bb",
     "setup-guide.md": "ff58ac115ac5980ad3e013147f816c6ed129cf73bcaa6acaf3768d09a45263fa",
     "course-contract/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
-    "ai-coding-env-skill.sha256": "e0ee5915e39b698476c2bb3b8fc3fc59962b529b9e9bfe46721f1f4bd173b99d",
+    "ai-coding-env-skill.sha256": "a2be56d19a09b8ae1b6a8af13bbd4d5ca6b219650e0a3a1e8f6b286ed3ae79cd",
     "ai-coding-project-skill.sha256": "928dbd36d7e763a4d30c36066038e92549628aa053bcce23c7b46c9d56fafc93",
-    "ai-coding-cloudbase-skill.sha256": "0d4bf13f8239689a466b100f21d4c01b51f04df84c555ae2c57dc6ea3bc5e528",
-    "ai-coding-github-skill.sha256": "22861c2edb9dfed9dcd1d11d0c42af36cb339b8a00fe648fdeed24f4c14f3f52",
-    "ai-coding-siliconflow-skill.sha256": "751db3f1e10c5c3bdc797f2cae72d92335f81b01f0184a12591d55c41597f651",
+    "ai-coding-cloudbase-skill.sha256": "aad8cb60a504c96264857c60eff1dd83716bb037c476c01907fa5f9b252a92e4",
+    "ai-coding-github-skill.sha256": "d1cad089b3f8bdfea9be8490f8a218db0432f37b4934ac831e921b2eb23a7bee",
+    "ai-coding-siliconflow-skill.sha256": "b9175e1584b1080143a4296cfc0322f7e3c65cc59880279599d7da11e8e2b87c",
     "ai-coding-development-skill.sha256": "00dfd2ad82f19353ef4c7b07447dcc7a8b56c6dd9f066da2c36c1f9e363d9d16",
     "ai-coding-android-skill.sha256": "0b64c6f95b2450879ef2418f4a25da49f973dd50ecf59b8566296731276a93ff"
   },
-  "contentId": "43cd0b5305480a0d70ec9c73c048e4164bc15ea405c02fbf7c4eebb0f7c94e88"
+  "contentId": "95dcd7a27b91ab1c4b6bf138cc75a09ab2db694c6b199af54bf5b5ad1c7649e0"
 }
