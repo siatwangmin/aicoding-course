@@ -78,7 +78,7 @@
   "skills": {
     "ai-coding-env": {
       "archive": "ai-coding-env-skill.zip",
-      "sha256": "016671c65bad31545ab73b5bb39cb7a939000da38bf17d5619c803b1eb9f03b9",
+      "sha256": "7a3d62d3eadfaa509d7c89c957bf564840e09acc52de12a8bcaa6cfecf4a4587",
       "kind": "generic",
       "files": {
         "assets/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
@@ -91,7 +91,7 @@
         "assets/windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
         "references/course-updates.md": "3e39643bcc45c1997a9eb51aa625c25dce7bdeef4e66b3ab08b99987868696ac",
         "references/installation-downloads.md": "0116a8b86c53e037611a289092f533f950c7e51b3ec3de8ad4a2ab5b0f279d35",
-        "references/preparation-workflow.md": "0351fb7db4a241fefce0a72f58a73c1fd6a6ee97f7c9d3e1d3b1d7dd228d5182",
+        "references/preparation-workflow.md": "537df22acd22a6994820b2f66834e082b0b7909e52608013ef11cef0cd142449",
         "references/project-execution.md": "8334718590c640ddc1991d46f3178a6af23bf98bae903687af2d288ef7d06874",
         "references/uninstall.md": "f5136d1bcbed14f0de5ddf3e9ac15b517b1f0f6b939ca7d97350df6b4224c653",
         "references/windows-docker-setup.md": "2bea737b41e6fe0d359f817fd3e7b53cace44e5b722a2d90bffa7bf2bac31b81",
@@ -134,7 +134,7 @@
         "scripts/Verify-Toolchain.ps1": "6e23b57c889f0cf9c683eb058546a83c4fd2d73366f14c1caeaebbacecdb595b",
         "scripts/卸载课程环境.cmd": "9f8875d343705643606283b3dfa1e4a0eb7a0555932e28771feebb75b0e6e918",
         "scripts/开始安装Docker.cmd": "cb419287f0007aee08eefb17c528b02fbbc777096933500c528523148e6072f8",
-        "SKILL.md": "f04b3a94a36e93fd44836cf92605b1af9f58e7a72a81ff6191f1e277a75168c5"
+        "SKILL.md": "df473b1368672726f24b16d93dd5f0b4d4189ef6feaaa79b7accd2c30eae8f77"
       },
       "requires": []
     },
@@ -183,7 +183,7 @@
     },
     "ai-coding-cloudbase": {
       "archive": "ai-coding-cloudbase-skill.zip",
-      "sha256": "c81c46210c9020109800bfee9a0d25fd716cdcfb20a0ca9661e6b7a1ea613c2c",
+      "sha256": "25c83eb34d5259b5014b68b984c6c215fe56b1077f76d3af284037d26ab903e7",
       "kind": "generic",
       "files": {
         "assets/course-timing.json": "78b4c4e9b3c524e69c937ad0455428ad991928ca5cabff086330ead0a2306ac4",
@@ -191,7 +191,7 @@
         "references/management-operations.md": "bd7df94530026bcfb336edfb3650088830a306ef26c5d54c386601ff5f2c3d5d",
         "scripts/Course-CloudBase.ps1": "dd8c0ccdce20a74aa638ce4bd81038799b5d0e694ad15800b116f2b099d2fecc",
         "scripts/Test-CloudBaseManagement.ps1": "f622007eac9eb232fb9324cfe8eefd58fa3ecef0590bfa4feb92ab11d101b9aa",
-        "SKILL.md": "75aee9dc1cb4b50a13d2eb26cae38009d68ad35a7b309c5af7965dc98daf2fcf"
+        "SKILL.md": "614fdb2a3807902913312007b7f7544c5cbef52ea2dcea6b90177f3f9aa0c42a"
       },
       "requires": [
         "ai-coding-env"
@@ -199,11 +199,11 @@
     },
     "ai-coding-github": {
       "archive": "ai-coding-github-skill.zip",
-      "sha256": "a573dfbb65986e0fbef7a69663d92ee30500620ed4051c40816e47b6699f8d8b",
+      "sha256": "4a0ff2062915c136cadf7815179cc4f665c1c9041a83bcc5993ca6d7b9d8f3d4",
       "kind": "generic",
       "files": {
         "assets/course-timing.json": "78b4c4e9b3c524e69c937ad0455428ad991928ca5cabff086330ead0a2306ac4",
-        "SKILL.md": "77ac18b06af5cb9cbd76f50217936107a007c43e93e0cb4847d7e56870e34343"
+        "SKILL.md": "9db4271f8ac1c2bcf260c4eef50b573e6643a83f0909d7fb1de09ab27d70bc59"
       },
       "requires": [
         "ai-coding-env"
@@ -324,16 +324,16 @@
     "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
     "podman-installers.json": "c73cd7c4129eeb9de32e2bb73f3308023c8680b067d2dcd9fca915d560ed81f2",
     "windows-installers.json": "85882e1604f80b98073756350c015e279fed3be00c9dd8ccd358b71f77111dc7",
-    "VERSION.json": "9ce54143605d5e8158376cddf3591e7f6349e1de9abdf97ef7ff9a026b2bcdfc",
+    "VERSION.json": "4e5e6c6a84155f563d4e9d606e16281b645f151a01c9a15081fdc6d015606206",
     "setup-guide.md": "8ae637ba07303bbcb8cc61afa7fabb8346480177770915e09dc589e1d57c1367",
     "course-contract/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
-    "ai-coding-env-skill.sha256": "b852a422a3c719a3ef9ea47687bc2f71ab1db3df646048b9af433cd546276a5e",
+    "ai-coding-env-skill.sha256": "11d95c8166a9906a50d41d4d7ce7e6b6c4cf1232995c6edbfd362c892a246ddf",
     "ai-coding-project-skill.sha256": "f89952ac725d21d91c546d08c750d3e4184c9891383c9f2a1656b03750dd999f",
-    "ai-coding-cloudbase-skill.sha256": "3cdca71a99ad6d0dfd6dc2d98e7aea3747cd18e53cd72ab10a5c7efe231099eb",
-    "ai-coding-github-skill.sha256": "c98cce2bed3f17d7d3383713bb40ba758e1d535702d56787cf345561018327ad",
+    "ai-coding-cloudbase-skill.sha256": "2acc2c0a5b5be5716a2f7562d3dd7f61314fd4d8b1442cea87d89cf19242af12",
+    "ai-coding-github-skill.sha256": "aa19fd943ee6022467c36ca6eb64eb05299a02d7e1dabc0b9b9c9aa5958688c4",
     "ai-coding-siliconflow-skill.sha256": "a294174c6c57587b73d25235d672154dd797fea5d75a76b0fa58d0dbbfdaf056",
     "ai-coding-development-skill.sha256": "d9ff23b40881159aecbb53be0522865af44d3ecc51c704ff5e4b47be87d4abc3",
     "ai-coding-android-skill.sha256": "80b9c47541e237792688db30be3ec01ca0ea99c442ec292c9eb4ff1232d81afc"
   },
-  "contentId": "5905c914f14050ad0ee8f671a0e3264ae55d3b0a3eb7cfdc375b442b44479344"
+  "contentId": "4a6cdbbe022148e57419b742176150b321410ada46e4e1887a46f455176e9b64"
 }
