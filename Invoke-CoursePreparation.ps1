@@ -7,7 +7,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
 $file=Join-Path $root '.course-setup\preparation-progress.json'
-$canonicalOrder=@('tools','cloudbase','github','ai','summary')
+$canonicalOrder=@('github','ai','cloudbase','tools','summary')
 $skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';ai='ai-coding-siliconflow';summary='ai-coding-env'}
 $state=if(Test-Path -LiteralPath $file){Read-CourseJson $file}else{[pscustomobject]@{schemaVersion=2;runId=[guid]::NewGuid().ToString();stages=[pscustomobject]@{}}}
 if($PSBoundParameters.ContainsKey('RequiredStages')){$selected=@('tools')+@($RequiredStages)+@('summary')}elseif($state.requiredStages){$selected=@($state.requiredStages)}else{$selected=@($canonicalOrder)}
@@ -23,6 +23,11 @@ function Test-PreparationStage([string]$Name,$Item){
     try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
     if($age -lt 0 -or $age -gt 24){return $false}
     if($Name -eq 'tools'){
+        $backgroundPath=Join-Path $root '.course-setup\tools-background.json'
+        if(Test-Path -LiteralPath $backgroundPath){
+            $toolStatus=& (Join-Path $PSScriptRoot 'Start-CourseToolPreparation.ps1') -WorkingDirectory $root -Action Status|ConvertFrom-Json
+            if($toolStatus.status -ne 'Verified'){return $false}
+        }
         if(-not $e.VerifiedAt -or $e.ToolchainCheck.ExitCode -ne 0 -or -not $e.SkillInstallationVerified){return $false}
         $storage=Join-Path $root '.course-setup\storage.json'
         if(-not(Test-Path -LiteralPath $storage) -or (Read-CourseJson $storage).status -ne 'verified'){return $false}
@@ -53,6 +58,10 @@ function Test-PreparationStage([string]$Name,$Item){
 if($Action -eq 'Record'){
     if(-not $Stage){throw 'PREPARATION_STAGE_REQUIRED'}
     if(-not $EvidencePath){$EvidencePath=Get-CourseEvidencePath $root $Stage}
+    if($Stage -eq 'summary'){
+        $unfinished=@($order|Where-Object {$_ -ne 'summary' -and -not(Test-PreparationStage $_ $state.stages.$_)})
+        if($unfinished.Count){throw ('PREPARATION_STAGES_PENDING: '+($unfinished -join ','))}
+    }
     $path=(Resolve-Path -LiteralPath $EvidencePath).Path;Assert-CoursePlainPath $path
     if(-not $path.StartsWith($root.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Preparation evidence must belong to A.'}
     $item=[pscustomobject]@{path=$path;sha256=(Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()}
@@ -67,5 +76,8 @@ $state|Add-Member -MemberType NoteProperty -Name checkedAt -Value (Get-Date).ToS
 Write-CourseJson $file $state
 $materialsFile=Join-Path $root '.course-setup/materials.json'
 $materials=if(Test-Path -LiteralPath $materialsFile){Read-CourseJson $materialsFile}else{$null}
-[pscustomobject]@{status=$state.status;courseVersion=$materials.CourseVersion;distributionStatus=$materials.DistributionStatus;releaseId=$materials.ReleaseId;nextStage=$next;nextSkill=$(if($next){$skills[$next]}else{$null});pending=$pending;record=$file}|ConvertTo-Json
+$background=$null
+$backgroundEntry=Join-Path $PSScriptRoot 'Start-CourseToolPreparation.ps1'
+if(Test-Path -LiteralPath $backgroundEntry){$background=& $backgroundEntry -WorkingDirectory $root -Action Status|ConvertFrom-Json}
+[pscustomobject]@{status=$state.status;courseVersion=$materials.CourseVersion;distributionStatus=$materials.DistributionStatus;releaseId=$materials.ReleaseId;nextStage=$next;nextSkill=$(if($next){$skills[$next]}else{$null});pending=$pending;backgroundTools=$background;record=$file}|ConvertTo-Json -Depth 8
 # A continuation plan, not an automatic authorization/login or product acceptance.

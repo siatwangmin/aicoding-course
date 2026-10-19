@@ -13,3 +13,5 @@
 执行资料由 Trae 按当前路线取得：通用准备用 ai-coding-toolkit.zip；从零开始且已明确选案例用 aicoding-student-kit.zip；已有通用准备后只补案例 Skill。无须学员同时下载多个完整包。
 
 [求助与继续](course/help.html) · [完整更新记录](course/updates.html) · [版本信息](VERSION.json)
+
+课前软件下载安装和验证在后台运行，前台按 GitHub → 硅基流动 → CloudBase 顺序引导账号注册与必要授权；需要本人确认时提醒，重启前保存注册进度，最后两路全部通过才完成准备。

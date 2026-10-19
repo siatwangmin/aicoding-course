@@ -12,24 +12,24 @@
 
 已有作品以 .ai-coding/project.json 为准；已有准备先读原始报告和 .course-setup/materials.json、container-runtime.json。没有 runtime 的旧报告按原 Docker 兼容处理，不因课程新默认静默换引擎。Docker 旧工程按用户级 ai-coding-env/references/windows-docker-setup.md 恢复；不运行 Docker Prepare 来补 Podman 缺项。
 
-本课程课前连续完成工具→CloudBase→GitHub→AI账号→汇总，不能工具就绪即停止；已有结果复用。明确只请求工具排障或缩小学习范围时保持该范围。本阶段不创建业务工程、项目专用数据库表、函数或 APK。
+本课程课前分两路并行：后台自动下载、安装和验证工具，前台依次完成 GitHub→硅基流动→CloudBase 账号及必要授权，最后汇总两路结果。不能工具就绪即停止，也不等待工具就绪才开始注册；已有结果复用。明确只请求工具排障或缩小学习范围时保持该范围。本阶段不创建业务工程、项目专用数据库表、函数或 APK。
 
 ## E-01：从零取得课程资料
 
 1. 保持 Trae 当前文件夹为 A。若无课程资料，下载并读取 `https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1`，保存 A/.course-setup/Get-CourseMaterials.ps1，用 Windows PowerShell 执行 `-WorkingDirectory <A> -ContainerRuntime podman -PackageProfile generic`。默认取得七项通用技能执行包；已明确选择案例可传 -PackageProfile knowstar；已有同版本通用准备时只增量取得案例Skill。该入口从 VERSION.json 选择固定版本资料与 SHA256，先校验再安全解压。历史版本按索引中的原始发布标识恢复。
 2. 从 A/.course-setup/materials.json 定位实际 PackageRoot、SetupGuide 和 SkillsDirectory。按 course-contract/skills.json 安装七项通用技能及明确选定案例；同名用户副本先备份再更新，项目同名副本先备份移出发现目录，不复制 Skill 到 B。
 3. 已有完整本地包时，运行其 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <实际目录>，脚本保护旧文件并核对 ZIP 摘要和根部 SKILL.md 名称；缺文件或多个等距来源时报告真实缺项，不猜用户名或盘符。
-4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，继续准备、工具验收与服务阶段。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
+4. 下载与用户级安装完成后，立即调用已安装 ai-coding-env 的 references/preparation-workflow.md，立即启动后台工具准备，同时在前台开始 GitHub 账号引导。不得下载 GitHub Release 完整软件合集，不要求学员自行解压、搬文件或改 PATH。
 
 ## 工具准备与恢复
 
 WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认通过 GHFast 加速下载，连接、摘要或签名验证失败时回退到原始 GitHub 地址。两个来源使用相同的固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
 
 1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -ContainerRuntime podman，检查环境根目录的空间和目录计划。新安装优先非系统盘：有 D 盘用 D:/ENV，无 D 盘则选其他本地 NTFS 非系统盘的 ENV；只有 C 盘时使用 C:/ENV，与手册中的准备文件夹一致；已有项目、A 的存储记录或用户级工具绑定按原 storageRoot 复用（包括旧 D:/AI-Practice），不因资料升级迁移、重装或重建。本人明确指定其他位置时使用该位置。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，根目录内 downloads/installers、programs、runtime-data 分别保存安装包、工具和运行时数据，B 存项目事实。计划不等于实际位置通过。
-2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
+2. 读 ai-coding-env/references/windows-podman-setup.md；调用 scripts/Start-CourseToolPreparation.ps1 -WorkingDirectory <A> -Action Start -ContainerRuntime podman，立即返回前台引导账号注册。后台自动执行下载、安装、引擎验证、存储核验与工具链镜像检查；不等待整个 PowerShell 任务结束。用同一入口 -Action Status 检查状态和 attention；运行中重复 Start 复用原任务，失败/重启后从原 A 接续。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC 提示时立即提醒本人；必要重启先保存账号步骤与工作，由本人决定何时重启，禁止自动重启。
 3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到已确认 storageRoot 下的 programs/compose/docker-compose.exe（例如 D:/ENV/programs/compose/docker-compose.exe；只有 C 盘时为 C:/ENV/programs/compose/docker-compose.exe），登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
 4. 共同 Course-Native.ps1/Course-Runtime.ps1 将 PODMAN_COMPOSE_PROVIDER 仅注入本次子进程，绑定受管 EXE、项目 connection 及目标 API；隔离旧 DOCKER_HOST/CONTEXT/TLS 变量。不得修改全局默认连接或抢占 docker_engine 管道。Podman info、Compose version、真实 API 与容器操作分别验证。
-5. Prepare/Verify 后立即运行 Verify-Toolchain.ps1 -ContainerRuntime podman -WorkingDirectory <A>。在线核精确 RepoDigest；官方仓库不可达且存在批准离线镜像时，用 -ImageArchive <明确来源> -SkipPull，重新核归档 SHA256、镜像配置 ID 与 linux/amd64。不能拿标签或旧报告代替身份。
+5. 后台在 Prepare/Verify 和实际存储核验后自动运行 Verify-Toolchain.ps1 -ContainerRuntime podman -WorkingDirectory <A>。在线核精确 RepoDigest；官方仓库不可达且存在批准离线镜像时，用 -ImageArchive <明确来源> -SkipPull，重新核归档 SHA256、镜像配置 ID 与 linux/amd64。不能拿标签或旧报告代替身份。
 6. 固定镜像内执行断网 check-environment.sh，要求退出码 0 和 TOOLCHAIN_READY；保存本次 toolchain-verification.json、environment-checklist.md 与用户级准备索引。Verify 失败保留 VerifiedAt=null、实际错误和续接点，不沿用旧成功。
 7. 用 Prepare-CourseStorage.ps1 -Verify 记录程序/Compose、WSL VHD、缓存与实际大型数据位置，按已确认 storageRoot 核验；只有 C 盘时 C:/ENV 可正常通过。未核实的位置保持 pending，不为更换默认目录重建或自动搬动正在使用的 VHD。选定目录不等于技术验证通过。
 
@@ -37,9 +37,9 @@ Compose 客户端不需要 Python、PyYAML 或 python-dotenv。课程文档/ZIP 
 
 ## 服务接续和最终检查
 
-工具检查后继续调用 ai-coding-cloudbase、ai-coding-github、ai-coding-siliconflow。复用有效身份、授权和服务引用；登录/实名/验证码/费用由本人在官网处理。E-08 由本人登录、查看当前优惠和费用并决定充值；只记录账号准备，不要求提前保存 Key 或调用模型。V4 程序设置就绪后，由本人在“设置 → AI 服务”填写自己的 Key 和模型；Key仅经受保护接口保存至服务端，不写聊天、前端产物、Git、镜像或 APK。旧用户级加密存储只作明确来源的兼容恢复。不扫描 HOME 找秘密；只按明确旧来源安全导入，验证加密存储前保留来源。
+后台启动后立即在前台依次调用 ai-coding-github、ai-coding-siliconflow、ai-coding-cloudbase。不以工具下载、安装或镜像验收完成作为账号准备前置条件；账号步骤之间及等待本人操作时检查后台 Status，出现 attention 只提示当前必要动作。软件后台失败不清空或重做已完成账号；账号注册等待也不停止后台工具任务。复用有效身份、授权和服务引用；登录/实名/验证码/费用由本人在官网处理。E-08 由本人登录、查看当前优惠和费用并决定充值；只记录账号准备，不要求提前保存 Key 或调用模型。V4 程序设置就绪后，由本人在“设置 → AI 服务”填写自己的 Key 和模型；Key仅经受保护接口保存至服务端，不写聊天、前端产物、Git、镜像或 APK。旧用户级加密存储只作明确来源的兼容恢复。不扫描 HOME 找秘密；只按明确旧来源安全导入，验证加密存储前保留来源。
 
-使用 Invoke-CoursePreparation.ps1 -WorkingDirectory <A> -Action Status/Record 保存工具→CloudBase→GitHub→AI→汇总的进度。云端管理授权、PostgreSQL 能力、GitHub 身份/邮箱、AI 账号与费用准备分别留证；V4 的模型调用按已授权范围另行验收；配置成功不等于真实授权/调用成功。
+使用 Invoke-CoursePreparation.ps1 -WorkingDirectory <A> -Action Status/Record 保存前台 GitHub→AI（硅基流动）→CloudBase 与后台工具两路进度。nextStage 优先返回未完成账号；backgroundTools 单独给出工具状态和人工提醒。工具未就绪时 Register-CourseServices.ps1 暂存允许的账号摘要，不阻止注册；后台 Verified 后由前台调用 Save-PreparationEvidence.ps1 -WorkingDirectory <A> -Stage tools 登记实际证据，再调用 Register-CourseServices.ps1 登记账号结果，避免两路同时写 preparation-progress.json；所有账号与工具都通过才进入 summary。云端管理授权、PostgreSQL 能力、GitHub 身份/邮箱、AI 账号与费用准备分别留证；V4 的模型调用按已授权范围另行验收；配置成功不等于真实授权/调用成功。
 
 E-05 按完整 SkillNames 执行 Install-CourseSkills.ps1 -VerifyOnly，复查根部名称、用户目录及项目同名副本；在真实 Trae 新会话观察加载，安装位置正确不等于实际加载。报告本次工具、存储、技能、平台和账号准备各自结果；缺项不标整体完成。给学员可打开的清单和当前一个必要动作，不让学员逐项审日志或手工勾助手结果。
 
