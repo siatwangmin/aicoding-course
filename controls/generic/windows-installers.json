@@ -2,8 +2,11 @@
   "wsl": {
     "file": "wsl.3.0.1.0.x64.msi",
     "sha256": "28b1a0d013640a2ac95898ea705fa186e5b4ff767a1c1b49257161bc106599c6",
-    "downloadUrl": "https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi",
-    "publisher": "Microsoft Corporation"
+    "downloadUrl": "https://ghfast.top/https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi",
+    "publisher": "Microsoft Corporation",
+    "fallbackUrls": [
+      "https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi"
+    ]
   },
   "docker": {
     "file": "Docker Desktop Installer.exe",

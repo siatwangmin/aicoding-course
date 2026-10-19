@@ -23,6 +23,8 @@
 
 ## 工具准备与恢复
 
+WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认通过 GHFast 加速下载，连接、摘要或签名验证失败时回退到原始 GitHub 地址。两个来源使用相同的固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
+
 1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -ContainerRuntime podman，检查环境根目录的空间和目录计划。新安装优先非系统盘：有 D 盘用 D:/ENV，无 D 盘则选其他本地 NTFS 非系统盘的 ENV；只有 C 盘时使用 C:/ENV，与手册中的准备文件夹一致；已有项目、A 的存储记录或用户级工具绑定按原 storageRoot 复用（包括旧 D:/AI-Practice），不因资料升级迁移、重装或重建。本人明确指定其他位置时使用该位置。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，根目录内 downloads/installers、programs、runtime-data 分别保存安装包、工具和运行时数据，B 存项目事实。计划不等于实际位置通过。
 2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
 3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到已确认 storageRoot 下的 programs/compose/docker-compose.exe（例如 D:/ENV/programs/compose/docker-compose.exe；只有 C 盘时为 C:/ENV/programs/compose/docker-compose.exe），登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。

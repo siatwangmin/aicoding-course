@@ -33,6 +33,29 @@ function Initialize-PodmanPrerequisites([string]$Workspace) {
     $systemCode=Install-CourseSystemPrerequisites $Workspace
     if($systemCode -eq 3010){throw 'RESTART_REQUIRED: system prerequisites installed; save work, restart and rerun Prepare. No automatic reboot.'}
 }
+function Get-CourseComponentSources($Entry,[string]$Kind) {
+    $origin=switch($Kind){
+        wsl {'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi'}
+        engine {'https://github.com/podman-container-tools/podman/releases/download/v'+$Entry.version+'/'+$Entry.file}
+        compose {'https://github.com/docker/compose/releases/download/v'+$Entry.version+'/'+$Entry.file}
+    }
+    $sources=@($Entry.downloadUrl)+@($Entry.fallbackUrls)
+    $sources=@($sources|Where-Object {$_})
+    $accelerated='https://ghfast.top/'+$origin
+    # Accept historical official-only manifests, or the exact approved pair.
+    $approved=($sources.Count -eq 1 -and $sources[0] -ceq $origin) -or
+        ($sources.Count -eq 2 -and $sources[0] -ceq $accelerated -and $sources[1] -ceq $origin)
+    if(-not $approved -or $origin -notmatch '^https://github\.com/[^/]+/[^/]+/releases/download/[^/?#]+/[^/?#]+$'){
+        throw 'Unapproved Podman component download sources.'
+    }
+    return $sources
+}
+function Assert-CourseComponentSignature([string]$File,$Entry) {
+    if($Entry.publisher){
+        $sig=Get-AuthenticodeSignature -LiteralPath $File
+        if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName,$false) -cne $Entry.publisher){throw 'Component publisher mismatch.'}
+    }
+}
 function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compose','wsl')][string]$Kind){
     . (Join-Path $PSScriptRoot 'Course-Context.ps1')
     $entry=if($Kind -eq 'wsl'){
@@ -40,28 +63,44 @@ function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compo
         if(-not(Test-Path -LiteralPath $manifest)){$manifest=Join-Path $PSScriptRoot 'windows-installers.json'}
         (Read-CourseJson $manifest).wsl
     }else{(Get-CoursePodmanManifest).$Kind}
-    $approved=if($Kind -eq 'wsl'){$entry.downloadUrl -ceq 'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi'}else{$entry.downloadUrl -match '^https://github\.com/(podman-container-tools/podman|docker/compose)/releases/download/'}
-    if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or -not $approved -or [IO.Path]::GetFileName($entry.file) -cne $entry.file){throw 'Unapproved Podman component manifest.'}
+    $sources=@(Get-CourseComponentSources $entry $Kind)
+    if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or [IO.Path]::GetFileName($entry.file) -cne $entry.file){throw 'Unapproved Podman component manifest.'}
     $componentRoot=Resolve-CourseStorageRoot $Workspace 'podman' $StorageRoot
     $plan=Get-CourseStoragePlan $componentRoot
     [void](New-Item -ItemType Directory -Path $plan.installers -Force)
     $file=Join-Path $plan.installers $entry.file
     $componentExisted=Test-Path -LiteralPath $file
+    $actualSource=$null;$sourceMode='cache';$attempts=@()
     if(-not(Test-Path -LiteralPath $file) -and $InstallerDirectory){
         $localFile=Join-Path $InstallerDirectory $entry.file
         if(Test-Path -LiteralPath $localFile){
             if((Get-FileHash -LiteralPath $localFile).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Local component SHA-256 mismatch.'}
             Copy-Item -LiteralPath $localFile -Destination $file
+            $sourceMode='local'
         }
     }
     if(-not(Test-Path -LiteralPath $file)){
-        Receive-SetupInstaller $entry.downloadUrl ($file+'.partial')
-        if((Get-FileHash -LiteralPath ($file+'.partial')).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component download SHA-256 mismatch.'}
-        Move-Item -LiteralPath ($file+'.partial') -Destination $file
+        $partial=$file+'.partial';$sourceMode='download'
+        foreach($url in $sources){
+            try{
+                if(Test-Path -LiteralPath $partial){Remove-Item -LiteralPath $partial -Force}
+                Receive-SetupInstaller $url $partial
+                if((Get-FileHash -LiteralPath $partial).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component download SHA-256 mismatch.'}
+                Assert-CourseComponentSignature $partial $entry
+                Move-Item -LiteralPath $partial -Destination $file
+                $actualSource=$url;$attempts+=@{source=$url;status='Verified'}
+                break
+            }catch{
+                $attempts+=@{source=$url;status='Failed';error=$_.Exception.Message}
+                if(Test-Path -LiteralPath $partial){Remove-Item -LiteralPath $partial -Force}
+                Write-Warning ('Component source failed: '+$url+'; '+$_.Exception.Message)
+            }
+        }
+        if(-not $actualSource){throw ('COMPONENT_DOWNLOAD_FAILED: '+(($attempts|ForEach-Object {$_.source+': '+$_.error}) -join '; '))}
     }
     if((Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Component SHA-256 mismatch.'}
-    if($entry.publisher){$sig=Get-AuthenticodeSignature -LiteralPath $file;if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName,$false) -cne $entry.publisher){throw 'Component publisher mismatch.'}}
-    Write-CourseJson (Join-Path $Workspace ('.podman-setup\installer-'+$Kind+'.json')) @{file=$file;source=$entry.downloadUrl;sha256=$entry.sha256;checkedAt=(Get-Date).ToString('o')}
+    Assert-CourseComponentSignature $file $entry
+    Write-CourseJson (Join-Path $Workspace ('.podman-setup\installer-'+$Kind+'.json')) @{file=$file;source=$actualSource;sourceMode=$sourceMode;preferredSource=$sources[0];fallbackSources=@($sources|Select-Object -Skip 1);attempts=$attempts;sha256=$entry.sha256;checkedAt=(Get-Date).ToString('o')}
     if(Get-Command Find-CourseInstallation -ErrorAction SilentlyContinue){
         $installation=Find-CourseInstallation $Workspace
         if($installation){$null=Register-CourseResource -InstallationId $installation.installationId -Kind file -Locator $file -Ownership $(if($componentExisted){'reused'}else{'created'}) -DataClass rebuildable -AllowedRoot $plan.installers}
