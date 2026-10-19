@@ -1,6 +1,7 @@
 ﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
-function Test-CourseStorageLocation([string]$Workspace,[string]$Runtime='podman',[string]$Root='D:\AI-Practice') {
+function Test-CourseStorageLocation([string]$Workspace,[string]$Runtime='podman',[string]$Root) {
+    $Root=Resolve-CourseStorageRoot $Workspace $Runtime $Root
     $plan=Get-CourseStoragePlan $Root 0
     $paths=@();$programs=@();$cachePaths=@();$cacheVerified=$true
     if($Runtime -eq 'docker'){

@@ -206,11 +206,60 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
     }
     return [pscustomobject]@{preparationId=$entry.preparationId;status='service-records-registered';authorizationStatus='pending'}
 }
-function Get-CourseStoragePlan([string]$Root='D:\AI-Practice',[long]$RequiredBytes=20GB) {
+function Get-CourseStorageDrives {return [IO.DriveInfo]::GetDrives()}
+function Get-CourseStorageDriveInfo([string]$Root) {return New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($Root))}
+function Get-CourseDefaultStorageRoot {
+    $contract=$null
+    foreach($file in @((Join-Path $PSScriptRoot '..\assets\course-contract.json'),(Join-Path $PSScriptRoot 'course-contract.json'))){
+        if(Test-Path -LiteralPath $file){$contract=Read-CourseJson $file;break}
+    }
+    if(-not $contract.defaultStorageRoot -or -not $contract.storagePolicy){throw 'COURSE_STORAGE_DEFAULT_MISSING: restore the matching course contract.'}
+    $policy=$contract.storagePolicy
+    if(-not $policy.preferNonSystemDrive -or -not $policy.allowSystemDriveWhenOnlyDrive -or $policy.directoryName -notmatch '^[a-zA-Z0-9_-]+$'){throw 'Unsupported course storage policy.'}
+    $systemDrive=[IO.Path]::GetPathRoot($env:SystemRoot)
+    $drives=@(Get-CourseStorageDrives | Where-Object {$_.DriveType -eq 'Fixed'})
+    $other=@($drives | Where-Object {$_.Name -ne $systemDrive} | Sort-Object Name)
+    if($other.Count){
+        $eligible=@($other | Where-Object {$_.IsReady -and $_.DriveFormat -eq 'NTFS'})
+        if(-not $eligible.Count){throw 'NON_SYSTEM_STORAGE_UNAVAILABLE: select or prepare a local NTFS data drive; do not silently use the system drive.'}
+        $preferred=[IO.Path]::GetPathRoot($contract.defaultStorageRoot)
+        $selected=@($eligible | Where-Object {$_.Name -eq $preferred} | Select-Object -First 1)
+        if(-not $selected.Count){$selected=@($eligible[0])}
+        return [IO.Path]::Combine($selected[0].Name,$policy.directoryName)
+    }
+    $system=@($drives | Where-Object {$_.Name -eq $systemDrive -and $_.IsReady -and $_.DriveFormat -eq 'NTFS'})
+    if($system.Count -ne 1){throw 'COURSE_STORAGE_DRIVE_UNAVAILABLE: select a local NTFS installation location.'}
+    return [IO.Path]::Combine($systemDrive,$policy.directoryName)
+}
+function Resolve-CourseStorageRoot([string]$Workspace,[string]$Runtime='podman',[string]$RequestedRoot) {
+    if($RequestedRoot){return $RequestedRoot}
+    # Resolve the selected workspace before the user-wide tool binding. Updating
+    # course materials does not authorize relocating an existing installation.
+    if($Workspace){
+        foreach($relative in @('.ai-coding\project.json','.course-setup\storage-plan.json','.course-setup\storage.json')){
+            $file=Join-Path $Workspace $relative
+            if(Test-Path -LiteralPath $file){
+                $record=Read-CourseJson $file
+                if(($record.containerRuntime -and $record.containerRuntime -ne $Runtime) -or ($record.runtime -and $record.runtime -ne $Runtime)){continue}
+                if($record.storageRoot){return [string]$record.storageRoot}
+                if($record.desiredRoot){return [string]$record.desiredRoot}
+            }
+        }
+    }
+    if($Runtime -eq 'podman' -and (Get-Command Get-CoursePodmanBinding -ErrorAction SilentlyContinue)){
+        $binding=Get-CoursePodmanBinding
+    }else{
+        $tools=Join-Path (Get-CourseUserRoot) 'tool-paths.json'
+        $binding=if(Test-Path -LiteralPath $tools){(Read-CourseJson $tools).$Runtime}else{$null}
+    }
+    if($binding.storageRoot){return [string]$binding.storageRoot}
+    return Get-CourseDefaultStorageRoot
+}
+function Get-CourseStoragePlan([string]$Root,[long]$RequiredBytes=20GB) {
+    if(-not $Root){$Root=Resolve-CourseStorageRoot}
     $rootPath=[IO.Path]::GetFullPath($Root); Assert-CoursePlainPath $rootPath
-    $drive=New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($rootPath))
-    if(-not $drive.IsReady -or $drive.DriveType -ne 'Fixed' -or $drive.DriveFormat -ne 'NTFS'){throw 'Select a local NTFS data drive. No C fallback.'}
-    if([IO.Path]::GetPathRoot($rootPath) -eq [IO.Path]::GetPathRoot($env:SystemRoot)){throw 'Large data cannot use the system drive.'}
-    if($drive.AvailableFreeSpace -lt $RequiredBytes){throw 'Insufficient target space. No C fallback.'}
+    $drive=Get-CourseStorageDriveInfo $rootPath
+    if(-not $drive.IsReady -or $drive.DriveType -ne 'Fixed' -or $drive.DriveFormat -ne 'NTFS'){throw 'Select a local NTFS installation drive. Preserve the selected location on failure.'}
+    if($drive.AvailableFreeSpace -lt $RequiredBytes){throw 'Insufficient target space. Select another location explicitly; do not silently switch drives.'}
     return [pscustomobject]@{schemaVersion=2;desiredRoot=$rootPath;checkedAt=(Get-Date).ToString('o');availableBytes=$drive.AvailableFreeSpace;requiredBytes=$RequiredBytes;programs=(Join-Path $rootPath 'programs');installers=(Join-Path $rootPath 'downloads\installers');dockerData=(Join-Path $rootPath 'runtime-data\docker');podmanData=(Join-Path $rootPath 'runtime-data\podman');status='planned';actualStatus='pending'}
 }

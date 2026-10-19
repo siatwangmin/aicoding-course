@@ -459,7 +459,7 @@ function Write-EnvironmentChecklist {
     }
     $storage=Get-WorkspaceStorageEvidence $Workspace
     if($storage.Required){
-        $lines.Add('| D 盘实际程序与数据位置 | '+$(if($storage.Verified){'通过'}else{'未通过'})+' | '+$storage.EvidencePath+' |')
+        $lines.Add('| 所选安装根目录的实际程序与数据位置 | '+$(if($storage.Verified){'通过'}else{'未通过'})+' | '+$storage.EvidencePath+' |')
         if(-not $storage.Verified){$complete=$false}
     }
     $outcome = '未完成'

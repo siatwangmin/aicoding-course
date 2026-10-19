@@ -12,7 +12,7 @@ param(
     [string]$ExpectedUserSid,
     [string]$WorkingDirectory,
     [string]$DockerDesktopPath,
-    [string]$StorageRoot = 'D:\AI-Practice',
+    [string]$StorageRoot,
     [ValidateRange(1, 600)][int]$EngineTimeoutSeconds = 120
 )
 
@@ -23,6 +23,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
     if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
     $WorkingDirectory = (Resolve-Path -LiteralPath $WorkingDirectory -ErrorAction Stop).Path
+    $StorageRoot = Resolve-CourseStorageRoot $WorkingDirectory 'docker' $StorageRoot
     Set-Location -LiteralPath $WorkingDirectory
     # PowerShell 5.1 does not reliably populate PSScriptRoot in parameter defaults.
     if (-not $ManifestPath) {

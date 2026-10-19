@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param([ValidateSet('Check','Download','Prepare','Verify','InstallSystem')][string]$Mode='Check', [string]$WorkingDirectory,
       [string]$MachineName='podman-machine-default', [string]$InstallerDirectory,
-      [string]$StorageRoot='D:\AI-Practice', [string]$ExpectedUserSid)
+      [string]$StorageRoot, [string]$ExpectedUserSid)
 . (Join-Path $PSScriptRoot 'Course-Podman.ps1')
 
 if ($MyInvocation.InvocationName -ne '.') {
@@ -11,6 +11,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     if($ExpectedUserSid -and $ExpectedUserSid -ne $sid){throw 'User changed during elevation; do not prepare another account.'}
     $WorkingDirectory=(Resolve-Path -LiteralPath $WorkingDirectory).Path
+    $StorageRoot=Resolve-CourseStorageRoot $WorkingDirectory 'podman' $StorageRoot
     if($Mode -in @('Prepare','InstallSystem')){Assert-CoursePodmanHost}
     if($Mode -in @('Download','Prepare')){
         Save-CoursePodmanInstallers $WorkingDirectory

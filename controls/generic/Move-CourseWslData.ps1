@@ -1,12 +1,13 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[Parameter(Mandatory=$true)][string]$DistributionName,
-      [Parameter(Mandatory=$true)][ValidateSet('docker','podman')][string]$ContainerRuntime,[string]$StorageRoot='D:\AI-Practice',[switch]$Apply,[switch]$VerifyAfterRestart)
+      [Parameter(Mandatory=$true)][ValidateSet('docker','podman')][string]$ContainerRuntime,[string]$StorageRoot,[switch]$Apply,[switch]$VerifyAfterRestart)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Runtime.ps1')
 . (Join-Path $PSScriptRoot 'Course-Storage.ps1')
 . (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
+if(-not $StorageRoot){$StorageRoot=Get-CourseDefaultStorageRoot}
 $recordPath=Join-Path $root '.course-setup\storage-migration.json'
 function Get-CoursePodmanInventory([string]$Cli,[string]$Connection){
     $snapshot=@{}

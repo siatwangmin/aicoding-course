@@ -23,13 +23,13 @@
 
 ## 工具准备与恢复
 
-1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -ContainerRuntime podman，检查 D:/AI-Practice 的空间和目录计划。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，D 盘存大型数据，B 存项目事实。计划不等于实际位置通过。
+1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -ContainerRuntime podman，检查环境根目录的空间和目录计划。新安装优先非系统盘：有 D 盘用 D:/ENV，无 D 盘则选其他本地 NTFS 非系统盘的 ENV；只有 C 盘时使用 C:/ENV，与手册中的准备文件夹一致；已有项目、A 的存储记录或用户级工具绑定按原 storageRoot 复用（包括旧 D:/AI-Practice），不因资料升级迁移、重装或重建。本人明确指定其他位置时使用该位置。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，根目录内 downloads/installers、programs、runtime-data 分别保存安装包、工具和运行时数据，B 存项目事实。计划不等于实际位置通过。
 2. 读 ai-coding-env/references/windows-podman-setup.md；运行 scripts/Setup-Podman.ps1 -Mode Prepare -WorkingDirectory <A>，随后 -Mode Verify。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC/必要重启给一个本人动作，禁止自动重启。
-3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到 D:/AI-Practice/programs/compose/docker-compose.exe，登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
+3. Podman MSI 与独立 Compose EXE 从 assets/podman-installers.json 的官方固定来源取得并核 SHA256；MSI 另核发布者签名。Compose 安装到已确认 storageRoot 下的 programs/compose/docker-compose.exe（例如 D:/ENV/programs/compose/docker-compose.exe；只有 C 盘时为 C:/ENV/programs/compose/docker-compose.exe），登记用户级 tool-paths.json；不得借用 Docker Desktop 安装目录。旧 Setup-PodmanDesktop.ps1 仅兼容转交，不安装或启动 GUI。
 4. 共同 Course-Native.ps1/Course-Runtime.ps1 将 PODMAN_COMPOSE_PROVIDER 仅注入本次子进程，绑定受管 EXE、项目 connection 及目标 API；隔离旧 DOCKER_HOST/CONTEXT/TLS 变量。不得修改全局默认连接或抢占 docker_engine 管道。Podman info、Compose version、真实 API 与容器操作分别验证。
 5. Prepare/Verify 后立即运行 Verify-Toolchain.ps1 -ContainerRuntime podman -WorkingDirectory <A>。在线核精确 RepoDigest；官方仓库不可达且存在批准离线镜像时，用 -ImageArchive <明确来源> -SkipPull，重新核归档 SHA256、镜像配置 ID 与 linux/amd64。不能拿标签或旧报告代替身份。
 6. 固定镜像内执行断网 check-environment.sh，要求退出码 0 和 TOOLCHAIN_READY；保存本次 toolchain-verification.json、environment-checklist.md 与用户级准备索引。Verify 失败保留 VerifiedAt=null、实际错误和续接点，不沿用旧成功。
-7. 用 Prepare-CourseStorage.ps1 -Verify 记录程序/Compose、WSL VHD 与实际大型数据位置；旧 C 盘资源保持 pending，不为满足 D 盘要求重建或自动搬动正在使用的 VHD。本人已选 D 盘不等于技术验证通过。
+7. 用 Prepare-CourseStorage.ps1 -Verify 记录程序/Compose、WSL VHD、缓存与实际大型数据位置，按已确认 storageRoot 核验；只有 C 盘时 C:/ENV 可正常通过。未核实的位置保持 pending，不为更换默认目录重建或自动搬动正在使用的 VHD。选定目录不等于技术验证通过。
 
 Compose 客户端不需要 Python、PyYAML 或 python-dotenv。课程文档/ZIP 生成用的已有管理运行时与学员项目工具链分开。网络失败先分层探测宿主、machine、容器和服务代理，不关闭 TLS、防火墙或改 host 网络来绕过失败。
 
@@ -50,7 +50,7 @@ P-01由ai-coding-project完成发现准备、空B创建/已有工程恢复、本
 
 保留作品时，在 Trae 中说“调用 ai-coding-env 卸载课程环境，保留我的作品”；也可双击资料包根目录的 **卸载课程环境.cmd**。助手或引导先列出真实清单，再按已明确范围执行。
 
-测试后可选择 TestClean 并指定测试项目；删除整个准备目录 A 必须单独选择。旧版缺少归属证据、共享资源或用户修改会保留并报告。失败后使用报告中的独立入口接续，不手动清空整个 D:/AI-Practice、用户配置目录或所有容器。
+测试后可选择 TestClean 并指定测试项目；删除整个准备目录 A 必须单独选择。旧版缺少归属证据、共享资源或用户修改会保留并报告。失败后使用报告中的独立入口接续，不手动清空整个 D:/ENV、用户配置目录或所有容器。
 
 云端资源、手机应用和系统组件保留；重新安装从课程下载入口重新解析已发布版本与摘要。技术细节见用户级 ai-coding-env/references/uninstall.md，学员说明见在线求助页。整机软件卸载及 Trae 实际加载/移除需按真实验证结果记录。
 

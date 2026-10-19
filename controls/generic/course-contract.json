@@ -2,7 +2,12 @@
   "schemaVersion": 2,
   "baselineVersion": "2.0.0",
   "defaultRuntime": "podman",
-  "defaultStorageRoot": "D:\\AI-Practice",
+  "defaultStorageRoot": "D:\\ENV",
+  "storagePolicy": {
+    "preferNonSystemDrive": true,
+    "allowSystemDriveWhenOnlyDrive": true,
+    "directoryName": "ENV"
+  },
   "skills": [
     {
       "name": "ai-coding-env",

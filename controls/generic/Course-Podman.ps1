@@ -10,7 +10,7 @@ if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
 function Get-PodmanPaths {
     $registered=Get-CoursePodmanBinding
     $cliPath=$null
-    $candidates=@($registered.cli,(Join-Path $(if($StorageRoot){$StorageRoot}elseif($registered.storageRoot){$registered.storageRoot}else{'D:\AI-Practice'}) 'programs\podman\podman.exe'),"$env:LOCALAPPDATA\Programs\Podman\podman.exe","$env:ProgramFiles\Podman\podman.exe","$env:ProgramFiles\RedHat\Podman\podman.exe")
+    $candidates=@($registered.cli,(Join-Path (Resolve-CourseStorageRoot -RequestedRoot $StorageRoot) 'programs\podman\podman.exe'),"$env:LOCALAPPDATA\Programs\Podman\podman.exe","$env:ProgramFiles\Podman\podman.exe","$env:ProgramFiles\RedHat\Podman\podman.exe")
     $command=Get-Command podman.exe -ErrorAction SilentlyContinue
     if($command){$candidates+=$command.Source}
     foreach($candidate in $candidates){if($candidate -and (Test-Path -LiteralPath $candidate -PathType Leaf)){$cliPath=$candidate;break}}
@@ -42,8 +42,7 @@ function Resolve-PodmanComponent([string]$Workspace,[ValidateSet('engine','compo
     }else{(Get-CoursePodmanManifest).$Kind}
     $approved=if($Kind -eq 'wsl'){$entry.downloadUrl -ceq 'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi'}else{$entry.downloadUrl -match '^https://github\.com/(podman-container-tools/podman|docker/compose)/releases/download/'}
     if($entry.sha256 -notmatch '^[a-f0-9]{64}$' -or -not $approved -or [IO.Path]::GetFileName($entry.file) -cne $entry.file){throw 'Unapproved Podman component manifest.'}
-    $componentRoot=if($StorageRoot){$StorageRoot}else{(Get-CoursePodmanBinding).storageRoot}
-    if(-not $componentRoot){$componentRoot='D:\AI-Practice'}
+    $componentRoot=Resolve-CourseStorageRoot $Workspace 'podman' $StorageRoot
     $plan=Get-CourseStoragePlan $componentRoot
     [void](New-Item -ItemType Directory -Path $plan.installers -Force)
     $file=Join-Path $plan.installers $entry.file

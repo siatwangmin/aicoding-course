@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "latest": "2.3.0",
+  "latest": "2.3.1",
   "versions": {
     "2.1.0": {
       "version": "2.1.0",
@@ -261,6 +261,15 @@
       "baseUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.0",
       "manifestUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.0/release-manifest.json",
       "manifestSha256": "ba3dfd328befdeb7d02f9fc99c5a5560d881690a422dc232fceb632b9297244f",
+      "legacy": false
+    },
+    "2.3.1": {
+      "version": "2.3.1",
+      "status": "release",
+      "distributionId": null,
+      "baseUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.1",
+      "manifestUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.1/release-manifest.json",
+      "manifestSha256": "0a113b3029b5390d19a786c4fde33b2cd24fcb75bc89f7010eec546d632abb7d",
       "legacy": false
     }
   },
@@ -524,6 +533,15 @@
       "baseUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.0",
       "manifestUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.0/release-manifest.json",
       "manifestSha256": "ba3dfd328befdeb7d02f9fc99c5a5560d881690a422dc232fceb632b9297244f",
+      "legacy": false
+    },
+    "2.3.1-release": {
+      "version": "2.3.1",
+      "status": "release",
+      "distributionId": null,
+      "baseUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.1",
+      "manifestUrl": "https://siatwangmin.github.io/aicoding-course/releases/course/v2.3.1/release-manifest.json",
+      "manifestSha256": "0a113b3029b5390d19a786c4fde33b2cd24fcb75bc89f7010eec546d632abb7d",
       "legacy": false
     }
   }
