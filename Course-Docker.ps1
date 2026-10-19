@@ -321,7 +321,12 @@ function Resolve-SetupInstaller {
         'wsl' { 'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi' }
         'docker' { 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe' }
     }
-    if (-not $approvedUrl -or $entry.downloadUrl -cne $approvedUrl) { throw "没有找到 $($entry.file)，清单没有匹配的官方自动下载地址。" }
+    $downloadSources=@($entry.downloadUrl)+@($entry.fallbackUrls)
+    $downloadSources=@($downloadSources|Where-Object {$_})
+    $officialOnly=$downloadSources.Count -eq 1 -and $downloadSources[0] -ceq $approvedUrl
+    $acceleratedWsl=$Kind -eq 'wsl' -and $downloadSources.Count -eq 2 -and
+        $downloadSources[0] -ceq ('https://ghfast.top/'+$approvedUrl) -and $downloadSources[1] -ceq $approvedUrl
+    if (-not $approvedUrl -or -not ($officialOnly -or $acceleratedWsl)) { throw "没有找到 $($entry.file)，清单没有匹配的官方自动下载地址。" }
     $destinationDirectory = $Directory
     if (-not $destinationDirectory) {
         . (Join-Path $PSScriptRoot 'Course-Context.ps1')
@@ -334,12 +339,22 @@ function Resolve-SetupInstaller {
     [void](New-Item -ItemType Directory -Path $staging)
     $temporary = Join-Path $staging $entry.file
     try {
-        Write-Host "未找到本地 $($entry.file)，助手正在从官方来源下载：$approvedUrl"
-        Receive-SetupInstaller $approvedUrl $temporary
-        $validation = Test-SetupInstallerFile $temporary $entry -Downloaded
-        Move-Item -LiteralPath $temporary -Destination $destination -Force
-        Save-SetupInstallerEvidence $Kind $destination $approvedUrl $validation
-        return (Resolve-Path -LiteralPath $destination).Path
+        $sourceFailures=@()
+        foreach($downloadSource in $downloadSources){
+            try{
+                if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -Force}
+                Write-Host "未找到本地 $($entry.file)，助手正在下载：$downloadSource"
+                Receive-SetupInstaller $downloadSource $temporary
+                $validation = Test-SetupInstallerFile $temporary $entry -Downloaded
+                Move-Item -LiteralPath $temporary -Destination $destination -Force
+                Save-SetupInstallerEvidence $Kind $destination $downloadSource $validation
+                return (Resolve-Path -LiteralPath $destination).Path
+            }catch{
+                $sourceFailures+=($downloadSource+': '+$_.Exception.Message)
+                if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -Force}
+            }
+        }
+        throw ($sourceFailures -join '; ')
     } catch {
         throw "安装包获取未完成：$($_.Exception.Message)。助手应读取下载记录，复用已有安装程序或从上述官方地址继续处理；不要求学员下载软件合集或移动文件。"
     } finally {
