@@ -10,11 +10,12 @@
   "engine": {
     "version": "6.1.4",
     "file": "podman-installer-windows-amd64.msi",
-    "downloadUrl": "https://ghfast.top/https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi",
+    "downloadUrl": "https://gitcode.com/oh_my_love/ai_practice/releases/download/1.0.0/podman-installer-windows-amd64.msi",
     "sha256": "4a05240054cb990629cbe098db090c5c7848c44162c11910cabb45ca75a40d53",
     "publisher": "Red Hat, LLC",
     "source": "https://api.github.com/repos/podman-container-tools/podman/releases/tags/v6.1.4",
     "fallbackUrls": [
+      "https://ghfast.top/https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi",
       "https://gh-proxy.com/https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi",
       "https://downloads.sourceforge.net/project/podman.mirror/v6.1.4/podman-installer-windows-amd64.msi",
       "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi"
@@ -23,10 +24,11 @@
   "compose": {
     "version": "5.6.0",
     "file": "docker-compose-windows-x86_64.exe",
-    "downloadUrl": "https://ghfast.top/https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe",
+    "downloadUrl": "https://gitcode.com/oh_my_love/ai_practice/releases/download/1.0.0/docker-compose-windows-x86_64.exe",
     "sha256": "8aeaa0055e660e12cf07cd70680dc8333957fe6718528b91ec3da084eab62483",
     "source": "https://api.github.com/repos/docker/compose/releases/tags/v5.6.0",
     "fallbackUrls": [
+      "https://ghfast.top/https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe",
       "https://gh-proxy.com/https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe",
       "https://downloads.sourceforge.net/project/docker-compose.mirror/v5.6.0/docker-compose-windows-x86_64.exe",
       "https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe"

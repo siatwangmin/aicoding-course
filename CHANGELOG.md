@@ -2,6 +2,13 @@
 
 版本号用于识别整套手册与助手资料。旧版资料保留，最新入口持续更新。
 
+## v2.3.11 · 2026-10-19
+
+Windows 安装包默认从 GitCode 下载
+
+- WSL、Podman CLI 和独立 Docker Compose 默认从 GitCode 固定版本发布下载，保留 GHFast、gh-proxy.com、SourceForge 和 GitHub 官方直连依次备用。
+- GitCode 三项文件已在 Windows PowerShell 5.1 完整下载，SHA256 与官方清单一致；WSL 与 Podman 发布者签名有效。共享校验逻辑、旧 Docker 路线、缓存和实际来源记录同步支持五级下载。
+
 ## v2.3.10 · 2026-10-19
 
 Windows 安装包增加两级下载备用来源

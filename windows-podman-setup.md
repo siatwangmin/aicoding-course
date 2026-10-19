@@ -1,6 +1,6 @@
 # Windows：Podman CLI + 独立 Docker Compose
 
-WSL、Podman CLI 和独立 Docker Compose 的固定安装包按 GHFast → gh-proxy.com → SourceForge → 原始 GitHub 顺序下载。SourceForge 使用 `https://downloads.sourceforge.net/project/` 开头的文件直链。连接、摘要或签名验证失败即尝试下一来源，各来源使用同一固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
+WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认从 GitCode 下载，失败后按 GHFast → gh-proxy.com → SourceForge → 原始 GitHub 顺序回退。SourceForge 使用 `https://downloads.sourceforge.net/project/` 开头的文件直链。连接、摘要或签名验证失败即尝试下一来源，各来源使用同一固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
 
 新环境准备主线，Windows 11 x64 / WSL2。无需两个 Desktop，不引入 Python 版 podman-compose。旧 Docker 作品沿原记录恢复；已有 Podman 保留 connection、镜像、数据、rootful/rootless，不能 reset/remove/recreate machine。
 

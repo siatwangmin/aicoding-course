@@ -146,6 +146,17 @@ function Test-SetupInstallerSources {
     )) {
         if ($actual -ceq ($chain -join "`n")) { return $true }
     }
+    # The uploaded GitCode assets are pinned to these exact upstream releases.
+    $gitCodeFile=switch -CaseSensitive ($Origin) {
+        'https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi' {'wsl.3.0.1.0.x64.msi'}
+        'https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi' {'podman-installer-windows-amd64.msi'}
+        'https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe' {'docker-compose-windows-x86_64.exe'}
+    }
+    if ($gitCodeFile) {
+        $gitCode='https://gitcode.com/oh_my_love/ai_practice/releases/download/1.0.0/'+$gitCodeFile
+        $chain=@($gitCode, ('https://ghfast.top/'+$Origin), ('https://gh-proxy.com/'+$Origin), $SourceForgeUrl, $Origin)
+        if ($actual -ceq ($chain -join "`n")) { return $true }
+    }
     return $false
 }
 
