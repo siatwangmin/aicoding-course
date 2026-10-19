@@ -25,7 +25,7 @@
 
 ## 工具准备与恢复
 
-WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认通过 GHFast 加速下载，连接、摘要或签名验证失败时回退到原始 GitHub 地址。两个来源使用相同的固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
+WSL、Podman CLI 和独立 Docker Compose 的固定安装包按 GHFast → gh-proxy.com → SourceForge → 原始 GitHub 顺序下载。SourceForge 使用 `https://downloads.sourceforge.net/project/` 开头的文件直链。连接、摘要或签名验证失败即尝试下一来源，各来源使用同一固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用。
 
 1. 运行用户级 ai-coding-env/scripts/Prepare-CourseStorage.ps1 -WorkingDirectory <A> -ContainerRuntime podman，检查环境根目录的空间和目录计划。新安装优先非系统盘：有 D 盘用 D:/ENV，无 D 盘则选其他本地 NTFS 非系统盘的 ENV；只有 C 盘时使用 C:/ENV，与手册中的准备文件夹一致；已有项目、A 的存储记录或用户级工具绑定按原 storageRoot 复用（包括旧 D:/AI-Practice），不因资料升级迁移、重装或重建。本人明确指定其他位置时使用该位置。A 留原始报告，用户级 .ai-coding 存发现索引/工具引用/加密凭证，根目录内 downloads/installers、programs、runtime-data 分别保存安装包、工具和运行时数据，B 存项目事实。计划不等于实际位置通过。
 2. 读 ai-coding-env/references/windows-podman-setup.md；调用 scripts/Start-CourseToolPreparation.ps1 -WorkingDirectory <A> -Action Start -ContainerRuntime podman，立即返回前台引导账号注册。后台自动执行下载、安装、引擎验证、存储核验与工具链镜像检查；不等待整个 PowerShell 任务结束。用同一入口 -Action Status 检查状态和 attention；运行中重复 Start 复用原任务，失败/重启后从原 A 接续。复用已有 Podman、WSL 和 machine，不降级、不重建。缺 WSL/虚拟化时按真实系统检测处理；需要提权时保持本人 SID 和 A，出现 UAC 提示时立即提醒本人；必要重启先保存账号步骤与工作，由本人决定何时重启，禁止自动重启。

@@ -15,6 +15,8 @@
     "publisher": "Red Hat, LLC",
     "source": "https://api.github.com/repos/podman-container-tools/podman/releases/tags/v6.1.4",
     "fallbackUrls": [
+      "https://gh-proxy.com/https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi",
+      "https://downloads.sourceforge.net/project/podman.mirror/v6.1.4/podman-installer-windows-amd64.msi",
       "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi"
     ]
   },
@@ -25,6 +27,8 @@
     "sha256": "8aeaa0055e660e12cf07cd70680dc8333957fe6718528b91ec3da084eab62483",
     "source": "https://api.github.com/repos/docker/compose/releases/tags/v5.6.0",
     "fallbackUrls": [
+      "https://gh-proxy.com/https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe",
+      "https://downloads.sourceforge.net/project/docker-compose.mirror/v5.6.0/docker-compose-windows-x86_64.exe",
       "https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-windows-x86_64.exe"
     ]
   }

@@ -132,6 +132,23 @@ function Get-SetupWsl {
     return [pscustomobject]@{ Ready = $ready; Version = $version; Detail = $detail; Raw = $result.Output }
 }
 
+function Test-SetupInstallerSources {
+    param([string[]]$Sources, [string]$Origin, [string]$SourceForgeUrl)
+    if (-not $Origin) { return $false }
+    $actual = $Sources -join "`n"
+    if ($actual -ceq $Origin) { return $true }
+    if (-not $SourceForgeUrl) { return $false }
+    # Keep historical manifests usable, and require the exact approved source order.
+    foreach ($chain in @(
+        @(('https://ghfast.top/'+$Origin), $Origin),
+        @(('https://ghfast.top/'+$Origin), ('https://gh-proxy.com/'+$Origin), $Origin),
+        @(('https://ghfast.top/'+$Origin), ('https://gh-proxy.com/'+$Origin), $SourceForgeUrl, $Origin)
+    )) {
+        if ($actual -ceq ($chain -join "`n")) { return $true }
+    }
+    return $false
+}
+
 function Receive-SetupInstaller {
     param([string]$Url, [string]$Destination)
     $priorTls = [Net.ServicePointManager]::SecurityProtocol

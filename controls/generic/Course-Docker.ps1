@@ -323,10 +323,8 @@ function Resolve-SetupInstaller {
     }
     $downloadSources=@($entry.downloadUrl)+@($entry.fallbackUrls)
     $downloadSources=@($downloadSources|Where-Object {$_})
-    $officialOnly=$downloadSources.Count -eq 1 -and $downloadSources[0] -ceq $approvedUrl
-    $acceleratedWsl=$Kind -eq 'wsl' -and $downloadSources.Count -eq 2 -and
-        $downloadSources[0] -ceq ('https://ghfast.top/'+$approvedUrl) -and $downloadSources[1] -ceq $approvedUrl
-    if (-not $approvedUrl -or -not ($officialOnly -or $acceleratedWsl)) { throw "没有找到 $($entry.file)，清单没有匹配的官方自动下载地址。" }
+    $sourceForge=if($Kind -eq 'wsl'){'https://downloads.sourceforge.net/project/wsl.mirror/3.0.1/wsl.3.0.1.0.x64.msi'}else{$null}
+    if (-not (Test-SetupInstallerSources $downloadSources $approvedUrl $sourceForge)) { throw "没有找到 $($entry.file)，清单没有匹配的自动下载地址。" }
     $destinationDirectory = $Directory
     if (-not $destinationDirectory) {
         . (Join-Path $PSScriptRoot 'Course-Context.ps1')

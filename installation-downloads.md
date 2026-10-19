@@ -8,7 +8,7 @@
 3. Trae 连续完成资料下载、安装和工具检查；不用自己下载、解压或移动文件，也不用再发送一条准备提示。
 4. 按提示处理本人条款、授权或重启；重启后回到同一任务继续。
 
-通用准备使用 GitHub 中的小资料包 `ai-coding-toolkit.zip`；明确选择项目案例时再补充相应案例资料。WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认通过 GHFast 加速下载，连接、摘要或签名验证失败时回退到原始 GitHub 地址。两个来源使用相同的固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用；不再使用 GitHub Release 的完整软件合集。
+通用准备使用 GitHub 中的小资料包 `ai-coding-toolkit.zip`；明确选择项目案例时再补充相应案例资料。WSL、Podman CLI 和独立 Docker Compose 的固定安装包按 GHFast → gh-proxy.com → SourceForge → 原始 GitHub 顺序下载。SourceForge 使用 `https://downloads.sourceforge.net/project/` 开头的文件直链。连接、摘要或签名验证失败即尝试下一来源，各来源使用同一固定 SHA256；WSL 和 Podman 另核发布者签名。已验证本地包继续复用；不再使用 GitHub Release 的完整软件合集。
 
 下载失败时把提示告诉 Trae，让它从已有记录继续。你只需处理它指出的当前一步。
 

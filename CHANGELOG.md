@@ -2,6 +2,13 @@
 
 版本号用于识别整套手册与助手资料。旧版资料保留，最新入口持续更新。
 
+## v2.3.10 · 2026-10-19
+
+Windows 安装包增加两级下载备用来源
+
+- WSL、Podman CLI 和独立 Docker Compose 按 GHFast、gh-proxy.com、SourceForge、GitHub 官方直连顺序下载，旧 Docker 路线的 WSL 同步使用该顺序。
+- SourceForge 使用 downloads.sourceforge.net 文件直链；每次下载继续核验固定 SHA256，WSL 与 Podman 另核发布者签名，失败自动切换下一来源并记录实际来源。
+
 ## v2.3.9 · 2026-10-19
 
 统一账号陪练的环境准备说明

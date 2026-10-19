@@ -41,10 +41,10 @@ function Get-CourseComponentSources($Entry,[string]$Kind) {
     }
     $sources=@($Entry.downloadUrl)+@($Entry.fallbackUrls)
     $sources=@($sources|Where-Object {$_})
-    $accelerated='https://ghfast.top/'+$origin
-    # Accept historical official-only manifests, or the exact approved pair.
-    $approved=($sources.Count -eq 1 -and $sources[0] -ceq $origin) -or
-        ($sources.Count -eq 2 -and $sources[0] -ceq $accelerated -and $sources[1] -ceq $origin)
+    $mirror=switch($Kind){wsl {'wsl.mirror'};engine {'podman.mirror'};compose {'docker-compose.mirror'}}
+    $releasePath=$origin -creplace '^https://github\.com/[^/]+/[^/]+/releases/download/',''
+    $sourceForge='https://downloads.sourceforge.net/project/'+$mirror+'/'+$releasePath
+    $approved=Test-SetupInstallerSources $sources $origin $sourceForge
     if(-not $approved -or $origin -notmatch '^https://github\.com/[^/]+/[^/]+/releases/download/[^/?#]+/[^/?#]+$'){
         throw 'Unapproved Podman component download sources.'
     }
