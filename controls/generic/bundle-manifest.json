@@ -326,7 +326,7 @@
     "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
     "podman-installers.json": "9cea4d781c20f8f47634b7342280afb9f4228300048ef47f857789c1a95722f6",
     "windows-installers.json": "532c065bd8982e6a33ca0e3988893373008eb2f232c328518726604565c18900",
-    "VERSION.json": "75e01eb0ecaf410a8c1399da4d545979037f24857d2835509c3922a72cc44515",
+    "VERSION.json": "3c6208ec18787a14fa597665134362c7489efb3eecd5d6617326d83a07834d8d",
     "setup-guide.md": "05b971de5639cf102803af66d61ed1fde3dd7fd0f4f3723b352c259ad0f9d33f",
     "course-contract/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
     "ai-coding-env-skill.sha256": "5c0aa7fdd6b74fc4c80ba0eea05065ab51bb98adc55eee48f76ca97f0f16a1b6",
@@ -337,5 +337,5 @@
     "ai-coding-development-skill.sha256": "00dfd2ad82f19353ef4c7b07447dcc7a8b56c6dd9f066da2c36c1f9e363d9d16",
     "ai-coding-android-skill.sha256": "0b64c6f95b2450879ef2418f4a25da49f973dd50ecf59b8566296731276a93ff"
   },
-  "contentId": "933ee9e9a7365674fa17a80b14ea463ff72240cae139e156c584686b129d8f40"
+  "contentId": "aef3470a96d705ca22731f5483c6510930a5e2e423abdb13c3d683892ca86931"
 }

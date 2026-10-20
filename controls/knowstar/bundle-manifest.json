@@ -287,10 +287,10 @@
     },
     "knowstar-course": {
       "archive": "knowstar-course-skill.zip",
-      "sha256": "fc99561486030b2966164a596df84f39035ee5e2be386f880859ac8973a73c47",
+      "sha256": "8134925ae4f6e293e01356811a860fad2c4fcfcb283dcfe1d573ff718da7d727",
       "kind": "case",
       "files": {
-        "implementation/agent-step-checks.json": "0be88b2eb3125fc7e7a25dd7fabd9a45d6f8a87bd8eec9b5a4ecbfa95e3f3f3d",
+        "implementation/agent-step-checks.json": "40e37a542edc9ff6a3ce96ab20bdf14f964cad455dfdff09ee4c615ff74997e6",
         "implementation/course-demo-auth.md": "f2ac70a5d2e3bec3121c07fc38871451958c2bebce87e1fdf2b56e77cff2dc2a",
         "implementation/learner-responsibilities.md": "b230fb41eff05b48ce8af8da9d0e32e176fe296223d9991e4933a88ca4588b24",
         "implementation/publishing.md": "060e1e13c677aa8a91fc2c273b12c9e362ab9217889fd69250023c14df28f564",
@@ -300,7 +300,7 @@
         "implementation/v3.md": "6d1d0581f92e84095c014e0ce3b30a60fa08248ce4ee035a07388ac55f5ba17e",
         "implementation/v4-vision-pace.md": "69794e33b3b1f99b711c789218c4dd585c636ab9a2386bfb609e8cd18e8fbee9",
         "implementation/v4.md": "2157d4d908207682e7038d8232b338f57445658b13524e38986db666c7316592",
-        "references/course-steps.json": "d247f0c0a4d5eb89ecec7f49db05b404c134f38e5f21983b117514fefc6badb2",
+        "references/course-steps.json": "0f592ff81fb03814baac303b4f0d3a5f385455df66f102b63addd0f37e7a95fd",
         "releases/manifest.md": "681450bdfa65d1b5f9b6d03631011cbe806cde131d0ac4ad609d50304e2f2dc3",
         "setup-guide.md": "05b971de5639cf102803af66d61ed1fde3dd7fd0f4f3723b352c259ad0f9d33f",
         "SKILL.md": "7599ec98f2464bd3c763d1eba67d88201b46f8282cfbc2efd437d16075233df3",
@@ -308,7 +308,7 @@
         "templates/pages.yml": "5d55e6bfeb72184f3969422b731f89863863620352b47656ca7bf996c8a9ff1b",
         "templates/README.course.md": "ce2ddf8dc84260e1f84ec8af94b1bc5f9c05f85457a02c39ef658e132cb1da0a",
         "templates/vite.config.pages.ts": "57be26efc30cadbec230d35fcd1674bcd4241240067fb94b4e147f750b73e2c7",
-        "VERSION.json": "75e01eb0ecaf410a8c1399da4d545979037f24857d2835509c3922a72cc44515"
+        "VERSION.json": "3c6208ec18787a14fa597665134362c7489efb3eecd5d6617326d83a07834d8d"
       },
       "requires": [
         "ai-coding-development",
@@ -356,7 +356,7 @@
     "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
     "podman-installers.json": "9cea4d781c20f8f47634b7342280afb9f4228300048ef47f857789c1a95722f6",
     "windows-installers.json": "532c065bd8982e6a33ca0e3988893373008eb2f232c328518726604565c18900",
-    "VERSION.json": "75e01eb0ecaf410a8c1399da4d545979037f24857d2835509c3922a72cc44515",
+    "VERSION.json": "3c6208ec18787a14fa597665134362c7489efb3eecd5d6617326d83a07834d8d",
     "setup-guide.md": "05b971de5639cf102803af66d61ed1fde3dd7fd0f4f3723b352c259ad0f9d33f",
     "course-contract/compatibility.json": "e9aaaa17ab3a595514b98403fe2203659c4125a9344832dabe3065d60c91a9d4",
     "ai-coding-env-skill.sha256": "5c0aa7fdd6b74fc4c80ba0eea05065ab51bb98adc55eee48f76ca97f0f16a1b6",
@@ -366,8 +366,8 @@
     "ai-coding-siliconflow-skill.sha256": "b9175e1584b1080143a4296cfc0322f7e3c65cc59880279599d7da11e8e2b87c",
     "ai-coding-development-skill.sha256": "00dfd2ad82f19353ef4c7b07447dcc7a8b56c6dd9f066da2c36c1f9e363d9d16",
     "ai-coding-android-skill.sha256": "0b64c6f95b2450879ef2418f4a25da49f973dd50ecf59b8566296731276a93ff",
-    "knowstar-course-skill.sha256": "d0b37272e3239084eb168278d7029c0bf7e4743fe7b0c27d75653d2b77cd8638",
+    "knowstar-course-skill.sha256": "90325462c790b7c64975908f94084ad48012d29e7e6475b785e0d322403665b9",
     "case-profile.json": "a37876d4fd9e087a804b956f6d4aee51f37bfd0e0090c54563a4561a9ebfdc2c"
   },
-  "contentId": "a4be29f3e4239d8bf8d0700e8d379b52105681bf39abb5bf4378064345c273e7"
+  "contentId": "ed79181da8f707c35edee2acd271029d7d1d9a306d659de470efa4301070f296"
 }
