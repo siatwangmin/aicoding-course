@@ -261,7 +261,7 @@ function Invoke-PodmanSetup {
                 [void](New-Item -ItemType Directory -Path $dataHome -Force)
                 $recorded.podman['dataHome']=$dataHome;Write-CourseJson $toolPaths $recorded
                 if($lifecycleInstallation){$null=Start-CourseCreationIntent $lifecycleInstallation.installationId machine $Machine $false}
-                $operation=Invoke-SetupNative $paths.Cli @('machine','init','--rootful=false','--now',$Machine) 900
+                $operation=Invoke-SetupNative $paths.Cli @('machine','init','--image','docker://quay.nju.edu.cn/podman/machine-os:6.1','--rootful=false','--now',$Machine) 900
                 if($operation.ExitCode -eq 0 -and $lifecycleInstallation){
                     $inspection=Invoke-SetupNative $paths.Cli @('machine','inspect',$Machine) 20
                     if($inspection.ExitCode -ne 0){throw 'CREATED_MACHINE_UNVERIFIED'}
