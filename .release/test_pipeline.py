@@ -93,6 +93,12 @@ class FakeGitHub:
             asset = {'name': name, 'digest': 'sha256:' + p.digest(data), 'size': len(data)}
             self.release['assets'].append(asset)
             return deepcopy(asset)
+        if path.startswith('/releases/assets/'):
+            asset = next(a for a in self.release['assets'] if a.get('id') == int(path.rsplit('/', 1)[1]))
+            if method == 'DELETE':
+                self.release['assets'].remove(asset)
+                return None
+            return deepcopy(asset)
         if path == '/releases/1':
             if method == 'PATCH':
                 self.release.update({k: v for k, v in data.items() if k != 'make_latest'})
@@ -108,6 +114,8 @@ class ReleaseTests(unittest.TestCase):
         self.base = Path(self.temporary.name)
         self.site = self.base / 'site'; self.site.mkdir()
         fixture(self.site)
+        p.atomic_json(self.base / 'preparation-verification.json', {
+            'status': 'passed', 'freshVersion': '2.4.3', 'to': '2.4.3', 'from': '2.3.14'})
         self.api = FakeGitHub(p.git(self.site, 'rev-parse', 'HEAD'))
         self.runner = p.Runner(self.site, '2.4.3', self.base / 'report.json', github=self.api)
 
@@ -190,6 +198,24 @@ class ReleaseTests(unittest.TestCase):
         request = p.Request('https://api.github.com/artifact', headers={'Authorization': 'Bearer fixture-only'})
         redirected = p.SafeRedirect().redirect_request(request, None, 302, 'Found', {}, 'https://storage.example.invalid/file.zip')
         self.assertFalse(redirected.has_header('Authorization'))
+
+    def test_ci_requires_actual_preparation_evidence(self):
+        (self.base / 'preparation-verification.json').unlink()
+        with patch.dict(p.os.environ, {'GITHUB_ACTIONS': 'true'}):
+            with self.assertRaisesRegex(p.ReleaseError, 'PREPARATION_EVIDENCE_REQUIRED'): self.runner.check()
+
+    def test_ci_rejects_evidence_for_a_different_version(self):
+        p.atomic_json(self.base / 'preparation-verification.json', {'status': 'passed', 'freshVersion': '2.4.2', 'to': '2.4.2'})
+        with patch.dict(p.os.environ, {'GITHUB_ACTIONS': 'true'}):
+            with self.assertRaisesRegex(p.ReleaseError, 'PREPARATION_EVIDENCE_MISMATCH'): self.runner.check()
+
+    def test_unfinished_draft_placeholder_can_be_retried(self):
+        self.runner.prepare()
+        asset = self.api.release['assets'][0]
+        asset.update({'id': 100, 'state': 'starter', 'size': 0, 'digest': None})
+        self.runner.prepare()
+        p.verify_assets(self.api.release, p.expected_assets(self.runner.checked))
+        self.assertIn(('/releases/assets/100', 'DELETE'), self.api.mutations)
 
 
 if __name__ == '__main__': unittest.main()
