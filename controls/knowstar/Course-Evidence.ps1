@@ -1,15 +1,14 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
 function Get-CourseEvidencePath([string]$Root,[string]$Stage){
-    $map=@{tools='toolchain-verification.json';cloudbase='.cloudbase-setup\cloudbase-verification.json';github='.github-setup\github-verification.json';ai='.ai-setup\account-readiness.json';summary='.course-setup\summary-verification.json'}
+    $map=@{tools='toolchain-verification.json';cloudbase='.cloudbase-setup\cloudbase-verification.json';github='.github-setup\github-verification.json';summary='.course-setup\summary-verification.json'}
     if(-not $map.ContainsKey($Stage)){throw 'PREPARATION_STAGE_REQUIRED'}
     return Join-Path $Root $map[$Stage]
 }
 function Get-CourseRequiredChecks([string]$Stage){
     switch($Stage){
         cloudbase {@('identityVerified','managementAccessVerified','pgCapabilityVerified','publicConfigSaved')}
-        github {@('identityVerified','emailVerified')}
-        ai {@('identityVerified','billingReviewed')}
+        github {@('identityVerified','emailVerified','cliAvailable','cliAuthVerified','gitCredentialConfigured')}
         summary {@('skillsVerified','traeLoadObserved','currentResultsReviewed')}
         default {throw 'OBSERVATION_STAGE_REQUIRED'}
     }
@@ -43,22 +42,19 @@ function Save-CoursePreparationEvidence([string]$Root,[string]$Stage,[string]$Ob
         if($items.Count -ne 1 -or $items[0].outcome -ne 'passed'){throw ('ACTUAL_OBSERVATION_REQUIRED:'+ $name)}
         $item=$items[0]
         if($item.kind -notin @('command','tool','browser','learner') -or -not $item.reference){throw ('OBSERVATION_SOURCE_REQUIRED:'+ $name)}
+        if($Stage -eq 'github' -and $name -in @('cliAvailable','cliAuthVerified','gitCredentialConfigured') -and $item.kind -ne 'command'){throw 'GITHUB_CLI_REQUIRES_COMMAND_OBSERVATION'}
         if($name -eq 'traeLoadObserved' -and $item.kind -ne 'browser'){throw 'TRAE_LOAD_REQUIRES_ACTUAL_OBSERVATION'}
-        if($Stage -eq 'ai' -and $item.kind -notin @('browser','learner')){throw 'AI_ACCOUNT_REQUIRES_LEARNER_OR_BROWSER_OBSERVATION'}
         $time=Get-CourseObservationTime $item.observedAt
         if($time -lt $earliest){$earliest=$time}
-        if($Stage -eq 'ai' -and $item.kind -eq 'learner'){$confirmed=$time.ToString('o')}
         $reference=[string]$item.reference
         if($reference -ne (Protect-CourseOutput $reference)){throw 'OBSERVATION_REFERENCE_CONTAINS_SECRET'}
         $sources+=@{check=$name;kind=$item.kind;observedAt=$time.ToString('o');reference=$reference}
         $checks[$name]=$true
     }
-    if($Stage -eq 'ai' -and -not $confirmed){throw 'LEARNER_CONFIRMATION_REQUIRED'}
     $path=Get-CourseEvidencePath $Root $Stage
     if($path -eq $input){throw 'OBSERVATION_SOURCE_MUST_BE_SEPARATE'}
     # Keep source times: writing a file cannot refresh a stale check into a new success.
     $value=@{schemaVersion=3;stage=$Stage;status='verified';checkedAt=$earliest.ToString('o');recordedAt=[datetimeoffset]::UtcNow.ToString('o');operationId=[guid]::NewGuid().ToString('N');checks=$checks;evidence=$sources;observationFile=$input;observationSha256=(Get-FileHash -LiteralPath $input).Hash.ToLowerInvariant()}
-    if($Stage -eq 'ai'){$value.mode='account-readiness';$value.learnerConfirmedAt=$confirmed}
     if(Test-Path -LiteralPath $path){
         $history=Join-Path $Root ('.course-setup\evidence-history\'+$Stage+'-'+[guid]::NewGuid().ToString('N')+'.json')
         Assert-CoursePlainPath $history;[void](New-Item -ItemType Directory -Path (Split-Path $history -Parent) -Force);Copy-Item -LiteralPath $path -Destination $history

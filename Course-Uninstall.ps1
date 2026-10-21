@@ -11,7 +11,7 @@ function Import-CourseLegacyInstallation([string]$PreparationDirectory) {
         $record=Read-CourseJson $file
         foreach($name in @($record.SkillNames)){
             if($name -cnotmatch '^[a-z][a-z0-9-]{0,63}$'){throw 'INVALID_LEGACY_SKILL_NAME'}
-            $path=Join-Path $env:USERPROFILE ('.trae-cn\skills\'+$name)
+            $path=if($record.SkillScope -in @('Preparation','mixed') -and $name -ne 'ai-coding-project'){Join-Path $PreparationDirectory ('.trae/skills/'+$name)}else{Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name)}
             if(Test-Path -LiteralPath $path){$null=Register-CourseResource $entry.installationId skill $path unknown configuration (Split-Path $path -Parent)}
         }
     }
@@ -338,6 +338,12 @@ function Test-CourseUninstallResult([string]$OperationId,[switch]$Finalize) {
                     if($removed.Count -and -not(Test-Path -LiteralPath $tools.podman.$key)){$tools.podman.$key=$null}
                 }
                 Write-CourseJson $toolsFile $tools
+            }
+            $executionFile=Join-Path (Get-CourseUserRoot) 'execution.json'
+            if(Test-Path -LiteralPath $executionFile){
+                $execution=Read-CourseJson $executionFile
+                $owned=@($op.plan.items|Where-Object {$_.resource.kind -eq 'directory' -and $_.resource.locator -eq $execution.executionRoot -and $_.action -ne 'retain'})
+                if($owned.Count -and -not(Test-Path -LiteralPath $execution.executionRoot)){Assert-CoursePlainPath $executionFile;Remove-Item -LiteralPath $executionFile}
             }
             $link=Join-Path $install.workspace '.course-setup\lifecycle.json'
             if(Test-Path -LiteralPath $link){Write-CourseJson $link @{schemaVersion=1;installationId=$install.installationId;status='removed';operationId=$OperationId}}

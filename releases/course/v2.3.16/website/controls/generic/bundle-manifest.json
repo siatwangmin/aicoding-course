@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "materialsProtocol": 1,
+  "runtimeContractId": "course-runtime-20261021-github-cli",
+  "compatibility": {
+    "schemaVersion": 1,
+    "runtimeContractId": "course-runtime-20261021-github-cli",
+    "materialsProtocol": 1,
+    "supportedProjectSchemas": [
+      2
+    ],
+    "imageDigest": "sha256:874c72192fff872157598d86869c56dae38edc406b5705d232271fd998ad3409",
+    "profiles": {
+      "podman": {
+        "platform": "linux/amd64",
+        "wslMinimum": "2.1.5",
+        "supportedWslVersions": [
+          "2.5.7",
+          "3.0.1"
+        ],
+        "clientServerPairs": [
+          [
+            "6.0.2",
+            "6.0.2"
+          ],
+          [
+            "6.1.4",
+            "6.0.2"
+          ],
+          [
+            "6.1.4",
+            "6.1.4"
+          ]
+        ],
+        "composeSha256": "8aeaa0055e660e12cf07cd70680dc8333957fe6718528b91ec3da084eab62483"
+      },
+      "docker": {
+        "platform": "linux/amd64",
+        "preserveVerifiedLegacyBinding": true,
+        "requiredEvidence": [
+          "VerifiedAt",
+          "Image",
+          "ToolchainCheck"
+        ]
+      }
+    },
+    "skillDependencies": {
+      "ai-coding-env": [],
+      "ai-coding-project": [
+        "ai-coding-env"
+      ],
+      "ai-coding-cloudbase": [
+        "ai-coding-env"
+      ],
+      "ai-coding-github": [
+        "ai-coding-env"
+      ],
+      "ai-coding-siliconflow": [
+        "ai-coding-env"
+      ],
+      "ai-coding-development": [
+        "ai-coding-project",
+        "ai-coding-cloudbase",
+        "ai-coding-github",
+        "ai-coding-siliconflow"
+      ],
+      "ai-coding-android": [
+        "ai-coding-project",
+        "ai-coding-development"
+      ],
+      "knowstar-course": [
+        "ai-coding-development",
+        "ai-coding-android"
+      ]
+    }
+  },
+  "profile": "generic",
+  "skills": {
+    "ai-coding-env": {
+      "archive": "ai-coding-env-skill.zip",
+      "sha256": "54cf2136cdae5c18e0f2ab5c98d539b62d40c5167b684bdc7d7c6a2cbe5a7baa",
+      "kind": "generic",
+      "files": {
+        "assets/compatibility.json": "febf80a4d79c38a62e7544605a137d4af9151a2808cff41ffb463ce67d6fc563",
+        "assets/course-contract.json": "76eff9293a1a863a72d172b89121b68a962f613ddd9ef4957df56f930f98c308",
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "assets/lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
+        "assets/podman-installers.json": "9cea4d781c20f8f47634b7342280afb9f4228300048ef47f857789c1a95722f6",
+        "assets/README.md": "42f548e8b1e20afb6a6cea57d524c8d5db4dec3293253ace7bbee2569ee3daa5",
+        "assets/toolchain.json": "7b3ddaacf04c2e80131b88b70afc7c525c5989c7ee51220189a4c0e3c81e9407",
+        "assets/windows-installers.json": "532c065bd8982e6a33ca0e3988893373008eb2f232c328518726604565c18900",
+        "references/course-updates.md": "a569c16c11ec5434863748da246f1a8b5adfb7dadf29c71ce9e359e4ee51542a",
+        "references/installation-downloads.md": "1dbea0a7229fd97d62bd8267908422666fd53155b0887eae660950d7235b93e6",
+        "references/preparation-workflow.md": "3684bf2653fb60878eb6c2d6712e05587ae41b4adf44e97bc3371eb9c862fbf9",
+        "references/project-execution.md": "3ee6bd915c1081af00d540d81851656342379f7511178dd521c8ae060d14f947",
+        "references/uninstall.md": "432b390d581f1347a70a712587a3c72d2cac43a5e2348c4f54de5e65f7ab5b28",
+        "references/windows-docker-setup.md": "524afa3fc23050862995dad65e99f10f3dd47bb643073eba086b022d6e8840a7",
+        "references/windows-podman-setup.md": "1145caa6dae00c3fbbab2a5847183b78ad11addb0ba420c60a35b6e91f0ccd18",
+        "scripts/check-environment.sh": "ae012b58f87ac04d6fa13c3a51e99f7835742e17a982706604b9487585d7b4fb",
+        "scripts/Course-Context.ps1": "39cef318368493c6ebefe27f0dda35abc035f237b9e70586b1037bc22a575008",
+        "scripts/Course-Docker.ps1": "26566564d8aec0798d05dc60fbfec8f315ab2f0a74ff3a5dbb95a8204738b355",
+        "scripts/Course-Evidence.ps1": "6a45aa9d2b553b48a345d92caf0f4345dbd17f636635a3252ec0959563cda4b6",
+        "scripts/Course-Lifecycle.ps1": "00906a76abbb73fd4fbfde6794fb7b8cb17bfa2918d10ce82b6a6fe1fdd1ce40",
+        "scripts/Course-Native.ps1": "580ec61ca4d6808897d7c363b2e1e431869e9a9ed2c435641743855ee49d5e0e",
+        "scripts/Course-Podman.ps1": "1665dde198e4e4db485328c73a9e411ff9947748f2bd8a07674ac00d74d9bfca",
+        "scripts/Course-PodmanDiagnostics.ps1": "202a0bd90e85b8875b299b281f9051c84dc354c59d7e9074e52584e80d716d64",
+        "scripts/Course-ProjectRoot.ps1": "b07d3349bd8f9544e2d7abaa0a4e891278b176f4d488c9d8f91212d871be6443",
+        "scripts/Course-Runtime.ps1": "3781f98f9ddb0499b68126b13ff9a24297c1e3eed20034cd8af4d478b8563632",
+        "scripts/Course-Storage.ps1": "5c789ff883401aabb1c6d33388655a3c4a702c2406ccee4c5df8e02e72a14805",
+        "scripts/Course-Uninstall.ps1": "6ebd694e05a5e7f976247920ab8320062cd7f5ba23ce01e984e7d94c63220779",
+        "scripts/Course-UninstallAdapters.ps1": "77283f5d00f4572949fc46937aa7484cb40e8ff80124a4a81a9e79a8a27a06e2",
+        "scripts/Course-Upgrade.ps1": "1222aa53818acad35b8f0d25337048a98d66172c5b4d8a27939acdfb834cabd2",
+        "scripts/Export-CoursePreparation.ps1": "0c125658653d4dc8b4357e36a9af639f5e07676a1a33ae2992d7a2ec1c132093",
+        "scripts/Get-CourseMaterials.ps1": "7aec9a3d915ed2643ba38ca89fc87a5c713097538d4ab870e23026ce718d36cc",
+        "scripts/inspect-capabilities.mjs": "f42a1833c7c440e8a2c8584b57d29e37bdb09e2acf4186a8a4296fc4432b7cf3",
+        "scripts/Install-CourseSkills.ps1": "3c31a274f9ec964b5d12ed7b3188d0d59bd97530fe21266dba82dff0b705b1d6",
+        "scripts/Invoke-CoursePreparation.ps1": "9ef7641aa052a1c701100329fa0d49a157ddc749f5f56a0f47358aeacde288b6",
+        "scripts/Invoke-CourseProject.ps1": "da73549c94fa00cedb2e61dc91e8adcc48eac9aeef5e2a69f8b766b1377e01ae",
+        "scripts/Move-CourseWslData.ps1": "c23e4bb47e6ad238b65632ec2ffa74c495ee9681360219b37da7797b2fd66df5",
+        "scripts/Prepare-CourseStorage.ps1": "fe03acf193e83903bcf88193f884784af5908bae5bc8cd541ea1645efb24fb8f",
+        "scripts/Register-CoursePreparation.ps1": "a0eeda3c96698f524c2dda42ada1572c9f36316e24501533e4af2400e562390c",
+        "scripts/Register-CourseServices.ps1": "a8243d0f7048d40cf5dbfe4b6b3251a87d4d4ae77527d4a5f670c7af77fd8909",
+        "scripts/Resume-CoursePreparation.ps1": "f61656050648320d056d5932f491c9b21ba350363ca1530f230329b98dcf4b87",
+        "scripts/Save-PreparationEvidence.ps1": "134ef9b4f2355887a045c32d904db41da4a8772440ef7eb76e7cc43ae88bbda0",
+        "scripts/Setup-DockerDesktop.ps1": "c56dbafcf6124b44b7b2574919c124bc6c1bcc4ed951df9256e6036289ab4d15",
+        "scripts/Setup-Podman.ps1": "eab93c4f52fdd5d818ad65393e179d7e62680806343e610bd1578b275bd5102b",
+        "scripts/Setup-PodmanDesktop.ps1": "906b81f6240924ff5e8a871dfde7d4fddeff802ab7aa89f568a190136c1709e6",
+        "scripts/Start-CourseToolPreparation.ps1": "aa81dfd0434189f1b18f3c96bd0908f8ec6b93ee430cea3ed1773e7216970b5a",
+        "scripts/Start-CourseUninstall.ps1": "605df7d11af68a11890ad79f9a712427a2d553236a99e1836d538c4c9ca8c66f",
+        "scripts/Test-CourseReadiness.ps1": "149b896a85e483d7d41ba39003624e4a8547f093fed026158c5ba8087bc80cfc",
+        "scripts/Uninstall-Course.ps1": "1eb9e4548c159dc7319452031d712b76b20ad627d48376c9ad2d0444d9b92992",
+        "scripts/Update-CourseMaterials.ps1": "6ca29947a2505f24420d04e1b5b18fc75e53898179ab20e3c1a0144136e342f8",
+        "scripts/Update-CourseProgress.ps1": "7b88d1686dde956752ab07284e46a4ee21eec0edc16645d56627c8025cf05e2e",
+        "scripts/Verify-PodmanToolchain.ps1": "0d9cf8dba5f5cc613d3951907a7c8d4e6d3b296f7ba6f91fd4bcc5fde4faacb2",
+        "scripts/Verify-Toolchain.ps1": "c16d0d7182049834b38c25ea33ff2b7801e6037b6da92b28b10de88e3f9cbbc4",
+        "scripts/卸载环境.cmd": "9f8875d343705643606283b3dfa1e4a0eb7a0555932e28771feebb75b0e6e918",
+        "scripts/开始安装Docker.cmd": "79889b5bbd4a6243822c2d884a902d8aee98ca571b9c257b6f7bf08b88adec64",
+        "SKILL.md": "1e924f7691abd76f7d114eb5ea5804f6cf6b1145d1e9b2818159211c7670ee78"
+      },
+      "requires": []
+    },
+    "ai-coding-project": {
+      "archive": "ai-coding-project-skill.zip",
+      "sha256": "68657bed8e065079c502781f940b188f69f288df4b4611f1dbf4e0f101d7c606",
+      "kind": "generic",
+      "files": {
+        "assets/AGENTS.project.md": "b69c4a47f10148fc722583053ced0910595d068cf7874b5cdc99c8f8045bd003",
+        "assets/compose.podman.yaml": "00398a326fc8debaa8f6f2687dbd818740c156537e8879e6a56d835f397ac212",
+        "assets/compose.yaml": "b1a3309a826dfef5b81c3a94b7ce52b04bfb2351d9afcb9555637f3844110234",
+        "assets/course-runtime-guard.cjs": "dcdc8635301e05087a0c727259efe6c4cec621328a63f847c232bfc213cf1e04",
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "assets/default-models.json": "d5cd9908500e65d192c346c18717d66b222095a01cb64b28e4088b21750a0ac5",
+        "assets/engineering/ai.md": "c494b8f507820a0532e02158eef04029d409dc550e5199bb3567675f4aa4ebb2",
+        "assets/engineering/android.md": "fd26d46d77cc1d1ed59950841c4ebea8e1861c292b12006fb8364d0144cd51a1",
+        "assets/engineering/baseline.md": "2c785c3853c29cb33de91ac733979efac7043fd35a0deb02fa2877aa5ce77c9d",
+        "assets/engineering/cloudbase.md": "edcf2ba195fbc0f2148f3ba0db3dfeebe786fe189257f4d8d1124b3dc7bb6356",
+        "assets/engineering/local.md": "c4878893fdec42466e29bcc636860e3c6a8e39abe79d050bc2051fc4a239f377",
+        "assets/engineering/publishing.md": "07226948cc36a8b39ce9f6d12bece931018dbdc4398077190644a279b492672d",
+        "assets/engineering/workflow.md": "5b5dc1bdf8e8549264f4498abc4f3e43861ec705ffbe35cc31949f7d70430415",
+        "assets/guidance-legacy-2.2.1.json": "f495d5a83c3180bc098f1c8dd5dd73e7bbda4943135d7c201a835bdc7e21b713",
+        "assets/guidance-legacy-2.2.json": "0a99e67b9ab28fcb7569260c6cd9c6e08d2e87b3c6e8730716e01978e5615727",
+        "assets/guidance-legacy-2.3.13.json": "05825577dd43c8a5d3580c138e7eafa2453cc12818207291f32528d894107579",
+        "assets/guidance-legacy-2.3.14.json": "65b72992f71cea445e12d9419d58c1e27d8a99888fe2574a181a3d3bdf720a34",
+        "assets/guidance-legacy.json": "73aa77a589de998155341fc0d4e92dd8939f1cd7d8284341af5560380578e77b",
+        "assets/spec-template.md": "86364f016c39ce7dc1f4e74074ed700c715940d2f5b5863903cc8b7aa25e4736",
+        "assets/trae-entry.md": "bf40bd7e19bf93de608b56f935bad93b934ca411c392b5ffbbd3354763f087b3",
+        "implementation/capabilities.md": "29040c7a00bb724b7b85194cc310deea15fa749ff23fd31e43649dfba536eb2e",
+        "implementation/capability-activation.md": "8d9dcffc77ee6f578ebf8cb1259e20dc4811f5fa19a8c5160417a6ba24ed1e94",
+        "implementation/initialization-evidence.md": "63f28dc633f5f96bfe51bbe13f4b4cbbaac670f241af6dfba8a0934c4460a8b7",
+        "scripts/Connect-Project.ps1": "8fe68681493c5e1be1c72ad1130e4f26e85e8f85a440c714600787d9059e0625",
+        "scripts/create-project.mjs": "ea1c362e2b406fd3e390d133d5eae5db9701188ed5cf0052e299b6eac7e5fb2e",
+        "scripts/Enable-ProjectCapability.ps1": "1e631574ff13dbd559eac5965fd37ecfb5b72e2abd4fd79b39fefe4634b57e70",
+        "scripts/generation.mjs": "6a837e04e52b3ff8ebc11aae6cf2a3e26f23857dd5e0b181ec3116187ec579a2",
+        "scripts/initialization.mjs": "435390ff007b97814496d3d2171eaa8e6707f5a37f3ac942ac97cd53af54a9dd",
+        "scripts/Initialize-Project.ps1": "1e02f8c9c1f262f13ae4df7bd452643786e23d0026c6dd2b3e3beba9525d6aa2",
+        "scripts/Install-ProjectGuidance.ps1": "e7dae02c7014594961322d87faf59221fb468a21b0924ab22b055940ad0b0964",
+        "scripts/project-context.mjs": "b0b8f44ed6766107a0705018bfb92b71614b0c4bf11d6550a18c5b15cb2f24be",
+        "scripts/Test-ProjectInitialization.ps1": "86d04957875e40acc17ca47e73add7aec76f5a7cb6fda780bcb50f707a47eb29",
+        "scripts/Test-ProjectRuntime.ps1": "ec4bef4d387d6c3b34d07969f2c4075c258af8d3cf6aa770401e935cf503d111",
+        "scripts/Upgrade-Project.ps1": "a1ae52ddc9177440e592da85c6ee912f32faa7551b1231942cb6ee53285c3eb5",
+        "SKILL.md": "7cacaedaa9f49178a7ddfed9c461b51817c686c66cfd80aa01b061a171536819"
+      },
+      "requires": [
+        "ai-coding-env"
+      ]
+    },
+    "ai-coding-cloudbase": {
+      "archive": "ai-coding-cloudbase-skill.zip",
+      "sha256": "2251a9ffde9fb6f009567c6d2f09a23981b5accf045db332d0eba60a90330e82",
+      "kind": "generic",
+      "files": {
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "references/cloudbase-connection.md": "e088284e59de27009d487f404a63e77451b1d3a7b0a7cc954e10886c2673e647",
+        "references/management-operations.md": "28294e1fdc5c7346ee789b25d6f57632d5e2db8a3348a5362951d26350843866",
+        "scripts/Course-CloudBase.ps1": "dd8c0ccdce20a74aa638ce4bd81038799b5d0e694ad15800b116f2b099d2fecc",
+        "scripts/Test-CloudBaseManagement.ps1": "f622007eac9eb232fb9324cfe8eefd58fa3ecef0590bfa4feb92ab11d101b9aa",
+        "SKILL.md": "3e59cef2d9c42443784b9b90faee0259f970307cc9ff2a10dd6507e6c159bb02"
+      },
+      "requires": [
+        "ai-coding-env"
+      ]
+    },
+    "ai-coding-github": {
+      "archive": "ai-coding-github-skill.zip",
+      "sha256": "9d772c5e39ef01774e7662f0db6b4232dd450ae4d5fe6642666485816149414a",
+      "kind": "generic",
+      "files": {
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "references/cli-auth.md": "c4eb60010bafe45d3f24cd4dd7aecf495eeb2315fb768ad9b47f4512a5ce628e",
+        "references/pages-cli.md": "6427a7b52de5ab9454d39627b78a221a7e35756c85550f6ef5086fa608c68346",
+        "scripts/GitHub-Pages.ps1": "45eff2c925c2c0923cbd6aa8fa85b1df438197cb5ca1be28d7239ec7ac3153f1",
+        "scripts/GitHub-Readiness.ps1": "fd605daf6824e02cda1346fbc9d31ad98a78dc181e5159b43380865eb56e5c91",
+        "scripts/Test-GitHubCli.ps1": "c45271ceb419f65b806638a4e6049fb4db270540a19cc2ff3ecc501201bf2258",
+        "SKILL.md": "e5475ccffd1169c90a0e3090914664863c6a1ac8c2d5a8574ad46dc5b63d7049"
+      },
+      "requires": [
+        "ai-coding-env"
+      ]
+    },
+    "ai-coding-siliconflow": {
+      "archive": "ai-coding-siliconflow-skill.zip",
+      "sha256": "4ddb83a309a205c021da3db126599d03463c5cc5d2360c8d3eb27d775f4debfd",
+      "kind": "generic",
+      "files": {
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "assets/default-models.json": "d5cd9908500e65d192c346c18717d66b222095a01cb64b28e4088b21750a0ac5",
+        "assets/model-catalog.cjs": "c2bafe4aebb9893b65ea870236956573d31f8bac5cc077cd69a8ed6dd60b412e",
+        "assets/test-expression.png": "c4c8f5bfdbdeea5dc124eb155e5828eec2f3092962e32dd88e04e932553dc87e",
+        "references/verification.md": "d6f7732a6a0912b01855de4ba74ff2dcdb48cb25a5ef5d70facf25fccb4a0370",
+        "scripts/Credential-Store.ps1": "669918d224c2ce5b1c9f9c4b0955ac4d485a6b5e9fe16ddf724c13fa12422ebf",
+        "scripts/Invoke-SiliconFlowVerification.ps1": "ac466686017700d2be977a5277e1b619501990b3518abe52edd01aed63b28594",
+        "scripts/Save-SiliconFlowKey.ps1": "de751e3d5863ea4be10fc41c4875ae8fb609b1c713d62b64272c6210b46f0d2a",
+        "scripts/verify-siliconflow.mjs": "941d6f1dd185c15351517bab416370b4fbd710973c0e6dc16e388537b88d538f",
+        "SKILL.md": "ae27a2cc33fbbb790abba658d9e1684c5b583de9cb203fc2858b8bba48014d77"
+      },
+      "requires": [
+        "ai-coding-env"
+      ]
+    },
+    "ai-coding-development": {
+      "archive": "ai-coding-development-skill.zip",
+      "sha256": "fc3154ca2e55b479064ff43243cd7aaca7dfbb092ef8debb6c7bd03a7a00fc48",
+      "kind": "generic",
+      "files": {
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "assets/private-ai-config.cjs": "a7d3b1b71c2b2e954e9b4d09d5adfb44a3eb73843eb88492f917f79265d34b42",
+        "assets/private-ai-probe.cjs": "cb816a09488023dec327b9feca3fd7e6a6d544e754349f94205f08ad17d96c11",
+        "assets/private-ai-probe.sql": "9c5c023b1202238238a5661c38d6e16b1048e1464419b9eb13307da5cf196d3c",
+        "assets/private-ai-quota-v2.sql": "09064e24ddfd57befcd127453dafefd4dbe32e547a63766ba40e269c338333fc",
+        "assets/private-ai-quota.cjs": "845b1c0f7d79ecbefdc26cc433ffff4cb2f37e101ad41d5cfbc44276bfabf63a",
+        "assets/private-ai-quota.sql": "8939f29c6b6961dbdb86cf570bc23dfbc671940e79648c61018003d6bb4ccbde",
+        "assets/private-ai-rpc.cjs": "c468bf08fbbb4879d8c84d134b79c4dc3f01b9c6d7523cd7c6401d6a7e10f089",
+        "implementation/agent-step-checks.json": "ee8744ed16f425c7177a1da739940367856b8139129e4e28bd1894c83eeb9e85",
+        "implementation/ai-service-setup.md": "954096cd00a3489ac6df401e65fd73cdb9cb3a428a6effcf98ecab167fdf5b1e",
+        "implementation/ai-settings-access.md": "6982a524e066cd04885476465f5edbf065ba9849aab4d79a339c9ecab180fb8b",
+        "implementation/ai.md": "f3ef95eabb0cbbcd03d6577639f1d640cf82841c21284124aa550c9234e7416f",
+        "implementation/cloudbase.md": "841a588e6393b328bc94651b77ce69574773979d3c09197be4ecd84e5e17283d",
+        "implementation/efficient-execution.md": "4d21507474c701ab2123a55a3f01c88a37a83b262a888a3ccfac0583f57443c7",
+        "implementation/execution-route.md": "f870c4a4c43ebede8ff8c17133fb64eb703229ec49bf9c3949aca9b3af7a300b",
+        "implementation/learner-responsibilities.md": "70e0c91f080d59be19c783e2b08b5634bd55c662a2581593724ffc942e651824",
+        "implementation/local.md": "58ba524332c62a8b3eb2093d08c4ace7c060a87d00bf46f928b53e06e7f1f848",
+        "implementation/model-settings.md": "18c027ab0eee70913ee48003d6a81efb8a6488c57a30a017885ebab14a30f32b",
+        "implementation/publishing.md": "76a47c696831cb885ab002f44007896c6df732557adbb5ad0087995f12247b88",
+        "scripts/Pages-Configuration.ps1": "e186c6fff7be5cedc45dd10cb8bebfdabe24038c6b6c3178cb52ce6b8f3a5732",
+        "scripts/publish-assets.mjs": "d2d7351390dc2b83756da66533f327b0c5c6e5d5599d63663929d2dc6d68cfd3",
+        "scripts/Publish-CloudBase.ps1": "1bf2ea5da05e7b57babf6c94072cbcb65dcd7ff1dc6ad0cc5256543b8f841ba4",
+        "scripts/Publish-Pages.ps1": "0d3a9186cab60cc663283d2d401229a23e468cd1dcd7e6fde457c96436b0489f",
+        "SKILL.md": "5abb53a0df313116acc579faaab052010081b2fdd20e6e5348d181909062d795"
+      },
+      "requires": [
+        "ai-coding-project",
+        "ai-coding-cloudbase",
+        "ai-coding-github",
+        "ai-coding-siliconflow"
+      ]
+    },
+    "ai-coding-android": {
+      "archive": "ai-coding-android-skill.zip",
+      "sha256": "1a4da75e27d237d39d51c82b07e1ed575a634759963e0c41bd00fcdb9666ffbf",
+      "kind": "generic",
+      "files": {
+        "assets/course-timing.json": "ad506354c59bf75598599f2c91749434e36d0596453d4b986036521c03e8f59c",
+        "implementation/acceptance.md": "9fb70ceaf2b1585e2daa3e7b932fe9b574b03ee90866c13d2ff6e8186c753dc5",
+        "scripts/android.mjs": "b0e9424ac50f6b7947e20eeadb2a1b0e78ef777eba4a4ae86944ea24f4e2ee40",
+        "scripts/artifacts.mjs": "325efb271a599506920bb2e061f2a2bd3ac71f928bdcc942ca5da30b71c112fd",
+        "scripts/Build-Android.ps1": "6ca27bd064b461cc541543b112e7d9b131b71fa562b3a3c9027946050b9394d3",
+        "scripts/project-context.mjs": "b0b8f44ed6766107a0705018bfb92b71614b0c4bf11d6550a18c5b15cb2f24be",
+        "SKILL.md": "b927e60c447116b788af851c1ba49388e97c0e345b4fc6c5b164f5793da3a421"
+      },
+      "requires": [
+        "ai-coding-project",
+        "ai-coding-development"
+      ]
+    }
+  },
+  "files": {
+    "course-contract.json": "76eff9293a1a863a72d172b89121b68a962f613ddd9ef4957df56f930f98c308",
+    "Course-Lifecycle.ps1": "00906a76abbb73fd4fbfde6794fb7b8cb17bfa2918d10ce82b6a6fe1fdd1ce40",
+    "Course-Uninstall.ps1": "6ebd694e05a5e7f976247920ab8320062cd7f5ba23ce01e984e7d94c63220779",
+    "Course-UninstallAdapters.ps1": "77283f5d00f4572949fc46937aa7484cb40e8ff80124a4a81a9e79a8a27a06e2",
+    "Uninstall-Course.ps1": "1eb9e4548c159dc7319452031d712b76b20ad627d48376c9ad2d0444d9b92992",
+    "Start-CourseUninstall.ps1": "605df7d11af68a11890ad79f9a712427a2d553236a99e1836d538c4c9ca8c66f",
+    "卸载环境.cmd": "9f8875d343705643606283b3dfa1e4a0eb7a0555932e28771feebb75b0e6e918",
+    "Course-Context.ps1": "39cef318368493c6ebefe27f0dda35abc035f237b9e70586b1037bc22a575008",
+    "Course-Native.ps1": "580ec61ca4d6808897d7c363b2e1e431869e9a9ed2c435641743855ee49d5e0e",
+    "Course-Docker.ps1": "26566564d8aec0798d05dc60fbfec8f315ab2f0a74ff3a5dbb95a8204738b355",
+    "Course-Podman.ps1": "1665dde198e4e4db485328c73a9e411ff9947748f2bd8a07674ac00d74d9bfca",
+    "Course-Runtime.ps1": "3781f98f9ddb0499b68126b13ff9a24297c1e3eed20034cd8af4d478b8563632",
+    "Invoke-CourseProject.ps1": "da73549c94fa00cedb2e61dc91e8adcc48eac9aeef5e2a69f8b766b1377e01ae",
+    "Test-CourseReadiness.ps1": "149b896a85e483d7d41ba39003624e4a8547f093fed026158c5ba8087bc80cfc",
+    "Update-CourseProgress.ps1": "7b88d1686dde956752ab07284e46a4ee21eec0edc16645d56627c8025cf05e2e",
+    "Move-CourseWslData.ps1": "c23e4bb47e6ad238b65632ec2ffa74c495ee9681360219b37da7797b2fd66df5",
+    "Invoke-CoursePreparation.ps1": "9ef7641aa052a1c701100329fa0d49a157ddc749f5f56a0f47358aeacde288b6",
+    "Export-CoursePreparation.ps1": "0c125658653d4dc8b4357e36a9af639f5e07676a1a33ae2992d7a2ec1c132093",
+    "Course-Storage.ps1": "5c789ff883401aabb1c6d33388655a3c4a702c2406ccee4c5df8e02e72a14805",
+    "Prepare-CourseStorage.ps1": "fe03acf193e83903bcf88193f884784af5908bae5bc8cd541ea1645efb24fb8f",
+    "Register-CoursePreparation.ps1": "a0eeda3c96698f524c2dda42ada1572c9f36316e24501533e4af2400e562390c",
+    "Register-CourseServices.ps1": "a8243d0f7048d40cf5dbfe4b6b3251a87d4d4ae77527d4a5f670c7af77fd8909",
+    "Get-CourseMaterials.ps1": "7aec9a3d915ed2643ba38ca89fc87a5c713097538d4ab870e23026ce718d36cc",
+    "Course-ProjectRoot.ps1": "b07d3349bd8f9544e2d7abaa0a4e891278b176f4d488c9d8f91212d871be6443",
+    "Course-Evidence.ps1": "6a45aa9d2b553b48a345d92caf0f4345dbd17f636635a3252ec0959563cda4b6",
+    "Save-PreparationEvidence.ps1": "134ef9b4f2355887a045c32d904db41da4a8772440ef7eb76e7cc43ae88bbda0",
+    "Resume-CoursePreparation.ps1": "f61656050648320d056d5932f491c9b21ba350363ca1530f230329b98dcf4b87",
+    "Course-PodmanDiagnostics.ps1": "202a0bd90e85b8875b299b281f9051c84dc354c59d7e9074e52584e80d716d64",
+    "Install-CourseSkills.ps1": "3c31a274f9ec964b5d12ed7b3188d0d59bd97530fe21266dba82dff0b705b1d6",
+    "Course-Upgrade.ps1": "1222aa53818acad35b8f0d25337048a98d66172c5b4d8a27939acdfb834cabd2",
+    "Update-CourseMaterials.ps1": "6ca29947a2505f24420d04e1b5b18fc75e53898179ab20e3c1a0144136e342f8",
+    "Start-CourseToolPreparation.ps1": "aa81dfd0434189f1b18f3c96bd0908f8ec6b93ee430cea3ed1773e7216970b5a",
+    "开始安装Docker.cmd": "79889b5bbd4a6243822c2d884a902d8aee98ca571b9c257b6f7bf08b88adec64",
+    "Setup-DockerDesktop.ps1": "c56dbafcf6124b44b7b2574919c124bc6c1bcc4ed951df9256e6036289ab4d15",
+    "Setup-PodmanDesktop.ps1": "906b81f6240924ff5e8a871dfde7d4fddeff802ab7aa89f568a190136c1709e6",
+    "Setup-Podman.ps1": "eab93c4f52fdd5d818ad65393e179d7e62680806343e610bd1578b275bd5102b",
+    "lifecycle-contract.json": "a34e828c6ba63e3cfabc79a3a88928b7c9ded9b0c594caf08cde01d321de2623",
+    "podman-installers.json": "9cea4d781c20f8f47634b7342280afb9f4228300048ef47f857789c1a95722f6",
+    "windows-installers.json": "532c065bd8982e6a33ca0e3988893373008eb2f232c328518726604565c18900",
+    "VERSION.json": "02304560927661bbe6ea45f95e4e644219cf5f47a9f8961473a8a863cee941cc",
+    "setup-guide.md": "eed241eb0feb23d229b4c500ea61e23c6bb09a64ff31fae14a334420b3bf3eff",
+    "course-contract/compatibility.json": "febf80a4d79c38a62e7544605a137d4af9151a2808cff41ffb463ce67d6fc563",
+    "ai-coding-env-skill.sha256": "c929c42e813d5ed574b28b3a0209920b6cf656d8a1fbd971ec514f80b2cc0631",
+    "ai-coding-project-skill.sha256": "c17e81a7d7c32658e966eacc4ed202972ce6f2aa272526b8af8478a17e09dba3",
+    "ai-coding-cloudbase-skill.sha256": "aad8cb60a504c96264857c60eff1dd83716bb037c476c01907fa5f9b252a92e4",
+    "ai-coding-github-skill.sha256": "528ef3db29b70950bbcc306ff050e8d663a6b0d61f7c7f722c453ff5839a3233",
+    "ai-coding-siliconflow-skill.sha256": "b9175e1584b1080143a4296cfc0322f7e3c65cc59880279599d7da11e8e2b87c",
+    "ai-coding-development-skill.sha256": "12189c31dde7a1e6d453a9ff8e68bb8314d004e0ac4cfbaa59c47839357fb957",
+    "ai-coding-android-skill.sha256": "9deaa916b4e7ea8771a9ea10a291b3ad24dd7f2c54d055a2c0474ea6a18f3dd2"
+  },
+  "contentId": "a6a41e28d0922553621fe18a06860a8a1cc22bb8f5fb88abaf76481312ed71b3"
+}

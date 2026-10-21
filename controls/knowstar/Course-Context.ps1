@@ -15,11 +15,11 @@ function Protect-CourseDirectory([string]$Path) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path $Path -Force)
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User
     $legacyAclApi=[IO.Directory].GetMethods().Name -contains 'GetAccessControl'
-    $acl=if($legacyAclApi){[IO.Directory]::GetAccessControl($Path,[Security.AccessControl.AccessControlSections]::Access)}else{Get-Acl -LiteralPath $Path}
+    $acl=if($legacyAclApi){[IO.Directory]::GetAccessControl($Path,[Security.AccessControl.AccessControlSections]::Access)}else{[IO.FileSystemAclExtensions]::GetAccessControl([IO.DirectoryInfo]::new($Path),[Security.AccessControl.AccessControlSections]::Access)}
     $acl.SetAccessRuleProtection($true,$false)
-    foreach($rule in @($acl.Access)){[void]$acl.RemoveAccessRuleSpecific($rule)}
+    foreach($rule in $acl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])){[void]$acl.RemoveAccessRuleSpecific($rule)}
     $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'))
-    if($legacyAclApi){[IO.Directory]::SetAccessControl($Path,$acl)}else{Set-Acl -LiteralPath $Path -AclObject $acl}
+    if($legacyAclApi){[IO.Directory]::SetAccessControl($Path,$acl)}else{[IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($Path),$acl)}
 }
 function Write-CourseJson([string]$Path,$Value) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path (Split-Path $Path -Parent) -Force)

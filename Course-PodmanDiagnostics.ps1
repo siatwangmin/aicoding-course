@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
 function Get-CoursePodmanApiDiagnostic($MachineInfo,[string]$Cli,[string]$Connection,$ApiResult){
     $machine=[string]$MachineInfo.Name

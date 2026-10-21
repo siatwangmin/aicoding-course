@@ -1,6 +1,6 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[Parameter(Mandatory=$true)][ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$ObservationFile,[string]$Check,[ValidateSet('passed','failed','pending')][string]$Outcome='passed',[ValidateSet('command','tool','browser','learner')][string]$Kind,[string]$Reference)
+param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[Parameter(Mandatory=$true)][ValidateSet('tools','cloudbase','github','summary')][string]$Stage,[string]$ObservationFile,[string]$Check,[ValidateSet('passed','failed','pending')][string]$Outcome='passed',[ValidateSet('command','tool','browser','learner')][string]$Kind,[string]$Reference)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root

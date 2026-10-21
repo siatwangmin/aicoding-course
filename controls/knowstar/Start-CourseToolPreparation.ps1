@@ -113,6 +113,10 @@ try{
     $storageArgs=@('-ContainerRuntime',$ContainerRuntime)
     if($StorageRoot){$storageArgs+=@('-StorageRoot',$StorageRoot)}
     if(-not(Invoke-BackgroundToolStep 'StoragePlan' 'Prepare-CourseStorage.ps1' $storageArgs)){return}
+    $githubArgs=@()
+    if($StorageRoot){$githubArgs+=@('-StorageRoot',$StorageRoot)}
+    if($InstallerDirectory){$githubArgs+=@('-InstallerDirectory',$InstallerDirectory)}
+    if(-not(Invoke-BackgroundToolStep 'GitHubCli' 'Setup-GitHubCli.ps1' $githubArgs)){return}
     $setup=if($ContainerRuntime -eq 'podman'){'Setup-Podman.ps1'}else{'Setup-DockerDesktop.ps1'}
     $setupArgs=@('-Mode','Prepare')
     if($StorageRoot){$setupArgs+=@('-StorageRoot',$StorageRoot)}

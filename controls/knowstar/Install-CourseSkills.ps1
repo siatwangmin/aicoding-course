@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames, [switch]$CaseOnly)
+param([string]$WorkingDirectory, [string]$PackageRoot, [switch]$VerifyOnly, [string]$SkillNames, [switch]$CaseOnly, [ValidateSet('Preparation','Project','User')][string]$Scope='Preparation')
 
 $lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
 if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
@@ -206,7 +206,7 @@ function Find-CoursePackageRoot {
     throw '在当前目录及最近的上级/子目录未找到 setup-guide.md；请定位或解压真实资料包，不使用固定盘符猜测。'
 }
 
-function Install-CourseSkills {
+function Install-LegacyCourseSkills {
     param([string]$Workspace, [string]$Root, [switch]$CaseOnly)
     $Workspace = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     if (-not $Root) { $Root = Find-CoursePackageRoot $Workspace }
@@ -380,6 +380,8 @@ function Install-CourseSkills {
     }
 }
 
+. (Join-Path $PSScriptRoot 'Course-SkillScopes.ps1')
+
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
     [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
@@ -393,5 +395,6 @@ if ($MyInvocation.InvocationName -ne '.') {
         if (-not $verification.UserInstallationVerified) { exit 2 }
         exit 0
     }
-    Install-CourseSkills $WorkingDirectory $PackageRoot -CaseOnly:$CaseOnly
+    $selectedNames = if ($SkillNames) { @($SkillNames.Split(',') | ForEach-Object { $_.Trim() } | Where-Object {$_}) } else { @() }
+    Install-CourseSkills $WorkingDirectory $PackageRoot -CaseOnly:$CaseOnly -Scope $Scope -Names $selectedNames
 }

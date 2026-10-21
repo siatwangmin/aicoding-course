@@ -1,14 +1,14 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$WorkingDirectory,[ValidateSet('Status','Record')][string]$Action='Status',
-      [ValidateSet('tools','cloudbase','github','ai','summary')][string]$Stage,[string]$EvidencePath,[ValidateSet('tools','cloudbase','github','ai','summary')][string[]]$RequiredStages)
+      [ValidateSet('tools','cloudbase','github','summary')][string]$Stage,[string]$EvidencePath,[ValidateSet('tools','cloudbase','github','summary')][string[]]$RequiredStages)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
 . (Join-Path $PSScriptRoot 'Course-Evidence.ps1')
 $root=(Resolve-Path -LiteralPath $WorkingDirectory).Path;Assert-CoursePlainPath $root
 $file=Join-Path $root '.course-setup\preparation-progress.json'
-$canonicalOrder=@('github','ai','cloudbase','tools','summary')
-$skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';ai='ai-coding-siliconflow';summary='ai-coding-env'}
+$canonicalOrder=@('github','cloudbase','tools','summary')
+$skills=@{tools='ai-coding-env';cloudbase='ai-coding-cloudbase';github='ai-coding-github';summary='ai-coding-env'}
 $state=if(Test-Path -LiteralPath $file){Read-CourseJson $file}else{[pscustomobject]@{schemaVersion=2;runId=[guid]::NewGuid().ToString();stages=[pscustomobject]@{}}}
 if($PSBoundParameters.ContainsKey('RequiredStages')){$selected=@('tools')+@($RequiredStages)+@('summary')}elseif($state.requiredStages){$selected=@($state.requiredStages)}else{$selected=@($canonicalOrder)}
 $order=@($canonicalOrder|Where-Object {$selected -contains $_})
@@ -44,15 +44,7 @@ function Test-PreparationStage([string]$Name,$Item){
         }
         return $true
     }
-    if($Name -eq 'ai'){
-        if($e.mode -eq 'account-readiness'){
-            try{$confirmed=[datetime]::Parse($e.learnerConfirmedAt);$validConfirmation=$confirmed -le (Get-Date) -and $confirmed -ge [datetime]::Parse($e.checkedAt).AddHours(-24)}catch{$validConfirmation=$false}
-            return $e.status -eq 'verified' -and $e.checks.identityVerified -eq $true -and $e.checks.billingReviewed -eq $true -and $validConfirmation -and @($e.evidence).Count -gt 0
-        }
-        # Explicitly retained legacy service evidence is not required for new course preparation.
-        return $e.credentials -eq 'passed' -and $e.text.status -eq 'passed' -and $e.vision.status -eq 'passed'
-    }
-    $required=switch($Name){cloudbase{@('identityVerified','managementAccessVerified','pgCapabilityVerified','publicConfigSaved')}github{@('identityVerified','emailVerified')}summary{@('skillsVerified','traeLoadObserved','currentResultsReviewed')}}
+    $required=@(Get-CourseRequiredChecks $Name)
     return $e.status -eq 'verified' -and @($required|Where-Object {$e.checks.$_ -ne $true}).Count -eq 0 -and @($e.evidence).Count -gt 0
 }
 if($Action -eq 'Record'){

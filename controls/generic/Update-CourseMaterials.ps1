@@ -60,7 +60,7 @@ function Invoke-CourseMaterialsUpdate {
     $lock=Enter-CourseUpgradeLock
     try {
         Repair-CourseSkillTransactions
-        if($Mode -eq 'Recover'){return [pscustomobject]@{status='Recovered';environmentChanged=$false}}
+        if($Mode -eq 'Recover'){. (Join-Path $PSScriptRoot 'Course-SkillScopes.ps1');Repair-CourseScopedTransactions $Workspace;return [pscustomobject]@{status='Recovered';environmentChanged=$false}}
         if($Mode -eq 'Rollback'){
             $last=Read-CourseJson (Join-Path $Workspace '.course-setup/last-update.json')
             $journal=Read-CourseJson (Join-Path $last.TransactionRoot 'transaction.json')
@@ -123,6 +123,42 @@ function Invoke-CourseMaterialsUpdate {
         }
         $compatibility=Test-CourseRuntimeCompatibility $Workspace $bundle.compatibility -AllowUnprepared:$AllowUnprepared
         Assert-CourseSharedCompatibility $Workspace $bundle
+        if ($bundle.compatibility.skillScopes) {
+            # A complete execution cache is required even for an independently requested skill.
+            foreach ($property in $bundle.skills.PSObject.Properties) {
+                Receive-CourseVerifiedFile ($entry.baseUrl+'/'+$property.Value.archive) (Join-Path $root $property.Value.archive) $property.Value.sha256
+            }
+            . (Join-Path $root 'Course-SkillScopes.ps1')
+            $targetScope=if(Test-Path -LiteralPath (Join-Path $Workspace '.ai-coding/project.json')){'Project'}else{'Preparation'}
+            $requested=@($Names | Where-Object {$_ -and $_ -notin @('ai-coding-development','ai-coding-siliconflow')})
+            if($targetScope -eq 'Project' -and -not $requested.Count){
+                $ledger=Join-Path $Workspace '.ai-coding/installed-skills.json'
+                $requested=if(Test-Path -LiteralPath $ledger){@((Read-CourseJson $ledger).skills.PSObject.Properties.Name)}else{@()}
+                if(-not $requested.Count){throw 'PROJECT_UPDATE_REQUIRES_EXPLICIT_SCOPED_SKILLS: base project guidance uses Upgrade-Project.'}
+            }
+            $installed=@(Install-CourseScopedSkills -Workspace $Workspace -PackageRoot $root -Scope $targetScope -Names $requested)
+            $allMatched=$targetScope -eq 'Preparation'
+            foreach($name in @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase')){
+                $directory=if($name -eq 'ai-coding-project'){Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name)}else{Join-Path $Workspace ('.trae/skills/'+$name)}
+                if(-not(Test-CourseTree (Get-CourseTreeHashes $directory) $bundle.skills.$name.files)){$allMatched=$false}
+            }
+            if($allMatched){
+                $prior|Add-Member NoteProperty CourseVersion $entry.version -Force
+                $prior|Add-Member NoteProperty PackageRoot $root -Force
+                $prior|Add-Member NoteProperty PackageProfile $Profile -Force
+                $prior|Add-Member NoteProperty SetupGuide (Join-Path $root 'setup-guide.md') -Force
+                $prior|Add-Member NoteProperty ReleaseId $id -Force
+                $prior|Add-Member NoteProperty SkillScope mixed -Force
+                $prior|Add-Member NoteProperty SkillsDirectory (Join-Path $Workspace '.trae/skills') -Force
+                $prior|Add-Member NoteProperty SkillNames @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase') -Force
+                $prior|Add-Member NoteProperty RuntimeContractId $bundle.runtimeContractId -Force
+                Write-CourseJson $priorFile $prior
+            }
+            $pending.status='Applied';Write-CourseJson $pendingFile $pending
+            $result=[pscustomobject]@{status='FilesApplied';version=$entry.version;CourseVersion=$prior.CourseVersion;PackageRoot=$root;SkillNames=@($installed.Name);Changed=@($installed|Where-Object Changed|ForEach-Object Name);Unchanged=@($installed|Where-Object {-not $_.Changed}|ForEach-Object Name);SkillsDirectory=(Join-Path $Workspace '.trae/skills');TransactionRoot=$installed[0].TransactionRoot;environmentChanged=$false;TraeLoadVerified=$false}
+            Write-CourseJson (Join-Path $Workspace '.course-setup/last-update.json') $result
+            return $result
+        }
         if(-not $Names){$Names=@($bundle.skills.PSObject.Properties.Name)}
         $selected=New-Object Collections.Generic.HashSet[string]
         function Add-RequiredSkill([string]$Name){

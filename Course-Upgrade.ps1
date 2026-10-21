@@ -55,14 +55,21 @@ function Assert-CourseBundle([string]$Root) {
     }
     return $bundle
 }
-function Test-CourseInstalledCompatibility($Bundle) {
+function Test-CourseInstalledCompatibility($Bundle,[string]$Workspace) {
     $file=Join-Path (Get-CourseUserRoot) 'installed-skills.json'
     if(-not(Test-Path -LiteralPath $file)){return $false}
     $installed=Read-CourseJson $file
     $skills=Join-Path $env:USERPROFILE '.trae-cn/skills'
-    foreach($item in $Bundle.skills.PSObject.Properties){
+    $required = if ($Bundle.compatibility.skillScopes) { @($Bundle.skills.PSObject.Properties | Where-Object Name -eq 'ai-coding-project') } else { @($Bundle.skills.PSObject.Properties) }
+    foreach($item in $required){
         $actual=$installed.skills.($item.Name)
         if(-not $actual -or $actual.runtimeContractId -cne $Bundle.runtimeContractId -or $actual.materialsProtocol -ne $Bundle.materialsProtocol -or -not(Test-CourseTree (Get-CourseTreeHashes (Join-Path $skills $item.Name)) $actual.files)){return $false}
+    }
+    if($Bundle.compatibility.skillScopes){
+        if(-not $Workspace){return $false}
+        foreach($name in @('ai-coding-env','ai-coding-github','ai-coding-cloudbase')){
+            if((Test-Path -LiteralPath (Join-Path $skills $name)) -or -not(Test-CourseTree (Get-CourseTreeHashes (Join-Path $Workspace ('.trae/skills/'+$name))) $Bundle.skills.$name.files)){return $false}
+        }
     }
     return $true
 }
@@ -110,6 +117,7 @@ function Test-CourseRuntimeCompatibility([string]$Workspace,$Compatibility,[swit
     return [pscustomobject]@{status='Compatible';runtime=$runtime;source=$record;verifiedAt=$report.VerifiedAt;runtimeReverified=$false}
 }
 function Assert-CourseSharedCompatibility([string]$Workspace,$Bundle) {
+    if ($Bundle.compatibility.skillScopes) { return }
     # Only explicitly registered preparations/projects; never enumerate HOME for projects/secrets.
     $catalog=Join-Path (Get-CourseUserRoot) 'lifecycle/catalog.json'
     if(-not(Test-Path -LiteralPath $catalog)){return}
@@ -160,6 +168,7 @@ function Get-CourseLegacySkillFiles([string]$Workspace,[string]$Name) {
     return $null
 }
 function Restore-CourseSkillTransaction($Journal) {
+    if ($Journal.schemaVersion -eq 2 -and $Journal.scope) { . (Join-Path $PSScriptRoot 'Course-SkillScopes.ps1'); Restore-CourseScopedTransaction $Journal; return }
     if([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($Journal.root)) -ine (Get-CourseUpgradeRoot) -or (Split-Path $Journal.root -Leaf) -cnotmatch '^[a-f0-9]{32}$' -or $Journal.stage -cne (Join-Path $Journal.root 'stage') -or $Journal.backup -cne (Join-Path $Journal.root 'backup')){throw 'INVALID_UPGRADE_JOURNAL'}
     $skills=Join-Path $env:USERPROFILE '.trae-cn/skills'
     foreach($item in @($Journal.items)){

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 [CmdletBinding()]
 param([string]$ProjectDirectory,[string]$PreparationDirectory)
 $ErrorActionPreference='Stop'
@@ -11,7 +11,7 @@ try{
         $prepared=Find-CourseProjectPreparation $root $PreparationDirectory
         $ctx=Get-CourseProjectRuntime $root
         $result.checks=@{preparationId=$prepared.record.preparationId;runtime=$ctx.Project.containerRuntime;connection=$ctx.Project.connection;imageId=$ctx.ImageId;sourceDirectory=$ctx.Project.sourceDirectory;port=$ctx.Project.port;provider=$ctx.Project.compose.provider}
-        $result.nextSkill='ai-coding-development'
+        $result.nextSkill=$null
     }else{
         $prepared=Find-CoursePreparation $PreparationDirectory;$root=$prepared.workspace
         $p=$prepared.record

@@ -1,0 +1,21 @@
+{
+  "wsl": {
+    "file": "wsl.3.0.1.0.x64.msi",
+    "sha256": "28b1a0d013640a2ac95898ea705fa186e5b4ff767a1c1b49257161bc106599c6",
+    "downloadUrl": "https://gitcode.com/oh_my_love/ai_practice/releases/download/1.0.0/wsl.3.0.1.0.x64.msi",
+    "publisher": "Microsoft Corporation",
+    "fallbackUrls": [
+      "https://ghfast.top/https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi",
+      "https://gh-proxy.com/https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi",
+      "https://downloads.sourceforge.net/project/wsl.mirror/3.0.1/wsl.3.0.1.0.x64.msi",
+      "https://github.com/microsoft/WSL/releases/download/3.0.1/wsl.3.0.1.0.x64.msi"
+    ]
+  },
+  "docker": {
+    "file": "Docker Desktop Installer.exe",
+    "sha256": "9500d88dff50ccb0ae36004f0599a0274da1211c138fb2e30dc9d335bb9df313",
+    "downloadUrl": "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
+    "publisher": "Docker Inc",
+    "allowPublisherSignedUpdate": true
+  }
+}

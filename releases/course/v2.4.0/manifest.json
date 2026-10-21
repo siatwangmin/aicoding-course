@@ -1,0 +1,30 @@
+{
+  "version": "2.4.0",
+  "date": "2026-10-21",
+  "gitTag": "course-v2.4.0",
+  "files": {
+    "aicoding-student-kit.zip": "6d6594a85b51441f4ba2396f7d3bcaa9a2291b27136fc7ea39d8faf95aa030b5",
+    "knowstar-course-skill.zip": "c438a4493ec9ca549747fa820e89cf844a33192652334f383e223b807237a9c8",
+    "ai-coding-toolkit.zip": "3c4d8b33d42369f81718bf0fed455859144a5cdf778263b1477286c5bc863cef",
+    "knowstar-environment-kit.zip": "3c4d8b33d42369f81718bf0fed455859144a5cdf778263b1477286c5bc863cef",
+    "knowstar-env-skill.zip": "2f0a3604406a086b9cb8267e9c9e932c2a9a8df85ba471b237c56243e59fc750",
+    "ai-coding-env-skill.zip": "2f0a3604406a086b9cb8267e9c9e932c2a9a8df85ba471b237c56243e59fc750",
+    "ai-coding-project-skill.zip": "47d0269cfaee0be836cadd5693b9424eb90e5186d08a44e2f779c00a12eae098",
+    "ai-coding-cloudbase-skill.zip": "947055edb1c9b4ec1cb875836f4ad122661abb3a5f309ec9ae4c94f9419f7064",
+    "ai-coding-github-skill.zip": "280176a5bcb1cd6e2818451dae93f211fa1b3c188bbbb1d44efb012edf603abe",
+    "ai-coding-android-skill.zip": "c18aa07b64e2820594cd94f3a00f97aa1ad49b8d66c82c07dcadfaf7d3408391",
+    "aicoding-student-kit.sha256": "5b90efbefa199f1d5ee3783ad84a1b6442e5b4342842103fc5afab7dac370fd7",
+    "knowstar-course-skill.sha256": "1e003777a094513e06bb380e96097fd30eaa657e1ca21b1bfe08c44d59ef2e22",
+    "ai-coding-toolkit.sha256": "69ca3fcefedcbc445e5c787ec57bdde78a372d38d3eb3c6cf35fcf39b673f71e",
+    "knowstar-environment-kit.sha256": "d7a658eb16ee687b1b0d41523a959ba485ddbb0ac0d5d8adf4b0838d6494089a",
+    "knowstar-env-skill.sha256": "a7d6f7404fabac39722e4ce3e9dfbbc4837dc8d2d23f2f2e206c2f991b7ab53c",
+    "ai-coding-env-skill.sha256": "c4d43a105309fbc7099e2cb6b7b6d150fc239d83d74a9dd1fdb30f0c2dcea29b",
+    "ai-coding-project-skill.sha256": "f4ca07febd1828db3474ef55a974a92e20d93b99eb40ac98ef886a8f022d4ba9",
+    "ai-coding-cloudbase-skill.sha256": "bb11650900eff70b4be468fb0c68ae8d96d09749d76f294b31803a324d5f5b12",
+    "ai-coding-github-skill.sha256": "7eaeaff9bc37ff808aed4030a659801fa697006736d3e20c39a7599dec802e73",
+    "ai-coding-android-skill.sha256": "56c72e742a915a2e6bb54b844d586bd5993bee3c93fc5244a279a541d8350519",
+    "VERSION.json": "f33f6c34e766b8a947388ab55516882f324c4b089657e6f524e20f71938d45b9",
+    "CHANGELOG.md": "ab4071af376b7bebee50b69266b1ea42b670e57eb289841a0579c0cf69675784",
+    "website-manifest.json": "ed0d05dac06407cb8c2757fcc677fef922d69f1ddd2a1ba487b5f766bb3e8aa3"
+  }
+}

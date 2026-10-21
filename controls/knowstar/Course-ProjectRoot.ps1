@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 . (Join-Path $PSScriptRoot 'Course-Context.ps1')
 function Resolve-CourseProjectRoot([string]$Directory) {
     $inputPath=(Resolve-Path -LiteralPath $Directory -ErrorAction Stop).Path

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "version": "2.102.1",
+  "file": "gh_2.102.1_windows_amd64.zip",
+  "sha256": "843c0dc119f014d9458aeaff96c44c16fc4b8e556c1c4c5df9bab5ba002356e9",
+  "executableSha256": "fb0ea6c59d71d71d06a15a94a8fb5b8c5a80e92036f35b19843d4790e57d89c4",
+  "source": "https://api.github.com/repos/cli/cli/releases/tags/v2.102.1",
+  "checksumsUrl": "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_checksums.txt",
+  "downloadUrls": [
+    "https://ghfast.top/https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_windows_amd64.zip",
+    "https://gh-proxy.com/https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_windows_amd64.zip",
+    "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_windows_amd64.zip"
+  ]
+}
