@@ -31,7 +31,8 @@ function Get-CourseGitHubCliManifest {
     if($entry.version -cnotmatch '^\d+\.\d+\.\d+$' -or $entry.file -cne ('gh_'+$entry.version+'_windows_amd64.zip') -or $entry.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $entry.executableSha256 -cnotmatch '^[a-f0-9]{64}$'){throw 'INVALID_GITHUB_CLI_MANIFEST'}
     $origin='https://github.com/cli/cli/releases/download/v'+$entry.version+'/'+$entry.file
     # Third-party accelerators transport only the public archive; never credentials/API traffic.
-    $expected=@(('https://ghfast.top/'+$origin),('https://gh-proxy.com/'+$origin),$origin)
+    $gitCode='https://gitcode.com/oh_my_love/ai_practice/releases/download/1.0.0/'+$entry.file
+    $expected=@($gitCode,('https://ghfast.top/'+$origin),('https://gh-proxy.com/'+$origin),$origin)
     if((@($entry.downloadUrls) -join "`n") -cne ($expected -join "`n")){throw 'UNAPPROVED_GITHUB_CLI_DOWNLOAD_SOURCE'}
     return $entry
 }

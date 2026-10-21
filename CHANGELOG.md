@@ -2,6 +2,13 @@
 
 版本号用于识别整套手册与助手资料。旧版资料保留，最新入口持续更新。
 
+## v2.4.2 · 2026-10-21
+
+GitHub CLI 默认使用 GitCode 下载源
+
+- GitHub CLI 固定安装包默认从 GitCode 下载，失败后保留 GHFast、gh-proxy.com 与官方 GitHub 回退。
+- GitCode 包已实际下载并匹配原固定 SHA-256；程序版本、摘要校验与已有安装复用方式保持不变。
+
 ## v2.4.1 · 2026-10-21
 
 统一准备 GitHub CLI
