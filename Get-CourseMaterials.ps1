@@ -258,6 +258,15 @@ function Get-CourseMaterials {
         try {
             Set-Location -LiteralPath $workspacePath
             if(Test-Path -LiteralPath (Join-Path $courseRoot 'Course-Docker.ps1')){. (Join-Path $courseRoot 'Course-Docker.ps1')}else{. (Join-Path $courseRoot 'Setup-DockerDesktop.ps1')}
+            $nodeLibrary=Join-Path $courseRoot 'Course-NodeJs.ps1'
+            if(Test-Path -LiteralPath $nodeLibrary){
+                . (Join-Path $courseRoot 'Course-Lifecycle.ps1')
+                . $nodeLibrary
+                if(-not(Resolve-CourseNodeJs -AllowMissing)){
+                    $nodeRoot=Resolve-CourseStorageRoot $workspacePath $Runtime
+                    $installerFiles+=Save-CourseNodeJsArchive $workspacePath (Get-CourseStoragePlan $nodeRoot 0) (Get-CourseNodeJsManifest)
+                }
+            }
             $manifest = Join-Path $courseRoot 'windows-installers.json'
             if ($Runtime -eq 'podman') {
                 $envSkill=@($installedSkills | Where-Object Name -eq 'ai-coding-env')[0].Destination

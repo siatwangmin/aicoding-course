@@ -97,6 +97,10 @@ function New-CourseUninstallPlan {
             elseif($resource.ownership -in @('unknown','adopted')){$action='blocked';$reason='ownership-unverified'}
             elseif($resource.ownership -eq 'reused'){$action='retain';$reason='pre-existing'}
             elseif($resource.dataClass -in @('source','businessData','signature')){$action='retain';$reason='protected-work'}
+            # Removing preparation A does not uninstall shared user capabilities.
+            if($resource.kind -eq 'skill' -and (Test-CoursePathWithin (Join-Path $env:USERPROFILE '.trae-cn/skills') $resource.locator)){$action='retain';$reason='shared-user-skill'}
+            $keptProjects=@($install.projects|Where-Object {$_.projectId -notin $ProjectIds})
+            if($keptProjects.Count -and $resource.kind -eq 'directory' -and (Test-Path -LiteralPath (Join-Path $resource.locator 'execution-manifest.json'))){$action='retain';$reason='runtime-for-retained-projects'}
             if($action -eq 'remove' -and $resource.backupPath){$action='restorePrevious'}
             if($action -eq 'remove' -and $resource.kind -eq 'managedBlock'){$action='removeManagedBlock'}
             if($action -eq 'remove' -and $resource.kind -eq 'machine' -and $resource.locator -notin $RemoveMachineNames){$action='retain';$reason='machine-not-selected'}

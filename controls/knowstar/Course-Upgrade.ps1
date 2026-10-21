@@ -60,14 +60,14 @@ function Test-CourseInstalledCompatibility($Bundle,[string]$Workspace) {
     if(-not(Test-Path -LiteralPath $file)){return $false}
     $installed=Read-CourseJson $file
     $skills=Join-Path $env:USERPROFILE '.trae-cn/skills'
-    $required = if ($Bundle.compatibility.skillScopes) { @($Bundle.skills.PSObject.Properties | Where-Object Name -eq 'ai-coding-project') } else { @($Bundle.skills.PSObject.Properties) }
+    $required = if ($Bundle.compatibility.skillScopes) { @($Bundle.skills.PSObject.Properties | Where-Object {$Bundle.compatibility.skillScopes.user -contains $_.Name}) } else { @($Bundle.skills.PSObject.Properties) }
     foreach($item in $required){
         $actual=$installed.skills.($item.Name)
         if(-not $actual -or $actual.runtimeContractId -cne $Bundle.runtimeContractId -or $actual.materialsProtocol -ne $Bundle.materialsProtocol -or -not(Test-CourseTree (Get-CourseTreeHashes (Join-Path $skills $item.Name)) $actual.files)){return $false}
     }
     if($Bundle.compatibility.skillScopes){
         if(-not $Workspace){return $false}
-        foreach($name in @('ai-coding-env','ai-coding-github','ai-coding-cloudbase')){
+        foreach($name in @($Bundle.compatibility.skillScopes.preparation)){
             if((Test-Path -LiteralPath (Join-Path $skills $name)) -or -not(Test-CourseTree (Get-CourseTreeHashes (Join-Path $Workspace ('.trae/skills/'+$name))) $Bundle.skills.$name.files)){return $false}
         }
     }

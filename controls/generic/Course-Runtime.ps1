@@ -4,6 +4,7 @@
 . (Join-Path $PSScriptRoot 'Course-Docker.ps1')
 $lifecycle=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
 if(Test-Path -LiteralPath $lifecycle){. $lifecycle}
+. (Join-Path $PSScriptRoot 'Course-Ports.ps1')
 function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     if($Actual -match '^/(?:run/desktop/mnt/host|mnt|host_mnt)/([a-zA-Z])/(.*)$'){
         $Actual=$Matches[1]+':\'+($Matches[2] -replace '/','\')
@@ -68,7 +69,8 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
         Set-Location -LiteralPath $Root
         $configured=Invoke-SetupNative $cli ($prefix+@('compose','config','--format','json')) 30 $Root
         if($configured.ExitCode -ne 0){throw 'COMPOSE_CONFIG_UNAVAILABLE'}
-        $app=(ConvertFrom-CourseComposeJson $(if($configured.Stdout){$configured.Stdout}else{$configured.Output})).services.app
+        $composeConfig=ConvertFrom-CourseComposeJson $(if($configured.Stdout){$configured.Stdout}else{$configured.Output})
+        $app=$composeConfig.services.app
         if($app.image -ne $p.image -or $app.build){throw 'COMPOSE_IMAGE_MISMATCH'}
         $source=[IO.Path]::GetFullPath((Join-Path $Root $p.sourceDirectory));Assert-CoursePlainPath $source
         if($source -ne $Root -and -not $source.StartsWith($Root.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'SOURCE_ESCAPES_PROJECT'}
@@ -86,11 +88,12 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
             $networks=Invoke-SetupNative $cli ($prefix+@('network','ls','--format','{{.Name}}')) 20
             if($all.ExitCode -ne 0 -or $volumes.ExitCode -ne 0 -or $networks.ExitCode -ne 0){throw 'RUNTIME_OWNERSHIP_SNAPSHOT_FAILED'}
             $lifecycleBeforeContainers=@($all.Output -split '\r?\n');$lifecycleBeforeVolumes=@($volumes.Output -split '\r?\n');$lifecycleBeforeNetworks=@($networks.Output -split '\r?\n')
-            $lifecycleRuntimeIntent=Start-CourseCreationIntent $p.installationId runtimeGroup $Root $true
+            $lifecycleRuntimeIntent=Assert-CourseCreationIntentOutput @(Start-CourseCreationIntent $p.installationId runtimeGroup $Root $true) 'Course-Runtime'
         }
+        $portStart=$null
         if($Start){
-            $up=Invoke-SetupNative $cli ($prefix+@('compose','up','-d','--pull','never','--no-build','--wait','--wait-timeout','90','app')) 180 $Root
-            if($up.ExitCode -ne 0){throw 'PROJECT_CONTAINER_START_FAILED'}
+            $portStart=Start-CourseProjectApp $Root $cli $prefix $actual.Id $source $composeConfig.name
+            $p=Read-CourseJson (Join-Path $Root '.ai-coding/project.json')
         }
         if($p.containerRuntime -in @('docker','podman')){
             $ids=Invoke-SetupNative $cli ($prefix+@('compose','ps','-q','app')) 20 $Root
@@ -104,6 +107,14 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
             if(($container.Image -replace '^sha256:','') -ne ($actual.Id -replace '^sha256:','')){throw 'RUNNING_CONTAINER_IMAGE_MISMATCH'}
             if(-not @($container.Mounts|Where-Object {$_.Destination -eq '/workspace' -and $_.Type -eq 'bind' -and (Test-CourseSourceMount $_.Source $source)}).Count -or
                -not @($container.Mounts|Where-Object {$_.Destination -eq '/workspace/node_modules' -and $_.Type -eq 'volume'}).Count){throw 'ACTUAL_CONTAINER_MOUNT_MISMATCH'}
+            if($container.Config.Labels.'com.docker.compose.project' -ne $composeConfig.name){throw 'ACTUAL_CONTAINER_PROJECT_MISMATCH'}
+            $actualPort=Get-CourseActualHostPort $container
+            if($actualPort -ne $p.port -or $actualPort -ne (Get-CourseEnvironmentPort $Root)){throw 'ACTUAL_CONTAINER_PORT_BINDING_MISMATCH'}
+            $verifiedUrl='http://127.0.0.1:'+$actualPort+'/'
+            if(-not $Start){
+                $response=Invoke-WebRequest -UseBasicParsing -Uri $verifiedUrl -TimeoutSec 15
+                if($response.StatusCode -ne 200){throw 'HOST_PROJECT_HTTP_UNAVAILABLE'}
+            }
             if($Start){
                 $probeDir=Join-Path $source '.local';Assert-CoursePlainPath $probeDir
                 [void](New-Item -ItemType Directory -Path $probeDir -Force)
@@ -115,13 +126,15 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
                     $roundtrip=Invoke-SetupNative $cli ($prefix+@('compose','exec','-T','app','node','-e',$code,$probeName,$probeValue)) 20 $Root
                     if($roundtrip.ExitCode -ne 0 -or -not(Test-Path -LiteralPath ($probeFile+'.back')) -or [IO.File]::ReadAllText($probeFile+'.back') -ne $probeValue){throw 'SOURCE_MOUNT_ROUNDTRIP_FAILED'}
                     if($p.port -lt 1024 -or $p.port -gt 65535){throw 'INVALID_PROJECT_PORT'}
-                    $response=Invoke-WebRequest -UseBasicParsing -Uri ('http://127.0.0.1:'+$p.port+'/') -TimeoutSec 15
+                    $response=Invoke-WebRequest -UseBasicParsing -Uri $verifiedUrl -TimeoutSec 15
                     if($response.StatusCode -ne 200){throw 'HOST_PROJECT_HTTP_UNAVAILABLE'}
                 }finally{
                     foreach($file in @($probeFile,($probeFile+'.back'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file -Force}}
                 }
             }
-            Write-CourseJson (Join-Path $Root '.ai-coding\runtime-check.json') @{schemaVersion=2;runtime=$p.containerRuntime;connection=$p.connection;compose=$composeBinding;containerId=$containerIds[0];imageId=$actual.Id;actualMountsVerified=$true;mountRoundtripAndHostHttp=$(if($Start){'verified'}else{'not-checked'});checkedAt=(Get-Date).ToString('o')}
+            Write-CourseJson (Join-Path $Root '.ai-coding\runtime-check.json') @{schemaVersion=2;runtime=$p.containerRuntime;connection=$p.connection;compose=$composeBinding;containerId=$containerIds[0];imageId=$actual.Id;hostPort=$actualPort;url=$verifiedUrl;portStart=$portStart;actualMountsVerified=$true;mountRoundtripAndHostHttp=$(if($Start){'verified'}else{'not-checked'});checkedAt=(Get-Date).ToString('o')}
+            $transition=Join-Path $Root '.ai-coding/port-transition.json'
+            if($Start -and (Test-Path -LiteralPath $transition)){Remove-Item -LiteralPath $transition}
             if($lifecycleInstallation -and $Start){
                 . (Join-Path $PSScriptRoot 'Course-UninstallAdapters.ps1')
                 $projectId=Get-CourseLifecycleHash $Root.ToLowerInvariant()
@@ -152,6 +165,6 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
         $dependencyState|Add-Member -MemberType NoteProperty -Name checkedAt -Value (Get-Date).ToString('o') -Force
         Write-CourseJson (Join-Path $Root '.ai-coding\dependencies.json') $dependencyState
     }finally{Set-Location -LiteralPath $prior}
-    return [pscustomobject]@{Root=$Root;Source=$source;Project=$p;Cli=$cli;Prefix=$prefix;ImageId=$actual.Id;CheckedAt=(Get-Date).ToString('o')}
+    return [pscustomobject]@{Root=$Root;Source=$source;Project=$p;Cli=$cli;Prefix=$prefix;ImageId=$actual.Id;Url=$verifiedUrl;ContainerId=$containerIds[0];CheckedAt=(Get-Date).ToString('o')}
     }finally{if($lifecycleLease){Exit-CourseOperation $lifecycleLease}}
 }

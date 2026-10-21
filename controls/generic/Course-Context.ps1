@@ -38,6 +38,13 @@ function Protect-CourseOutput([string]$Text) {
     $value=[regex]::Replace($value,'(?im)(["'']?(?:[a-z0-9_]*(?:api_?key|access_?key|secret|password|authorization|token)[a-z0-9_]*)["'']?\s*[:=]\s*)[^\r\n,}]+','$1[REDACTED]')
     return $value
 }
+function Get-CourseErrorDiagnostic($Record,[string]$Phase,[string]$ExecutionRoot){
+    $identityFile=Join-Path $ExecutionRoot 'execution-manifest.json'
+    $identity=if(Test-Path -LiteralPath $identityFile){Read-CourseJson $identityFile}else{$null}
+    $versionFile=Join-Path $ExecutionRoot 'packages/VERSION.json'
+    $version=if(Test-Path -LiteralPath $versionFile){(Read-CourseJson $versionFile).version}else{$null}
+    return @{schemaVersion=1;phase=$Phase;message=(Protect-CourseOutput $Record.Exception.Message);function=$Record.InvocationInfo.MyCommand.Name;parameterNames=@($Record.InvocationInfo.BoundParameters.Keys);script=$Record.InvocationInfo.ScriptName;line=$Record.InvocationInfo.ScriptLineNumber;stack=(Protect-CourseOutput $Record.ScriptStackTrace);executionId=$identity.contentId;version=$version;powerShell=$PSVersionTable.PSVersion.ToString();at=(Get-Date).ToUniversalTime().ToString('o')}
+}
 function Write-CourseEvent([string]$Root,[hashtable]$Value) {
     # Fixed allowlist: never record command arguments, credentials, env, or arbitrary errors.
     $event=[ordered]@{recordedAt=(Get-Date).ToUniversalTime().ToString('o')}

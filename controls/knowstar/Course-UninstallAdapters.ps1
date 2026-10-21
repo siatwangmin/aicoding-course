@@ -129,10 +129,18 @@ function Get-CourseResourceCheck($Resource,[string]$Action) {
         return [pscustomobject]@{status='blocked';reason=$code}
     }
 }
+function Remove-CourseNodeJsPathEntry($Resource) {
+    if($Resource.kind -ne 'tool' -or $Resource.metadata.productName -ne 'Node.js' -or $Resource.metadata.pathEntryOwned -ne $true){return}
+    Assert-CourseDeleteBoundary $Resource
+    $current=[Environment]::GetEnvironmentVariable('Path','User')
+    $parts=@($current -split ';'|Where-Object {$_.TrimEnd('\') -ine $Resource.locator.TrimEnd('\')})
+    [Environment]::SetEnvironmentVariable('Path',($parts -join ';'),'User')
+}
 function Invoke-CourseResourceRemoval($Resource,[string]$Action) {
     $check=Get-CourseResourceCheck $Resource $Action
     if($check.status -eq 'blocked'){throw $check.reason}
     if($check.status -eq 'absent' -and $Action -ne 'restorePrevious'){
+        Remove-CourseNodeJsPathEntry $Resource
         if($Resource.kind -eq 'machine' -and $Resource.metadata.dataHomeOwned -eq $true){Remove-CourseEmptyCacheDirectories $Resource.metadata.dataHome $Resource.metadata.dataHomeParent}
         return
     }
@@ -147,6 +155,7 @@ function Invoke-CourseResourceRemoval($Resource,[string]$Action) {
         }else{$null=Invoke-CourseEngine $Resource.metadata @($Resource.kind,'rm',$Resource.locator)}
         return
     }
+    Remove-CourseNodeJsPathEntry $Resource
     if($Resource.kind -eq 'tool' -and $Resource.metadata.installer -eq 'msi'){
         $null=Get-CourseMsiRegistration $Resource
         $r=Invoke-SetupNative (Join-Path $env:SystemRoot 'System32\msiexec.exe') @('/x',$Resource.metadata.productCode,'/passive','/norestart') 600

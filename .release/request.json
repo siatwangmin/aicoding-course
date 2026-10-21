@@ -1,10 +1,14 @@
 {
   "schemaVersion": 1,
-  "version": "2.4.2",
-  "publicationSha256": "222480b4d8fcd4ec9e3242ee69dc088bbc663250f71c76c152adfb93ee1b1d7b",
+  "version": "2.5.0",
+  "publicationSha256": "33ce849f78e7a3abad492a9ae42262d3a3fd2e698ce9af592fb1842d70993ff3",
   "source": {
-    "kind": "existing-fixed-release",
-    "publicationCommit": "f5efffec298f3d563e38d00c3799e3d90b06d0f9"
+    "kind": "local-git-snapshot",
+    "commit": "332abf5a11006cfb1d254c722d0431c1cc13acd5",
+    "tree": "1aecb89dbae698f375e8c2f9b2f9922c40b28e19",
+    "ref": "refs/environment-releases/revisions/v2.5.0/1aecb89dbae698f375e8c2f9b2f9922c40b28e19",
+    "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3",
+    "priorSnapshot": "d133fee50d34655223e75924bcb61502e2da125f"
   },
-  "notes": "正式发布 v2.4.2，并补齐 GitHub Release 分发入口。\n\n- GitHub CLI 2.102.1 首选 GitCode 下载，失败依次回退 GHFast、gh-proxy、GitHub；固定 SHA-256 校验保持不变。\n- 用户级仅安装项目初始化技能；准备目录与作品目录按需安装各自技能，公共执行包承载工具与延后启用的能力。\n- 稳定环境准备说明恢复明确下载命令及版本核验。旧目录先取得经固定清单校验的新版更新器，再检查兼容性并升级，保留已有工具、存储、账号绑定及作品。\n- 标签、Release 附件和 GitHub Latest 与网站正式版本统一为 v2.4.2。\n\n本 Release 附件使用已经上线的 v2.4.2 固定版本文件，逐项验证 SHA-256；历史发布文件不改写。稳定准备说明可独立修复，使用同一固定版本执行包。\n\n[环境准备说明](https://siatwangmin.github.io/aicoding-course/setup-guide.md) · [操作入口](https://siatwangmin.github.io/aicoding-course/preparation.html) · [v2.4.2 固定版本清单](https://siatwangmin.github.io/aicoding-course/releases/course/v2.4.2/release-manifest.json)\n"
+  "notes": "## v2.5.0 · 2026-10-21\n\n用户级平台技能与标准 app 初始化\n\n- project、GitHub、CloudBase、Android 统一用户级可用，env 仅在准备目录；已登记旧副本按摘要迁移并保留自定义冲突。\n- 标准 app 固定复制，完整文件冲突预检、排他创建与复制事务保护已有材料；新建、恢复、验证、升级和连接分开。\n- 默认端口 5187，端口占用时自动恢复并输出核验后的实际网址；容器内部端口固定，项目编译继续使用原准备镜像。\n- 修复生命周期返回值契约与 PowerShell 7 时间身份比较；卸载准备目录时保留用户级技能及保留作品依赖。\n"
 }

@@ -7,7 +7,7 @@
 在 know-star-gpt 根目录运行（版本按本次实际目标替换）：
 
 ```powershell
-# 先在 course/release-history.json、course/flow.json 完成本次版本和修改。
+# 先完成完整更新记录、准备更新记录、流程版本和内部检查计划版本。
 .\docs\teaching\teacher\Publish-Environment.ps1 -Version 2.4.3
 
 # 只触发远端任务，返回后可以关闭窗口。
@@ -26,6 +26,8 @@
 发布仓库默认使用维护仓库相邻的 `aicoding-course`；需要时传 `-SitePath`。本地需要 Git、Python 3.13（py 启动器）和可复用的 GitHub 授权。脚本优先使用当前进程 GH_TOKEN/GITHUB_TOKEN，否则复用官方 Git 凭证管理器；不把令牌放入命令行、文件或报告。
 
 本地构建完成后才触发服务器；远端任务触发后不依赖聊天窗口或本机持续在线。尚未触发就中断时，用 -Resume 接续本地阶段。-NoWait 或运行中的 -Status 明确显示“尚未完成”，不作为发布成功。失败命令返回非零退出码。
+
+新版本预检会一次列出以下四处版本不一致项：`course/release-history.json`、`course/preparation-history.json`、`course/flow.json`、`knowstar-course-skill/implementation/agent-step-checks.json`。须先填写真实更新内容及检查计划；入口不通过自动改版本号掩盖缺少的更新记录或验收内容。
 
 ## 固定执行顺序
 

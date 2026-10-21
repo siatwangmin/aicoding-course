@@ -23,6 +23,15 @@ function Test-PreparationStage([string]$Name,$Item){
     try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
     if($age -lt 0 -or $age -gt 24){return $false}
     if($Name -eq 'tools'){
+        $nodePath=Join-Path $root '.course-setup\nodejs.json'
+        if(-not(Test-Path -LiteralPath $nodePath)){return $false}
+        $hostNode=Read-CourseJson $nodePath
+        try{
+            $nodeAge=((Get-Date)-[datetime]::Parse($hostNode.checkedAt)).TotalHours
+            if($hostNode.status -ne 'verified' -or $nodeAge -lt 0 -or $nodeAge -gt 24 -or $hostNode.node -notmatch '^v(22|24)\.\d+\.\d+$' -or -not $hostNode.npm -or -not $hostNode.npx -or $hostNode.registry -ne 'https://registry.npmmirror.com/' -or -not(Test-Path -LiteralPath $hostNode.path)){return $false}
+            Assert-CoursePlainPath $hostNode.path
+            if((Get-FileHash -LiteralPath $hostNode.path).Hash.ToLowerInvariant() -cne $hostNode.sha256){return $false}
+        }catch{return $false}
         $backgroundPath=Join-Path $root '.course-setup\tools-background.json'
         if(Test-Path -LiteralPath $backgroundPath){
             $toolStatus=& (Join-Path $PSScriptRoot 'Start-CourseToolPreparation.ps1') -WorkingDirectory $root -Action Status|ConvertFrom-Json

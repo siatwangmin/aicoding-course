@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "baselineVersion": "2.4.0",
+  "baselineVersion": "2.5.0",
   "defaultRuntime": "podman",
   "defaultStorageRoot": "D:\\ENV",
   "storagePolicy": {
@@ -33,8 +33,7 @@
       "archive": "ai-coding-cloudbase-skill.zip",
       "kind": "generic",
       "scopes": [
-        "Preparation",
-        "Project"
+        "User"
       ]
     },
     {
@@ -43,8 +42,7 @@
       "archive": "ai-coding-github-skill.zip",
       "kind": "generic",
       "scopes": [
-        "Preparation",
-        "Project"
+        "User"
       ]
     },
     {
@@ -53,7 +51,7 @@
       "archive": "ai-coding-android-skill.zip",
       "kind": "generic",
       "scopes": [
-        "Project"
+        "User"
       ]
     },
     {
@@ -68,22 +66,22 @@
   ],
   "skillScopes": {
     "user": [
-      "ai-coding-project"
-    ],
-    "preparation": [
-      "ai-coding-env",
-      "ai-coding-github",
-      "ai-coding-cloudbase"
-    ],
-    "project": [
+      "ai-coding-project",
       "ai-coding-github",
       "ai-coding-cloudbase",
-      "ai-coding-android",
+      "ai-coding-android"
+    ],
+    "preparation": [
+      "ai-coding-env"
+    ],
+    "project": [
       "knowstar-course"
     ]
   },
   "retiredSkills": [
     "ai-coding-development",
     "ai-coding-siliconflow"
-  ]
+  ],
+  "scopePolicy": "user-platform-skills-v1",
+  "minimumScopeInstallerProtocol": 3
 }

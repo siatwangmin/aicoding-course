@@ -97,7 +97,7 @@ function Invoke-CourseProjectAction {
         $record.finishedAt=(Get-Date).ToUniversalTime().ToString('o');$record.durationMs=$timer.ElapsedMilliseconds;Write-CourseJson $recordPath $record
         Write-CourseEvent $resolvedRoot @{operationId=$record.operationId;stage='project-command';action=$Operation;status=$record.status;startedAt=$started;finishedAt=$record.finishedAt;durationMs=$record.durationMs;runtime=$record.containerRuntime;imageId=$record.imageId;inputFingerprint=$record.inputFingerprint;evidence='.ai-coding/command.json'}
     }
-    return [pscustomobject]@{status=$record.status;projectDirectory=$ctx.Root;action=$Operation;url=('http://127.0.0.1:'+$ctx.Project.port);evidence=$recordPath}
+    return [pscustomobject]@{status=$record.status;projectDirectory=$ctx.Root;action=$Operation;url=$ctx.Url;port=$ctx.Project.port;evidence=$recordPath}
 }
 if($MyInvocation.InvocationName -ne '.'){
     Invoke-CourseProjectAction $ProjectDirectory $Action $Script $Packages $ScriptArguments ([bool]$DevDependency) $TimeoutSeconds ([bool]$ReuseBuild)|ConvertTo-Json

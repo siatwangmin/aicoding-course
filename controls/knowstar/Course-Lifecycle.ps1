@@ -8,6 +8,24 @@ function Get-CourseLifecycleHash([string]$Value) {
 }
 function Get-CourseLifecycleRoot { return Join-Path (Get-CourseUserRoot) 'lifecycle' }
 function Assert-CourseLifecycleId([string]$Id) { if($Id -cnotmatch '^[a-f0-9]{32}$'){throw 'INVALID_LIFECYCLE_ID'} }
+function Assert-CourseCreationIntentOutput($Value,[string]$Phase='CreateResource') {
+    $values=@($Value)
+    if($values.Count -ne 1 -or $values[0] -isnot [string] -or $values[0] -cnotmatch '^[a-f0-9]{32}$'){
+        $types=@($values|ForEach-Object {if($null -eq $_){'null'}else{$_.GetType().FullName}}) -join ','
+        throw "LIFECYCLE_OUTPUT_CONTRACT: phase=$Phase function=Start-CourseCreationIntent parameter=IntentId count=$($values.Count) types=$types PowerShell=$($PSVersionTable.PSVersion)"
+    }
+    return $values[0]
+}
+function ConvertTo-CourseProcessStartTicks($Value) {
+    if($Value -is [DateTimeOffset]){return $Value.UtcDateTime.Ticks}
+    if($Value -is [DateTime]){return $Value.ToUniversalTime().Ticks}
+    $parsed=[DateTimeOffset]::MinValue
+    if($Value -is [string] -and [DateTimeOffset]::TryParse($Value,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind,[ref]$parsed)){return $parsed.UtcDateTime.Ticks}
+    throw 'INVALID_PROCESS_START_TIME'
+}
+function Test-CourseProcessIdentity($Recorded,$Actual) {
+    try{return (ConvertTo-CourseProcessStartTicks $Recorded) -eq (ConvertTo-CourseProcessStartTicks $Actual)}catch{return $false}
+}
 function Test-CoursePathWithin([string]$Root,[string]$Path,[switch]$AllowEqual) {
     if(-not $Root -or -not $Path){return $false}
     $a=[IO.Path]::GetFullPath($Root).TrimEnd('\');$b=[IO.Path]::GetFullPath($Path).TrimEnd('\')
@@ -21,6 +39,14 @@ function Get-CourseLifecycleLock {
     return $mutex
 }
 function Close-CourseLifecycleLock($Lock) { if($Lock){$Lock.ReleaseMutex();$Lock.Dispose()} }
+function Get-CourseCheckedLifecycleLock {
+    $values=@(Get-CourseLifecycleLock)
+    if($values.Count -ne 1 -or $values[0] -isnot [Threading.Mutex]){
+        foreach($value in $values){if($value -is [Threading.Mutex]){$null=Close-CourseLifecycleLock $value}}
+        throw 'LIFECYCLE_LOCK_OUTPUT_CONTRACT: function=Get-CourseLifecycleLock parameter=Lock'
+    }
+    return $values[0]
+}
 function Read-CourseLifecycle {
     $file=Join-Path (Get-CourseLifecycleRoot) 'catalog.json'
     if(-not(Test-Path -LiteralPath $file)){return [pscustomobject]@{schemaVersion=1;revision=0;installations=@();resources=@();leases=@();intents=@()}}
@@ -30,9 +56,9 @@ function Read-CourseLifecycle {
     return $db
 }
 function Write-CourseLifecycle($Catalog) {
-    $root=Get-CourseLifecycleRoot;Protect-CourseDirectory $root
+    $root=Get-CourseLifecycleRoot;$null=Protect-CourseDirectory $root
     $Catalog.revision=[long]$Catalog.revision+1
-    Write-CourseJson (Join-Path $root 'catalog.json') $Catalog
+    $null=Write-CourseJson (Join-Path $root 'catalog.json') $Catalog
 }
 function Get-CourseInstallation([string]$InstallationId) {
     Assert-CourseLifecycleId $InstallationId
@@ -43,7 +69,7 @@ function Get-CourseInstallation([string]$InstallationId) {
 }
 function Register-CourseInstallation([string]$Workspace,[string]$Version,[string]$PackageSha256,[switch]$Recovered) {
     $workspacePath=(Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path;Assert-CoursePlainPath $workspacePath
-    $gate=Get-CourseLifecycleLock
+    $gate=Get-CourseCheckedLifecycleLock
     try {
         $db=Read-CourseLifecycle
         $found=@($db.installations|Where-Object {$_.workspace -eq $workspacePath -and $_.status -ne 'removed'})
@@ -56,10 +82,10 @@ function Register-CourseInstallation([string]$Workspace,[string]$Version,[string
             $entry=[pscustomobject]@{installationId=[guid]::NewGuid().ToString('N');workspace=$workspacePath;userSid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;machine=$env:COMPUTERNAME;version=$Version;packageSha256=$PackageSha256;preparationId=$null;status='active';recovered=[bool]$Recovered;createdAt=(Get-Date).ToUniversalTime().ToString('o');projects=@()}
             $db.installations=@($db.installations)+@($entry)
         }
-        Write-CourseLifecycle $db
+        $null=Write-CourseLifecycle $db
         Write-CourseJson (Join-Path $workspacePath '.course-setup\lifecycle.json') @{schemaVersion=1;installationId=$entry.installationId}
         return $entry
-    }finally{Close-CourseLifecycleLock $gate}
+    }finally{$null=Close-CourseLifecycleLock $gate}
 }
 function Find-CourseInstallation([string]$Workspace) {
     $path=[IO.Path]::GetFullPath($Workspace)
@@ -92,11 +118,11 @@ function Register-CourseResource {
           [ValidateSet('configuration','rebuildable','businessData','source','signature','credential')][string]$DataClass='configuration',
           [string]$AllowedRoot,[string]$BackupPath,[hashtable]$Metadata=@{})
     $null=Get-CourseInstallation $InstallationId
-    $allowedMetadata=@('start','end','runtime','cli','cliHash','connection','connectionUri','engineIdentity','objectDigest','projectId','installer','productCode','productVersion','productName','scope','machineName','machineId','createdAt','helper','pid','processStart','dataHome','dataHomeOwned','dataHomeParent','backupFor','namespaceConnections','provider')
+    $allowedMetadata=@('start','end','runtime','cli','cliHash','connection','connectionUri','engineIdentity','objectDigest','projectId','installer','productCode','productVersion','productName','scope','machineName','machineId','createdAt','helper','pid','processStart','dataHome','dataHomeOwned','dataHomeParent','backupFor','namespaceConnections','provider','pathEntryOwned')
     foreach($key in $Metadata.Keys){if($key -notin $allowedMetadata){throw 'UNSUPPORTED_RESOURCE_METADATA'}}
     $key=Get-CourseLifecycleHash ($Kind+'|'+$Locator.ToLowerInvariant())
     if($Kind -in @('container','volume','image','network','machine')){$key=Get-CourseLifecycleHash ($Kind+'|'+$Locator.ToLowerInvariant()+'|'+$Metadata.runtime+'|'+$Metadata.connection+'|'+$Metadata.engineIdentity)}
-    $gate=Get-CourseLifecycleLock
+    $gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$existing=@($db.resources|Where-Object resourceKey -eq $key)
         if(@($db.installations|Where-Object {$_.installationId -eq $InstallationId -and $_.status -eq 'active'}).Count -ne 1){throw 'INSTALLATION_UNINSTALLING'}
@@ -129,11 +155,11 @@ function Register-CourseResource {
         if($Kind -eq 'skill' -and $entry.backupPath){
             foreach($saved in @($db.resources|Where-Object locator -eq $entry.backupPath)){$saved.references=@(@($saved.references)+@($InstallationId)|Select-Object -Unique)}
         }
-        foreach($intent in @($db.intents|Where-Object {$_.installationId -eq $InstallationId -and $_.kind -eq $Kind -and $_.locator -eq $Locator -and $_.status -eq 'pending' -and $_.pid -eq $PID -and $_.processStart -eq (Get-Process -Id $PID).StartTime.ToUniversalTime().ToString('o')})){
+        foreach($intent in @($db.intents|Where-Object {$_.installationId -eq $InstallationId -and $_.kind -eq $Kind -and $_.locator -eq $Locator -and $_.status -eq 'pending' -and $_.pid -eq $PID -and (Test-CourseProcessIdentity $_.processStart (Get-Process -Id $PID).StartTime)})){
             $intent.status='registered'
         }
-        Write-CourseLifecycle $db;return $entry
-    }finally{Close-CourseLifecycleLock $gate}
+        $null=Write-CourseLifecycle $db;return $entry
+    }finally{$null=Close-CourseLifecycleLock $gate}
 }
 function Assert-CourseInstallationActive([string]$Workspace) {
     $entry=Find-CourseInstallation $Workspace
@@ -142,7 +168,7 @@ function Assert-CourseInstallationActive([string]$Workspace) {
     if(Test-Path -LiteralPath $p){$project=Read-CourseJson $p;if($project.preparationStatus -eq 'detached'){throw 'PROJECT_PREPARATION_DETACHED: restore user skills and original approved preparation, then Connect-Project and verify.'}}
 }
 function Enter-CourseOperation([string]$Workspace,[string]$Action) {
-    $gate=Get-CourseLifecycleLock
+    $gate=Get-CourseCheckedLifecycleLock
     try{
         Assert-CourseInstallationActive $Workspace;$db=Read-CourseLifecycle
         $entry=Find-CourseInstallation $Workspace
@@ -154,30 +180,30 @@ function Enter-CourseOperation([string]$Workspace,[string]$Action) {
         if($entry.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING'}
         $process=Get-Process -Id $PID
         $lease=[pscustomobject]@{id=[guid]::NewGuid().ToString('N');installationId=$entry.installationId;pid=$PID;processStart=$process.StartTime.ToUniversalTime().ToString('o');action=$Action}
-        $db.leases=@($db.leases)+@($lease);Write-CourseLifecycle $db;return $lease.id
-    }finally{Close-CourseLifecycleLock $gate}
+        $db.leases=@($db.leases)+@($lease);$null=Write-CourseLifecycle $db;return $lease.id
+    }finally{$null=Close-CourseLifecycleLock $gate}
 }
 function Exit-CourseOperation([string]$LeaseId) {
-    if(-not $LeaseId){return};$gate=Get-CourseLifecycleLock
-    try{$db=Read-CourseLifecycle;$db.leases=@($db.leases|Where-Object id -ne $LeaseId);Write-CourseLifecycle $db}finally{Close-CourseLifecycleLock $gate}
+    if(-not $LeaseId){return};$gate=Get-CourseCheckedLifecycleLock
+    try{$db=Read-CourseLifecycle;$db.leases=@($db.leases|Where-Object id -ne $LeaseId);$null=Write-CourseLifecycle $db}finally{$null=Close-CourseLifecycleLock $gate}
 }
 function Test-CourseLeaseAlive($Lease) {
-    try{$p=Get-Process -Id $Lease.pid -ErrorAction Stop;return ($p.StartTime.ToUniversalTime().ToString('o') -eq $Lease.processStart)}catch{return $false}
+    try{$p=Get-Process -Id $Lease.pid -ErrorAction Stop;return (Test-CourseProcessIdentity $Lease.processStart $p.StartTime)}catch{return $false}
 }
 function Register-CourseProjectLifecycle([string]$ProjectDirectory,[string]$PreparationDirectory) {
     $entry=Find-CourseInstallation $PreparationDirectory;if(-not $entry){$entry=Register-CourseInstallation $PreparationDirectory -Recovered}
     $file=Join-Path $ProjectDirectory '.ai-coding\project.json';$p=Read-CourseJson $file
-    $gate=Get-CourseLifecycleLock
+    $gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$i=@($db.installations|Where-Object installationId -eq $entry.installationId)[0]
         if($i.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING'}
         $i.preparationId=$p.preparationId
         $id=Get-CourseLifecycleHash ([IO.Path]::GetFullPath($ProjectDirectory).ToLowerInvariant())
         $i.projects=@($i.projects|Where-Object projectId -ne $id)+@([pscustomobject]@{projectId=$id;path=[IO.Path]::GetFullPath($ProjectDirectory)})
-        Write-CourseLifecycle $db
+        $null=Write-CourseLifecycle $db
         $p|Add-Member NoteProperty installationId $entry.installationId -Force;$p|Add-Member NoteProperty preparationStatus 'bound' -Force
         Write-CourseJson $file $p
-    }finally{Close-CourseLifecycleLock $gate}
+    }finally{$null=Close-CourseLifecycleLock $gate}
     return $entry
 }
 
@@ -193,19 +219,20 @@ function Get-CourseMsiIdentity([string]$Path) {
     return $result
 }
 function Start-CourseCreationIntent([string]$InstallationId,[string]$Kind,[string]$Locator,[bool]$ExistedBefore) {
-    $gate=Get-CourseLifecycleLock
+    $gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$null=Get-CourseInstallation $InstallationId
         $id=[guid]::NewGuid().ToString('N')
         $db.intents=@($db.intents)+@([pscustomobject]@{id=$id;installationId=$InstallationId;kind=$Kind;locator=$Locator;existedBefore=$ExistedBefore;pid=$PID;processStart=(Get-Process -Id $PID).StartTime.ToUniversalTime().ToString('o');status='pending';at=(Get-Date).ToUniversalTime().ToString('o')})
-        Write-CourseLifecycle $db;return $id
-    }finally{Close-CourseLifecycleLock $gate}
+        $null=Write-CourseLifecycle $db
+        return (Assert-CourseCreationIntentOutput $id 'Start')
+    }finally{$null=Close-CourseLifecycleLock $gate}
 }
 function Complete-CourseCreationIntent([string]$IntentId) {
-    if(-not $IntentId){return};Assert-CourseLifecycleId $IntentId;$gate=Get-CourseLifecycleLock
+    if(-not $IntentId){return};Assert-CourseLifecycleId $IntentId;$gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$intent=@($db.intents|Where-Object id -eq $IntentId)
-        if($intent.Count -ne 1 -or $intent[0].pid -ne $PID -or $intent[0].processStart -ne (Get-Process -Id $PID).StartTime.ToUniversalTime().ToString('o')){throw 'INTENT_PROCESS_IDENTITY_CHANGED'}
-        $intent[0].status='registered';Write-CourseLifecycle $db
-    }finally{Close-CourseLifecycleLock $gate}
+        if($intent.Count -ne 1 -or $intent[0].pid -ne $PID -or -not (Test-CourseProcessIdentity $intent[0].processStart (Get-Process -Id $PID).StartTime)){throw 'INTENT_PROCESS_IDENTITY_CHANGED'}
+        $intent[0].status='registered';$null=Write-CourseLifecycle $db
+    }finally{$null=Close-CourseLifecycleLock $gate}
 }

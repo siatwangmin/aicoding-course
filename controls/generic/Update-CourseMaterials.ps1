@@ -129,17 +129,14 @@ function Invoke-CourseMaterialsUpdate {
                 Receive-CourseVerifiedFile ($entry.baseUrl+'/'+$property.Value.archive) (Join-Path $root $property.Value.archive) $property.Value.sha256
             }
             . (Join-Path $root 'Course-SkillScopes.ps1')
-            $targetScope=if(Test-Path -LiteralPath (Join-Path $Workspace '.ai-coding/project.json')){'Project'}else{'Preparation'}
-            $requested=@($Names | Where-Object {$_ -and $_ -notin @('ai-coding-development','ai-coding-siliconflow')})
-            if($targetScope -eq 'Project' -and -not $requested.Count){
-                $ledger=Join-Path $Workspace '.ai-coding/installed-skills.json'
-                $requested=if(Test-Path -LiteralPath $ledger){@((Read-CourseJson $ledger).skills.PSObject.Properties.Name)}else{@()}
-                if(-not $requested.Count){throw 'PROJECT_UPDATE_REQUIRES_EXPLICIT_SCOPED_SKILLS: base project guidance uses Upgrade-Project.'}
-            }
+            $policy=Read-CourseJson (Join-Path $root 'course-contract.json')
+            $targetScope=if(Test-Path -LiteralPath (Join-Path $Workspace '.ai-coding/project.json')){'User'}else{'Preparation'}
+            # A scope migration always stages every global replacement together.
+            $requested=if($targetScope -eq 'User'){@($policy.skillScopes.user)}else{@($policy.skillScopes.user)+@($policy.skillScopes.preparation)}
             $installed=@(Install-CourseScopedSkills -Workspace $Workspace -PackageRoot $root -Scope $targetScope -Names $requested)
             $allMatched=$targetScope -eq 'Preparation'
-            foreach($name in @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase')){
-                $directory=if($name -eq 'ai-coding-project'){Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name)}else{Join-Path $Workspace ('.trae/skills/'+$name)}
+            foreach($name in @($policy.skillScopes.user)+@($policy.skillScopes.preparation)){
+                $directory=if($policy.skillScopes.user -contains $name){Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name)}else{Join-Path $Workspace ('.trae/skills/'+$name)}
                 if(-not(Test-CourseTree (Get-CourseTreeHashes $directory) $bundle.skills.$name.files)){$allMatched=$false}
             }
             if($allMatched){
@@ -150,7 +147,7 @@ function Invoke-CourseMaterialsUpdate {
                 $prior|Add-Member NoteProperty ReleaseId $id -Force
                 $prior|Add-Member NoteProperty SkillScope mixed -Force
                 $prior|Add-Member NoteProperty SkillsDirectory (Join-Path $Workspace '.trae/skills') -Force
-                $prior|Add-Member NoteProperty SkillNames @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase') -Force
+                $prior|Add-Member NoteProperty SkillNames @(@($policy.skillScopes.user)+@($policy.skillScopes.preparation)) -Force
                 $prior|Add-Member NoteProperty RuntimeContractId $bundle.runtimeContractId -Force
                 Write-CourseJson $priorFile $prior
             }

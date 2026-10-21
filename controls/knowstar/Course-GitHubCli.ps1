@@ -99,7 +99,7 @@ function Invoke-CourseGitHubCliSetup {
             if(-not $existed){
                 [void](New-Item -ItemType Directory -Path $parent -Force)
                 $staging=Join-Path $parent ('.staging-'+[guid]::NewGuid().ToString('N'))
-                $intent=Start-CourseCreationIntent $installation.installationId tool $target $false
+                $intent=Assert-CourseCreationIntentOutput @(Start-CourseCreationIntent $installation.installationId tool $target $false) 'Course-GitHubCli'
                 try{
                     Expand-CourseMaterials $archive $staging
                     $candidate=Join-Path $staging 'bin\gh.exe'

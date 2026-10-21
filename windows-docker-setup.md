@@ -1,6 +1,6 @@
 # Windows Docker 准备
 
-使用当前用户 ai-coding-env；读取实际 A 的 materials.json。用户级 Skill 安装由 Install-CourseSkills 完成，名单读 course-contract.json，不能在项目 .trae/skills 安装。下载、安装、配置和真实检查由助手连续完成，使用者只处理必要本人授权、条款和重启。
+使用准备目录 A 的 ai-coding-env；读取实际 A 的 materials.json。Install-CourseSkills 按 course-contract.json 安装四项用户级技能及 A 本地 env，作品 B 不复制平台技能。下载、安装、配置和真实检查由助手连续完成，使用者只处理必要本人授权、条款和重启。
 
 1. Prepare-CourseStorage.ps1 -WorkingDirectory <A> 按统一目录策略选择新安装位置：优先非系统盘（有 D 盘用 D:/ENV，否则选其他本地 NTFS 非系统盘的 ENV）；只有 C 盘时用 C:/ENV。检查所选位置的 NTFS、空间与权限，写 storage-plan.json；空间或权限不足保留现场并明确选择替代位置，不静默换盘。已有 storageRoot 继续复用；先复用已有批准安装包，缺文件下载到所选根目录的 downloads/installers。
 2. Setup-DockerDesktop.ps1 -Mode Prepare -WorkingDirectory <A> -StorageRoot <实际根> 使用本人管理员身份，保持原 A，不把 System32 当 workspace。新 Docker 程序和 WSL 数据分别指定 D 下 programs/docker 与 runtime-data/docker；系统 WSL 组件按 Windows 要求安装，不额外装 Ubuntu。已有镜像/卷/容器/VHD 保留，不直接移动正在使用的文件，不卸载重建绕过。

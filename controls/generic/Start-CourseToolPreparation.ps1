@@ -113,6 +113,10 @@ try{
     $storageArgs=@('-ContainerRuntime',$ContainerRuntime)
     if($StorageRoot){$storageArgs+=@('-StorageRoot',$StorageRoot)}
     if(-not(Invoke-BackgroundToolStep 'StoragePlan' 'Prepare-CourseStorage.ps1' $storageArgs)){return}
+    $nodeArgs=@()
+    if($StorageRoot){$nodeArgs+=@('-StorageRoot',$StorageRoot)}
+    if($InstallerDirectory){$nodeArgs+=@('-InstallerDirectory',$InstallerDirectory)}
+    if(-not(Invoke-BackgroundToolStep 'NodeJs' 'Setup-NodeJs.ps1' $nodeArgs)){return}
     $githubArgs=@()
     if($StorageRoot){$githubArgs+=@('-StorageRoot',$StorageRoot)}
     if($InstallerDirectory){$githubArgs+=@('-InstallerDirectory',$InstallerDirectory)}
@@ -124,6 +128,7 @@ try{
     if(-not(Invoke-BackgroundToolStep 'Prepare' $setup $setupArgs)){return}
     if(-not(Invoke-BackgroundToolStep 'Verify' $setup @('-Mode','Verify'))){return}
     if(-not(Invoke-BackgroundToolStep 'StorageVerify' 'Prepare-CourseStorage.ps1' ($storageArgs+@('-Verify')))){return}
+    if(-not(Invoke-BackgroundToolStep 'NodeJsVerify' 'Setup-NodeJs.ps1' @('-Mode','Verify'))){return}
     $verifyArgs=@('-ContainerRuntime',$ContainerRuntime)
     if($ImageArchive){$verifyArgs+=@('-ImageArchive',$ImageArchive)}
     if($SkipPull){$verifyArgs+='-SkipPull'}

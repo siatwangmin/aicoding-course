@@ -34,7 +34,8 @@ try {
     & (Join-Path $evidence 'entry-1.ps1') | Out-Host
     $current=Get-Content -LiteralPath (Join-Path $fresh '.course-setup/materials.json') -Raw -Encoding UTF8|ConvertFrom-Json
     Assert-True ($current.CourseVersion -eq $ExpectedVersion) 'Fresh preparation did not select the target version'
-    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $fresh '.trae/skills') -Directory).Count -eq 3) 'Fresh preparation scopes incorrect'
+    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $fresh '.trae/skills') -Directory).Count -eq 1) 'Fresh preparation scopes incorrect'
+    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE '.trae-cn/skills') -Directory).Count -eq 4) 'Fresh user-level platform scopes incorrect'
     # Install the real historical skill set into a separate isolated user profile.
     $env:USERPROFILE=Join-Path $fixture 'old-profile'
     $oldA=Join-Path $fixture 'OldA'
@@ -53,8 +54,8 @@ try {
     Assert-True ($updated.CourseVersion -eq $ExpectedVersion) 'Upgrade did not advance the historical version to the target'
     Assert-True ($updated.ContainerRuntime -eq 'docker') 'Upgrade changed original runtime'
     Assert-True ($updated.SkillScope -eq 'mixed') 'Upgrade retained old global scope'
-    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $oldA '.trae/skills') -Directory).Count -eq 3) 'Upgrade preparation scopes incorrect'
-    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE '.trae-cn/skills') -Directory).Count -eq 1) 'Upgrade left non-project global skills'
+    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $oldA '.trae/skills') -Directory).Count -eq 1) 'Upgrade preparation scopes incorrect'
+    Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE '.trae-cn/skills') -Directory).Count -eq 4) 'Upgrade did not install all user-level platform skills'
     @{status='passed';fixture=$fixture;freshVersion=$current.CourseVersion;from='2.3.14';to=$updated.CourseVersion;scope=$updated.SkillScope;engineOperations=$false;externalNetwork=$false}|ConvertTo-Json|Set-Content -LiteralPath $OutputPath -Encoding UTF8
     Write-Output ('PASS: actual documented commands; fresh latest selection and historical package/scope upgrade. Fixture: '+$fixture)
 }catch{

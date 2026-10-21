@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeContractId": "course-scoped-runtime-20261021",
+  "runtimeContractId": "course-global-platform-runtime-20261021",
   "materialsProtocol": 1,
   "supportedProjectSchemas": [
     2
@@ -50,18 +50,18 @@
   },
   "skillScopes": {
     "user": [
-      "ai-coding-project"
-    ],
-    "preparation": [
-      "ai-coding-env",
-      "ai-coding-github",
-      "ai-coding-cloudbase"
-    ],
-    "project": [
+      "ai-coding-project",
       "ai-coding-github",
       "ai-coding-cloudbase",
-      "ai-coding-android",
+      "ai-coding-android"
+    ],
+    "preparation": [
+      "ai-coding-env"
+    ],
+    "project": [
       "knowstar-course"
     ]
-  }
+  },
+  "scopePolicy": "user-platform-skills-v1",
+  "minimumScopeInstallerProtocol": 3
 }

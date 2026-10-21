@@ -3,7 +3,58 @@
 . (Join-Path $PSScriptRoot 'Course-Upgrade.ps1')
 . (Join-Path $PSScriptRoot 'Course-Archive.ps1')
 
-function Install-CourseExecutionPackage([string]$Workspace,[string]$PackageRoot,$Bundle) {
+function Get-CourseSkillScopePolicy {
+    $file=Join-Path $PSScriptRoot '../assets/course-contract.json'
+    if(-not(Test-Path -LiteralPath $file)){$file=Join-Path $PSScriptRoot 'course-contract.json'}
+    return Read-CourseJson $file
+}
+function Get-CourseScopeMigrationRoots([string]$Workspace) {
+    $roots=@($Workspace)
+    foreach($installation in (Read-CourseLifecycle).installations){
+        if($installation.status -ne 'removed'){$roots+=@($installation.workspace)}
+        $roots+=@($installation.projects|ForEach-Object {$_.path})
+    }
+    return @($roots|Where-Object {$_ -and (Test-Path -LiteralPath $_ -PathType Container)}|ForEach-Object {[IO.Path]::GetFullPath($_)}|Select-Object -Unique)
+}
+function Get-CourseScopeRoutePlan([string[]]$Roots,[string]$Assets,$Retired){
+    $snapshots=@(Get-ChildItem -LiteralPath $Assets -Filter 'guidance-legacy*.json'|ForEach-Object {Read-CourseJson $_.FullName})
+    $map=@{'AGENTS.project.md'='AGENTS.md';'trae-entry.md'='.trae/rules/course-entry.md';'spec-template.md'='docs/specs/_template.md'}
+    foreach($file in Get-ChildItem -LiteralPath (Join-Path $Assets 'engineering') -File -Filter *.md){$map['engineering/'+$file.Name]='docs/engineering/'+$file.Name}
+    $routes=@();$pending=@()
+    foreach($ownerRoot in $Roots){foreach($key in $map.Keys){
+        $path=Join-Path $ownerRoot $map[$key];Assert-CoursePlainPath $path
+        if(-not(Test-Path -LiteralPath $path -PathType Leaf)){continue}
+        $bytes=[IO.File]::ReadAllBytes($path);$old=[IO.File]::ReadAllText($path).Replace("`r`n","`n")
+        $fresh=[IO.File]::ReadAllText((Join-Path $Assets $key)).Replace("`r`n","`n")
+        if($old -eq $fresh){continue}
+        $updated=$null
+        foreach($snapshot in $snapshots){
+            if($snapshot.$key -and $old.StartsWith([string]$snapshot.$key,[StringComparison]::Ordinal)){$updated=$fresh+$old.Substring(([string]$snapshot.$key).Length);break}
+        }
+        if(-not $updated){
+            $start='<!-- ai-coding:guidance:'+ $key +':start -->';$end='<!-- ai-coding:guidance:'+ $key +':end -->'
+            $pattern='(?s)'+[regex]::Escape($start)+'\n(.*?)\n'+[regex]::Escape($end)
+            $match=[regex]::Match($old,$pattern)
+            if($match.Success){
+                $known=@($snapshots|Where-Object {$_.${key} -and ([string]$_.${key}).TrimEnd() -ceq $match.Groups[1].Value.TrimEnd()}).Count -gt 0
+                if($known -or $match.Groups[1].Value.TrimEnd() -ceq $fresh.TrimEnd()){$updated=$old.Substring(0,$match.Index)+$start+"`n"+$fresh.TrimEnd()+"`n"+$end+$old.Substring($match.Index+$match.Length)}
+            }
+        }
+        if($updated){$routes+=@{root=$ownerRoot;relative=$map[$key];path=$path;before=[Convert]::ToBase64String($bytes);after=[Convert]::ToBase64String([Text.UTF8Encoding]::new($false).GetBytes($updated))}}
+        elseif($old -match '\.trae[/\\]skills|ai-coding-development|ai-coding-siliconflow'){
+            if(@($Retired|Where-Object {$_.boundary -eq (Join-Path $ownerRoot '.trae/skills')}).Count){throw ('CUSTOM_PROJECT_ROUTE_REQUIRES_MERGE: '+$path)}
+            $pending+=$path
+        }
+    }}
+    return @{routes=$routes;pending=$pending}
+}
+function Write-CourseScopeRoute([string]$Path,[byte[]]$Bytes){
+    Assert-CoursePlainPath $Path;$temp=$Path+'.'+[guid]::NewGuid().ToString('N')+'.tmp'
+    try{[IO.File]::WriteAllBytes($temp,$Bytes);[IO.File]::Replace($temp,$Path,($temp+'.backup'))}
+    finally{foreach($file in @($temp,($temp+'.backup'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file}}}
+}
+
+function Install-CourseExecutionPackage([string]$Workspace,[string]$PackageRoot,$Bundle,[switch]$NoDefaultSwitch) {
     $storage = Join-Path $Workspace '.course-setup/storage-plan.json'
     $base = Join-Path (Get-CourseUserRoot) 'runtimes'
     if (Test-Path -LiteralPath $storage) {
@@ -52,7 +103,7 @@ function Install-CourseExecutionPackage([string]$Workspace,[string]$PackageRoot,
     foreach ($item in $check.files.PSObject.Properties) {
         if ((Get-FileHash -LiteralPath (Join-Path $destination $item.Name)).Hash.ToLowerInvariant() -cne $item.Value) { throw 'EXECUTION_PACKAGE_CHANGED' }
     }
-    Write-CourseJson (Join-Path (Get-CourseUserRoot) 'execution.json') $pointer
+    if(-not $NoDefaultSwitch){Write-CourseJson (Join-Path (Get-CourseUserRoot) 'execution.json') $pointer}
     return [pscustomobject]@{executionRoot=$destination;executionId=$Bundle.contentId;created=$created}
 }
 
@@ -63,27 +114,25 @@ function Install-CourseScopedSkills {
     $bundle = Assert-CourseBundle $PackageRoot
     $contract = Read-CourseJson (Join-Path $PackageRoot 'course-contract.json')
     if (-not $contract.skillScopes) { throw 'SCOPED_PACKAGE_REQUIRED' }
+    if($contract.scopePolicy -ne 'user-platform-skills-v1' -or $contract.minimumScopeInstallerProtocol -gt 3){throw 'GLOBAL_PLATFORM_SCOPE_INSTALLER_PROTOCOL_REQUIRED'}
     $lock = Enter-CourseUpgradeLock
     try {
         Repair-CourseScopedTransactions $Workspace
-        if (-not $Names.Count) { $Names = switch ($Scope) { Preparation { @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase') } User { @('ai-coding-project') } Project { @() } } }
+        if (-not $Names.Count) { $Names = switch ($Scope) { Preparation { @($contract.skillScopes.user)+@($contract.skillScopes.preparation) } User { @($contract.skillScopes.user) } Project { @() } } }
         $Names = @($Names | Select-Object -Unique)
         if (-not $Names.Count) { throw 'EXPLICIT_PROJECT_SKILLS_REQUIRED' }
-        $legacyGlobalNames=@('ai-coding-env','ai-coding-github','ai-coding-cloudbase','ai-coding-android','ai-coding-development','ai-coding-siliconflow','knowstar-course')
-        $legacyGlobals=@($legacyGlobalNames|Where-Object {Test-Path -LiteralPath (Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$_))})
-        if($legacyGlobals.Count){
-            if($Scope -ne 'Preparation'){throw 'PREPARATION_SCOPE_MIGRATION_REQUIRED: migrate the original A before installing project capabilities.'}
-            # Scope migration must install every replacement needed by A before retiring globals.
-            $Names=@($Names+@('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase')|Select-Object -Unique)
-        }
+        if($contract.scopePolicy -ne 'user-platform-skills-v1'){throw 'GLOBAL_PLATFORM_SCOPE_PACKAGE_REQUIRED'}
+        # All replacements are staged and verified before any old discovery copy moves.
+        if($Scope -eq 'Preparation'){$Names=@($Names+@($contract.skillScopes.user)|Select-Object -Unique)}
         $root = Join-Path $Workspace ('.local/skill-transactions/'+[guid]::NewGuid().ToString('N'))
-        [void](New-Item -ItemType Directory -Path $root -Force)
+        $null=Protect-CourseDirectory $root
         $items = @()
         foreach ($name in $Names) {
             $entry = $bundle.skills.$name
             $definition = @($contract.skills | Where-Object name -eq $name)
             if ($definition.Count -ne 1 -or -not $entry) { throw 'SKILL_NOT_IN_LOCKED_BUNDLE' }
-            $targetScope = if ($name -eq 'ai-coding-project') { 'User' } else { $Scope }
+            $targetScope = if ($definition[0].scopes -contains 'User') { 'User' } else { $Scope }
+            if($Scope -eq 'Project' -and $targetScope -eq 'User'){throw ('USER_SKILL_INSTALL_FROM_PREPARATION: '+$name)}
             if ($definition[0].scopes -notcontains $targetScope) { throw ('SKILL_SCOPE_NOT_ALLOWED: '+$name) }
             $skills = if ($targetScope -eq 'User') { Join-Path $env:USERPROFILE '.trae-cn/skills' } else { Join-Path $Workspace '.trae/skills' }
             $dest = Join-Path $skills $name; Assert-CoursePlainPath $dest
@@ -109,16 +158,37 @@ function Install-CourseScopedSkills {
         $globalLedger = Join-Path (Get-CourseUserRoot) 'installed-skills.json'
         $old = if (Test-Path -LiteralPath $globalLedger) { Read-CourseJson $globalLedger } else { $null }
         $retired = @()
-        foreach ($name in @('ai-coding-env','ai-coding-github','ai-coding-cloudbase','ai-coding-android','ai-coding-development','ai-coding-siliconflow','knowstar-course')) {
+        foreach ($name in @('ai-coding-env','ai-coding-development','ai-coding-siliconflow','knowstar-course')) {
             $path = Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name); Assert-CoursePlainPath $path
             if (-not (Test-Path -LiteralPath $path)) { continue }
+            if($name -eq 'ai-coding-env' -and $Scope -ne 'Preparation'){throw 'PREPARATION_SCOPE_MIGRATION_REQUIRED: migrate the original A before retiring global env'}
             if (-not $old.skills.$name -or -not (Test-CourseTree (Get-CourseTreeHashes $path) $old.skills.$name.files)) { throw ('GLOBAL_SKILL_CHANGE_PRESERVED: '+$name) }
-            $retired += @{source=$path;backup=(Join-Path $root ('retired/'+$name))}
+            $retired += @{source=$path;backup=(Join-Path $root ('retired/global-'+$name));files=$old.skills.$name.files;boundary=(Split-Path $path -Parent)}
         }
+        $migrationLedgers=@{}
+        if($Scope -in @('Preparation','User')){
+            foreach($knownRoot in (Get-CourseScopeMigrationRoots $Workspace)){
+                Assert-CoursePlainPath $knownRoot
+                $ledgerPath=Join-Path $knownRoot '.ai-coding/installed-skills.json'
+                $local=if(Test-Path -LiteralPath $ledgerPath){Read-CourseJson $ledgerPath}else{$null}
+                foreach($name in @($contract.skillScopes.user)){
+                    $path=Join-Path $knownRoot ('.trae/skills/'+$name);Assert-CoursePlainPath $path
+                    if(-not(Test-Path -LiteralPath $path)){continue}
+                    if($Names -notcontains $name){throw 'COMPLETE_GLOBAL_SKILL_MIGRATION_REQUIRED'}
+                    if(-not $local.skills.$name -or -not (Test-CourseTree (Get-CourseTreeHashes $path) $local.skills.$name.files)){throw ('LOCAL_SKILL_CHANGE_PRESERVED: '+$path)}
+                    $retired+=@{source=$path;backup=(Join-Path $root ('retired/local-'+$retired.Count+'-'+$name));files=$local.skills.$name.files;boundary=(Split-Path $path -Parent)}
+                    if(-not $migrationLedgers.ContainsKey($ledgerPath)){$migrationLedgers[$ledgerPath]=@{existed=$true;bytes=[IO.File]::ReadAllBytes($ledgerPath);value=$local}}
+                    $local.skills.PSObject.Properties.Remove($name)
+                }
+            }
+        }
+        $routePlan=@{routes=@();pending=@()}
+        $projectItem=@($items|Where-Object Name -eq 'ai-coding-project')
+        if($projectItem.Count){$routePlan=Get-CourseScopeRoutePlan (Get-CourseScopeMigrationRoots $Workspace) (Join-Path $projectItem[0].stage 'assets') $retired}
         $pointerPath = Join-Path (Get-CourseUserRoot) 'execution.json'
         $pointerBefore = if (Test-Path -LiteralPath $pointerPath) { [Convert]::ToBase64String([IO.File]::ReadAllBytes($pointerPath)) } else { $null }
-        $execution = Install-CourseExecutionPackage $Workspace $PackageRoot $bundle
-        $ledgers = @{}
+        $execution = Install-CourseExecutionPackage $Workspace $PackageRoot $bundle -NoDefaultSwitch
+        $ledgers = $migrationLedgers
         $catalogLock=Get-CourseLifecycleLock
         $catalogPath=Join-Path (Get-CourseLifecycleRoot) 'catalog.json'
         $catalogBefore=if(Test-Path -LiteralPath $catalogPath){[Convert]::ToBase64String([IO.File]::ReadAllBytes($catalogPath))}else{$null}
@@ -132,12 +202,13 @@ function Install-CourseScopedSkills {
         foreach($item in $items){
             if(-not $item.same -and (Test-Path -LiteralPath $item.Destination)){$item.backup=Join-Path $root ('backup/'+$item.Name)}
         }
-        $intentItems=@($items|ForEach-Object {@{name=$_.Name;destination=$_.Destination;applied=(-not $_.same);backup=$_.backup;files=$_.entry.files;before=(Get-CourseTreeHashes $_.Destination)}})
-        $intentLedgers=@($items.ledger|Select-Object -Unique|ForEach-Object {@{path=$_;existed=(Test-Path -LiteralPath $_);bytes=$(if(Test-Path -LiteralPath $_){[Convert]::ToBase64String([IO.File]::ReadAllBytes($_))}else{$null})}})
+        $intentItems=@($items|ForEach-Object {@{name=$_.Name;scope=$_.Scope;destination=$_.Destination;applied=(-not $_.same);backup=$_.backup;files=$_.entry.files;before=(Get-CourseTreeHashes $_.Destination)}})
+        $intentLedgers=@(@($items.ledger)+@($migrationLedgers.Keys)|Select-Object -Unique|ForEach-Object {@{path=$_;existed=(Test-Path -LiteralPath $_);bytes=$(if(Test-Path -LiteralPath $_){[Convert]::ToBase64String([IO.File]::ReadAllBytes($_))}else{$null})}})
         $journalPath=Join-Path $root 'transaction.json'
-        $intent=@{schemaVersion=2;root=$root;status='Applying';workspace=$Workspace;scope=$Scope;items=$intentItems;ledgers=$intentLedgers;retired=@($retired);executionRoot=$execution.executionRoot;pointerBefore=$pointerBefore;catalogBefore=$catalogBefore;catalogAfter=$(if(Test-Path -LiteralPath $catalogPath){(Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant()}else{$null});metadataBefore=$metadataBefore}
+        $intent=@{schemaVersion=2;root=$root;status='Applying';workspace=$Workspace;scope=$Scope;items=$intentItems;ledgers=$intentLedgers;retired=@($retired);routes=@($routePlan.routes);executionRoot=$execution.executionRoot;pointerBefore=$pointerBefore;catalogBefore=$catalogBefore;catalogAfter=$(if(Test-Path -LiteralPath $catalogPath){(Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant()}else{$null});metadataBefore=$metadataBefore}
         Write-CourseJson $journalPath $intent
         try {
+            Write-CourseJson $pointerPath @{executionRoot=$execution.executionRoot;executionId=$execution.executionId}
             foreach ($item in $items) {
                 if (-not $ledgers.ContainsKey($item.ledger)) { $ledgers[$item.ledger] = @{existed=(Test-Path -LiteralPath $item.ledger);bytes=$(if(Test-Path -LiteralPath $item.ledger){[IO.File]::ReadAllBytes($item.ledger)}else{$null});value=$item.prior} }
                 if (-not $item.same) {
@@ -148,11 +219,18 @@ function Install-CourseScopedSkills {
                 $ledgers[$item.ledger].value.skills | Add-Member NoteProperty $item.Name ([pscustomobject]@{files=$item.entry.files;runtimeContractId=$bundle.runtimeContractId;materialsProtocol=1;scope=$item.Scope;archiveSha256=$item.entry.sha256}) -Force
             }
             foreach ($item in $retired) { [void](New-Item -ItemType Directory -Path (Split-Path $item.backup -Parent) -Force);Move-Item -LiteralPath $item.source -Destination $item.backup }
+            foreach($route in $routePlan.routes){
+                if([Convert]::ToBase64String([IO.File]::ReadAllBytes($route.path)) -cne $route.before){throw 'PROJECT_ROUTE_CHANGED_DURING_MIGRATION'}
+                Write-CourseScopeRoute $route.path ([Convert]::FromBase64String($route.after))
+            }
             foreach ($path in @($ledgers.Keys)) {
-                if ($path -eq $globalLedger) { foreach ($name in @($ledgers[$path].value.skills.PSObject.Properties.Name)) { if ($name -ne 'ai-coding-project') { $ledgers[$path].value.skills.PSObject.Properties.Remove($name) } } }
+                if ($path -eq $globalLedger) { foreach ($name in @($ledgers[$path].value.skills.PSObject.Properties.Name)) { if ($contract.skillScopes.user -notcontains $name) { $ledgers[$path].value.skills.PSObject.Properties.Remove($name) } } }
+                $expected=[Convert]::ToBase64String([Text.UTF8Encoding]::new($false).GetBytes(($ledgers[$path].value|ConvertTo-Json -Depth 20)))
+                foreach($saved in $intent.ledgers){if($saved.path -eq $path){$saved.expected=$expected}}
+                Write-CourseJson $journalPath $intent
                 Write-CourseJson $path $ledgers[$path].value
             }
-            $record = @{schemaVersion=2;ContractVersion='2.4.0';PackageRoot=$PackageRoot;SkillScope=$Scope;SkillsDirectory=(Join-Path $Workspace '.trae/skills');SkillNames=$Names;executionRoot=$execution.executionRoot;executionId=$execution.executionId;TransactionRoot=$root;TraeLoadVerified=$false}
+            $record = @{schemaVersion=2;ContractVersion=$contract.baselineVersion;scopePolicy=$contract.scopePolicy;PackageRoot=$PackageRoot;SkillScope=$Scope;SkillsDirectory=(Join-Path $Workspace '.trae/skills');SkillNames=$Names;executionRoot=$execution.executionRoot;executionId=$execution.executionId;TransactionRoot=$root;pendingCustomGuidance=@($routePlan.pending);TraeLoadVerified=$false}
             if ($Scope -eq 'Preparation') { Write-CourseJson (Join-Path $Workspace '.course-setup/skills-installation.json') $record }
             if (Get-Command Register-CourseInstallation -ErrorAction SilentlyContinue) {
                 $version = (Read-CourseJson (Join-Path $PackageRoot 'VERSION.json')).version
@@ -167,22 +245,17 @@ function Install-CourseScopedSkills {
                     Write-CourseLifecycle $catalog
                 }
             }
-            $savedLedgers = @($ledgers.Keys | ForEach-Object { @{path=$_;existed=$ledgers[$_].existed;bytes=$(if($ledgers[$_].existed){[Convert]::ToBase64String($ledgers[$_].bytes)}else{$null})} })
-            $savedItems = @($items | ForEach-Object { @{name=$_.Name;destination=$_.Destination;applied=$_.applied;backup=$_.backup;files=$_.entry.files} })
-            Write-CourseJson $journalPath @{schemaVersion=2;root=$root;status='Committed';workspace=$Workspace;scope=$Scope;names=$Names;items=$savedItems;ledgers=$savedLedgers;retired=@($retired);executionRoot=$execution.executionRoot;pointerBefore=$pointerBefore;catalogBefore=$catalogBefore;catalogAfter=(Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant();metadataBefore=$metadataBefore}
+            $savedLedgers = @($ledgers.Keys | ForEach-Object { @{path=$_;existed=$ledgers[$_].existed;bytes=$(if($ledgers[$_].existed){[Convert]::ToBase64String($ledgers[$_].bytes)}else{$null});expected=[Convert]::ToBase64String([IO.File]::ReadAllBytes($_))} })
+            $savedItems = @($items | ForEach-Object { @{name=$_.Name;scope=$_.Scope;destination=$_.Destination;applied=$_.applied;backup=$_.backup;files=$_.entry.files} })
+            Write-CourseJson $journalPath @{schemaVersion=2;root=$root;status='Committed';workspace=$Workspace;scope=$Scope;names=$Names;items=$savedItems;ledgers=$savedLedgers;retired=@($retired);routes=@($routePlan.routes);executionRoot=$execution.executionRoot;pointerBefore=$pointerBefore;catalogBefore=$catalogBefore;catalogAfter=(Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant();metadataBefore=$metadataBefore}
             foreach ($item in $items) { [pscustomobject]@{PackageRoot=$PackageRoot;Name=$item.Name;Destination=$item.Destination;Scope=$item.Scope;Changed=(-not $item.same);BackupPath=$item.backup;ProjectBackupPath=$null;ExecutionRoot=$execution.executionRoot;TransactionRoot=$root} }
         } catch {
-            foreach ($item in @($items | Sort-Object Name -Descending)) {
-                if ($item.applied) { Move-Item -LiteralPath $item.Destination -Destination (Join-Path $root ('failed-'+$item.Name)) }
-                if ($item.backup -and (Test-Path -LiteralPath $item.backup)) { Move-Item -LiteralPath $item.backup -Destination $item.Destination }
-            }
-            foreach ($item in $retired) { if (Test-Path -LiteralPath $item.backup) { Move-Item -LiteralPath $item.backup -Destination $item.source } }
-            foreach ($path in $ledgers.Keys) { if ($ledgers[$path].existed) { [IO.File]::WriteAllBytes($path,$ledgers[$path].bytes) } elseif (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path } }
-            if ($pointerBefore) { [IO.File]::WriteAllBytes($pointerPath,[Convert]::FromBase64String($pointerBefore)) } elseif (Test-Path -LiteralPath $pointerPath) { Remove-Item -LiteralPath $pointerPath }
-            if($catalogBefore){[IO.File]::WriteAllBytes($catalogPath,[Convert]::FromBase64String($catalogBefore))}elseif(Test-Path -LiteralPath $catalogPath){Remove-Item -LiteralPath $catalogPath}
-            foreach($item in $metadataBefore){if($item.bytes){[IO.File]::WriteAllBytes($item.path,[Convert]::FromBase64String($item.bytes))}elseif(Test-Path -LiteralPath $item.path){Remove-Item -LiteralPath $item.path}}
-            $intent.status='RolledBack';Write-CourseJson $journalPath $intent
-            throw
+            $failure=$_
+            $intent.catalogAfter=if(Test-Path -LiteralPath $catalogPath){(Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant()}else{$null}
+            Write-CourseJson $journalPath $intent
+            # Validate every current tree/route/ledger before rollback; never overwrite a concurrent custom edit.
+            Restore-CourseScopedTransaction ([pscustomobject]$intent)
+            throw $failure
         } finally { Close-CourseLifecycleLock $catalogLock }
     } finally { Exit-CourseUpgradeLock $lock }
 }
@@ -197,7 +270,7 @@ function Restore-CourseScopedTransaction($Journal) {
     $catalogPath=Join-Path (Get-CourseLifecycleRoot) 'catalog.json'
     if($Journal.catalogAfter -and (Get-FileHash -LiteralPath $catalogPath).Hash.ToLowerInvariant() -cne $Journal.catalogAfter){throw 'SCOPED_ROLLBACK_LIFECYCLE_CHANGED'}
     foreach ($item in $Journal.items) {
-        $expected = if ($item.name -eq 'ai-coding-project') { Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$item.name) } else { Join-Path $workspace ('.trae/skills/'+$item.name) }
+        $expected = if ($item.scope -eq 'User' -or $item.name -eq 'ai-coding-project') { Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$item.name) } else { Join-Path $workspace ('.trae/skills/'+$item.name) }
         if ($item.destination -cne $expected) { throw 'INVALID_SCOPED_DESTINATION' }
         Assert-CoursePlainPath $expected
         if ($item.backup -and -not ([IO.Path]::GetFullPath($item.backup)).StartsWith($root+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'INVALID_SCOPED_BACKUP' }
@@ -205,10 +278,23 @@ function Restore-CourseScopedTransaction($Journal) {
         if (-not (Test-CourseTree $actual $item.files) -and -not ($interrupted -and (-not $actual.Count -or (Test-CourseTree $actual $item.before)))) { throw 'SCOPED_ROLLBACK_CUSTOM_CHANGE_PRESERVED' }
     }
     foreach ($item in $Journal.retired) {
-        if (-not ([IO.Path]::GetFullPath($item.backup)).StartsWith($root+'\',[StringComparison]::OrdinalIgnoreCase) -or -not ([IO.Path]::GetFullPath($item.source)).StartsWith((Join-Path $env:USERPROFILE '.trae-cn/skills/'),[StringComparison]::OrdinalIgnoreCase) -or ((Test-Path -LiteralPath $item.source) -and (-not $interrupted -or (Test-Path -LiteralPath $item.backup)))) { throw 'SCOPED_RETIRED_COPY_CONFLICT' }
+        $allowedRoots=@((Join-Path $env:USERPROFILE '.trae-cn/skills'))+@((Get-CourseScopeMigrationRoots $workspace)|ForEach-Object {Join-Path $_ '.trae/skills'})
+        if ((Split-Path $item.source -Parent) -notin $allowedRoots -or -not ([IO.Path]::GetFullPath($item.backup)).StartsWith($root+'\',[StringComparison]::OrdinalIgnoreCase) -or ((Test-Path -LiteralPath $item.source) -and (-not $interrupted -or (Test-Path -LiteralPath $item.backup)))) { throw 'SCOPED_RETIRED_COPY_CONFLICT' }
+        if((Test-Path -LiteralPath $item.backup) -and $item.files -and -not(Test-CourseTree (Get-CourseTreeHashes $item.backup) $item.files)){throw 'SCOPED_RETIRED_BACKUP_CHANGED'}
+    }
+    foreach($route in $Journal.routes){
+        if($route.root -notin (Get-CourseScopeMigrationRoots $workspace) -or $route.relative -notmatch '^(AGENTS\.md|\.trae/rules/course-entry\.md|docs/specs/_template\.md|docs/engineering/[a-zA-Z0-9_-]+\.md)$' -or $route.path -ne (Join-Path $route.root $route.relative)){throw 'INVALID_SCOPED_ROUTE'}
+        Assert-CoursePlainPath $route.path
+        $current=[Convert]::ToBase64String([IO.File]::ReadAllBytes($route.path))
+        if($current -cne $route.after -and -not($interrupted -and $current -ceq $route.before)){throw 'SCOPED_ROUTE_CUSTOM_CHANGE_PRESERVED'}
     }
     foreach ($ledger in $Journal.ledgers) {
-        if ($ledger.path -notin @((Join-Path (Get-CourseUserRoot) 'installed-skills.json'),(Join-Path $workspace '.ai-coding/installed-skills.json'))) { throw 'INVALID_SCOPED_LEDGER' }
+        $allowedLedgers=@((Join-Path (Get-CourseUserRoot) 'installed-skills.json'))+@((Get-CourseScopeMigrationRoots $workspace)|ForEach-Object {Join-Path $_ '.ai-coding/installed-skills.json'})
+        if ($ledger.path -notin $allowedLedgers) { throw 'INVALID_SCOPED_LEDGER' }
+        if($ledger.expected){
+            $current=if(Test-Path -LiteralPath $ledger.path){[Convert]::ToBase64String([IO.File]::ReadAllBytes($ledger.path))}else{$null}
+            if($current -cne $ledger.expected -and -not($interrupted -and $current -ceq $ledger.bytes)){throw 'SCOPED_LEDGER_CUSTOM_CHANGE_PRESERVED'}
+        }
     }
     foreach($item in $Journal.metadataBefore){if($item.path -notin @((Join-Path $workspace '.course-setup/materials.json'),(Join-Path $workspace '.course-setup/skills-installation.json'))){throw 'INVALID_SCOPED_METADATA'}}
     foreach ($item in $Journal.items) {
@@ -218,12 +304,13 @@ function Restore-CourseScopedTransaction($Journal) {
         if ($item.backup -and (Test-Path -LiteralPath $item.backup)) { Move-Item -LiteralPath $item.backup -Destination $item.destination }
     }
     foreach ($item in $Journal.retired) { if(Test-Path -LiteralPath $item.backup){Move-Item -LiteralPath $item.backup -Destination $item.source} }
+    foreach($route in $Journal.routes){Write-CourseScopeRoute $route.path ([Convert]::FromBase64String($route.before))}
     foreach ($ledger in $Journal.ledgers) {
         if ($ledger.existed) { [IO.File]::WriteAllBytes($ledger.path,[Convert]::FromBase64String($ledger.bytes)) }
         elseif (Test-Path -LiteralPath $ledger.path) { Remove-Item -LiteralPath $ledger.path }
     }
     $pointer = Join-Path (Get-CourseUserRoot) 'execution.json'
-    if ((Read-CourseJson $pointer).executionRoot -eq $Journal.executionRoot) {
+    if (-not(Test-Path -LiteralPath $pointer) -or (Read-CourseJson $pointer).executionRoot -eq $Journal.executionRoot) {
         if ($Journal.pointerBefore) { [IO.File]::WriteAllBytes($pointer,[Convert]::FromBase64String($Journal.pointerBefore)) }
         else { Remove-Item -LiteralPath $pointer }
     }
@@ -250,14 +337,16 @@ function Repair-CourseScopedTransactions([string]$Workspace){
 function Test-CourseSkills {
     param([string]$Workspace,[string[]]$Names)
     if(-not $Names.Count -or @($Names|Where-Object {$_ -cnotmatch '^[a-z][a-z0-9-]{0,63}$'}).Count){throw 'EXPLICIT_SCOPED_SKILL_NAMES_REQUIRED'}
+    $policy=Get-CourseSkillScopePolicy
     $checks = foreach ($name in $Names) {
-        $directory = if ($name -eq 'ai-coding-project') { Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name) } else { Join-Path $Workspace ('.trae/skills/'+$name) }
+        $userScope=$policy.skillScopes.user -contains $name
+        $directory = if ($userScope) { Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name) } else { Join-Path $Workspace ('.trae/skills/'+$name) }
         Assert-CoursePlainPath $directory
-        $ledger = if ($name -eq 'ai-coding-project') { Join-Path (Get-CourseUserRoot) 'installed-skills.json' } else { Join-Path $Workspace '.ai-coding/installed-skills.json' }
+        $ledger = if ($userScope) { Join-Path (Get-CourseUserRoot) 'installed-skills.json' } else { Join-Path $Workspace '.ai-coding/installed-skills.json' }
         $expected = if (Test-Path -LiteralPath $ledger) { (Read-CourseJson $ledger).skills.$name } else { $null }
-        $globalCopy=($name -ne 'ai-coding-project') -and (Test-Path -LiteralPath (Join-Path $env:USERPROFILE ('.trae-cn/skills/'+$name)))
-        $verified = $expected -and -not $globalCopy -and (Test-CourseTree (Get-CourseTreeHashes $directory) $expected.files)
-        [pscustomobject]@{Name=$name;ExpectedDirectory=$directory;NameMatches=[bool]$verified;ContentVerified=[bool]$verified;ProjectCopyFound=($name -ne 'ai-coding-project');UserDirectoryVerified=[bool]$verified;Issues=@($(if(-not $verified){'Scoped skill content or installation record missing.'}))}
+        $shadow=$userScope -and (Test-Path -LiteralPath (Join-Path $Workspace ('.trae/skills/'+$name)))
+        $verified = $expected -and -not $shadow -and (Test-CourseTree (Get-CourseTreeHashes $directory) $expected.files)
+        [pscustomobject]@{Name=$name;ExpectedDirectory=$directory;NameMatches=[bool]$verified;ContentVerified=[bool]$verified;ProjectCopyFound=[bool]$shadow;UserDirectoryVerified=[bool]$verified;Issues=@($(if(-not $verified){'Skill content, installation record or discovery scope mismatch.'}))}
     }
     $verified = @($checks | Where-Object { -not $_.ContentVerified }).Count -eq 0
     $result=[pscustomobject]@{CheckedAt=(Get-Date).ToString('o');UserInstallationVerified=$verified;ScopedInstallationVerified=$verified;SkillsDirectory=(Join-Path $Workspace '.trae/skills');Checks=@($checks);NotVerified=@('Actual Trae discovery and external services require separate observation.')}
@@ -275,12 +364,13 @@ function Get-SkillsChecklistLines($Verification){
     '| --- | --- | --- |'
     foreach($check in $Verification.Checks){'| '+$check.Name+' | '+($check.ExpectedDirectory -replace '[\r\n|]',' ')+' | '+$(if($check.ContentVerified){'通过'}else{'待修复'})+' |'}
     ''
-    '证据：.course-setup/skills-verification.json。仅project为用户级，其他技能按当前工作目录安装；实际Trae加载与平台结果另验。'
+    '证据：.course-setup/skills-verification.json。project/github/cloudbase/android 为用户级，env 仅在准备目录；实际 Trae 加载与平台结果另验。'
     '<!-- ai-coding:user-skills:end -->'
 }
 
 function Get-WorkspaceSkillsVerification([string]$Workspace) {
-    Test-CourseSkills -Workspace $Workspace -Names @('ai-coding-project','ai-coding-env','ai-coding-github','ai-coding-cloudbase')
+    $policy=Get-CourseSkillScopePolicy
+    Test-CourseSkills -Workspace $Workspace -Names @(@($policy.skillScopes.user)+@($policy.skillScopes.preparation))
 }
 
 function Install-CourseSkills {
