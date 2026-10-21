@@ -1,3 +1,70 @@
+# 环境准备的稳定入口
+
+本地址不随版本变化。当前正式版本为 **v2.4.2**。首次准备和主动更新通过网站的 `VERSION.json`、`release-index.json` 选择正式版本，锁定固定版本清单并核验 SHA-256；不要让助手自行寻找下载包。本人指定版本时严格使用该版本，找不到或摘要不符时停止并说明原因。
+
+## 首次准备
+
+保持 Trae 当前文件夹为准备目录 A。A 尚无 `.course-setup/materials.json` 时，在 Windows PowerShell 5.1 执行以下命令（不是 PowerShell 7）。不要把 `<A>` 当作实际路径；以下直接使用当前目录。
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$workspace = (Get-Location).Path
+$records = Join-Path $workspace '.course-setup'
+New-Item -ItemType Directory -Path $records -Force | Out-Null
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+$bootstrap = Join-Path $records 'Get-CourseMaterials.ps1'
+Invoke-WebRequest -Uri 'https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1' -OutFile $bootstrap -UseBasicParsing
+& $bootstrap -WorkingDirectory $workspace -PackageProfile generic -ContainerRuntime podman -SkipInstallers
+if (-not $?) { throw 'Preparation package installation failed.' }
+```
+
+该命令先获取并核验固定版本执行包，再安装所需作用域的技能。`-SkipInstallers` 只跳过此入口中的工具安装包预下载；后续仍须按下方工作流后台准备并验证工具、存储和镜像。新环境默认 Podman；已有环境保留原引擎与存储位置。
+
+## 已有准备目录与主动更新
+
+先读原 A 的 `.course-setup/materials.json`。仅恢复未完成任务时沿记录的原版本继续；本人要求“最新版准备”或“更新到 v2.4.2”时，必须使用更新入口，不能把旧版恢复成功当作新版准备成功。保留原工具、存储、账号绑定和作品。
+
+在原 A 的 Windows PowerShell 5.1 执行以下命令。它获取并校验目标版本的更新执行包，调用新版更新器，避免旧更新器沿用旧的技能安装作用域。默认从索引取得最新正式版本；本人指定版本时把 `$targetVersion` 改为指定值。
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$workspace = (Get-Location).Path
+$records = Join-Path $workspace '.course-setup'
+if (-not (Test-Path -LiteralPath (Join-Path $records 'materials.json'))) { throw 'Use the first preparation entry.' }
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+$bootstrap = Join-Path $records 'Get-CourseMaterials.ps1'
+Invoke-WebRequest -Uri 'https://siatwangmin.github.io/aicoding-course/Get-CourseMaterials.ps1' -OutFile $bootstrap -UseBasicParsing
+. $bootstrap
+$targetVersion = ''
+$selection = Resolve-CourseRelease -Workspace $workspace -Version $targetVersion
+if ($selection.entry.status -ne 'release' -or $selection.entry.legacy) { throw 'A current formal release is required.' }
+$targetVersion = $selection.entry.version
+$prior = Get-Content -LiteralPath (Join-Path $records 'materials.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$profile = if ($prior.SkillNames -contains 'knowstar-course') { 'knowstar' } else { 'generic' }
+$package = $selection.manifest.profiles.$profile
+$archive = Join-Path $records ('update-entry-v' + $targetVersion + '-' + $profile + '.zip')
+Receive-CourseFile ($selection.entry.baseUrl + '/' + $package.archive) $archive
+if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $package.sha256) { throw 'Update archive checksum mismatch.' }
+$entryRoot = Join-Path $records ('update-entry-' + [guid]::NewGuid().ToString('N'))
+Expand-CourseMaterials -Archive $archive -Staging $entryRoot
+if ((Get-FileHash -LiteralPath (Join-Path $entryRoot 'bundle-manifest.json') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $package.bundleManifestSha256) { throw 'Update bundle checksum mismatch.' }
+$updater = Join-Path $entryRoot 'Update-CourseMaterials.ps1'
+& $updater -WorkingDirectory $workspace -CourseVersion $targetVersion -PackageProfile $profile -Action Check
+if (-not $?) { throw 'Update compatibility check failed.' }
+& $updater -WorkingDirectory $workspace -CourseVersion $targetVersion -PackageProfile $profile -Action Apply
+if (-not $?) { throw 'Update application failed.' }
+```
+
+若存在未完成的更新事务，先按该更新器的 `-Action Recover` 恢复，再接续上述命令；兼容检查失败时保留原状态并报告具体原因。不要清空记录或重新安装环境来规避检查。
+
+## 版本核验与继续执行
+
+开始时说明目标版本及固定清单地址；下载后核对清单、ZIP SHA-256、包内 `VERSION.json` 与目标版本一致。安装或更新后再次读取 A 的 `.course-setup/materials.json`，确认 `CourseVersion`、`PackageRoot` 和实际技能文件属于同一目标版本。主动更新本次应为 v2.4.2；若本人另指定版本或发布索引已有更新，则以锁定目标为准。未达到目标时明确报告失败及当前版本，不能改用旧包并称为成功。
+
+资料安装、Trae 实际加载、工具验证、平台授权分别验收；文件已更新不等于整套准备已完成。继续执行下面的环境准备与项目初始化工作流。
+
+---
+
 # 环境准备与项目初始化
 
 在准备目录A让助手取得当前发布小包，校验版本与摘要，调用 Install-CourseSkills.ps1 -WorkingDirectory <A> -PackageRoot <真实目录>。该入口只在用户级安装 ai-coding-project，在A/.trae/skills安装env/github/cloudbase；Android和可选案例缓存于公共执行包，等待作品按需安装。
