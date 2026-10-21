@@ -4,7 +4,7 @@
 
 读取A内env的references/preparation-workflow.md；后台Start-CourseToolPreparation下载安装并验证工具、实际存储和固定镜像，前台依次接续GitHub与CloudBase。已有有效状态直接复用，需要本人授权/费用/重启时一次给一个动作。环境准备不要求模型供应商账号、Key或调用。工具、平台、实际Trae加载和汇总分别验证。
 
-新环境使用Podman CLI与独立Docker Compose，优先非系统盘ENV，只有系统盘时使用C:/ENV；已有准备和作品保持原storageRoot、引擎、镜像与连接。宿主准备Node.js LTS、npm/npx供官方CloudBase技能、本地MCP与CLI使用，安装包优先国内npmmirror、南大备用，npm默认国内registry；项目构建在同一准备镜像中执行。
+新环境使用Podman CLI与独立Docker Compose，优先非系统盘ENV，只有系统盘时使用C:/ENV；已有准备和作品保持原storageRoot、引擎、镜像与连接。宿主准备 Git for Windows（已有复用，缺失时优先 npmmirror、华为云镜像，固定摘要校验）及 Node.js LTS、npm/npx供官方CloudBase技能、本地MCP与CLI使用，安装包优先国内npmmirror、南大备用，npm默认国内registry；项目构建在同一准备镜像中执行。
 
 任意新作品目录 B 调用用户级 ai-coding-project。先检查全部拟生成文件的冲突，再原样复制标准 app、绑定准备环境，在容器中构建运行。默认端口 5187，占用时自动尝试其他端口，并核验、输出完整访问地址。初始化不询问三项平台选择，不复制平台或案例技能；后续按当前需求直接调用用户级平台技能，资源与授权仍按作品绑定。Android 配置在首次实际需要时生成。
 

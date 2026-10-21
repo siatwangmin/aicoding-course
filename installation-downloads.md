@@ -23,3 +23,5 @@ npm/npx 使用 `https://registry.npmmirror.com/` 国内依赖源。准备入口�
 用户级安装 ai-coding-project/github/cloudbase/android。环境准备目录 A 仅保留本地 env；作品 B 按任务直接调用用户级平台技能，明确选择案例才添加本地案例技能。通用开发工作流、Spec和进度随作品保存。公共执行包与已验证镜像跨项目复用，资源目标与技能选择按作品隔离。
 
 工具下载验证在后台，前台依GitHub→CloudBase准备必要账号和授权，再汇总真实结果。不要求模型供应商账号、Key或模型调用；当前需要AI功能时再按本项目需求配置。
+
+Git for Windows 与 gh 是两个独立工具，均纳入准备。已有 Git 核验复用，缺少时在原 storageRoot/programs/git-for-windows 安装官方完整便携版。下载顺序为 [npmmirror 国内源](https://npmmirror.com/mirrors/git-for-windows/)、[华为云镜像](https://mirrors.huaweicloud.com/git-for-windows/)、[官方 GitHub](https://github.com/git-for-windows/git/releases)；每个来源必须匹配固定官方 SHA-256。安装记录保存实际来源、版本、程序和文件树摘要。受管 cmd 加入用户 PATH，已有 Trae/终端重开后加载。旧目录可单独补齐 Git，安装不代表 GitHub 登录和推送权限通过；卸载保留已有 Git，共享受管版本最后一个引用解除后才移除工具与本工具新增的 PATH 项。

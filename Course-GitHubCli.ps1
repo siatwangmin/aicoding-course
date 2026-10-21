@@ -1,5 +1,24 @@
 ﻿#Requires -Version 5.1
 # Pure function library. Importing does not download, install or authorize anything.
+function Resolve-CourseGitHubGit([string]$ExecutionRoot) {
+    $helper=Join-Path $ExecutionRoot 'scripts/Course-Git.ps1'
+    if(-not(Test-Path -LiteralPath $helper)){
+        # Host Git is user-level; keep an old project's container binding intact.
+        $current=Resolve-CourseExecutionRoot
+        $helper=Join-Path $current 'scripts/Course-Git.ps1'
+    }
+    if(Test-Path -LiteralPath $helper){
+        . $helper
+        $git=Resolve-CourseGit
+    }else{
+        $git=(Get-Command git.exe -CommandType Application -ErrorAction Stop).Source
+        $probe=Invoke-SetupNative $git @('--version') 15
+        if($probe.ExitCode -ne 0 -or $probe.Output -notmatch '^git version 2\.\d+\.\d+\.windows\.\d+'){throw 'GIT_FOR_WINDOWS_PROBE_FAILED'}
+    }
+    $directory=Split-Path $git -Parent
+    if(@($env:PATH -split ';'|Where-Object {$_.TrimEnd('\') -ieq $directory.TrimEnd('\')}).Count -eq 0){$env:PATH=$directory+';'+$env:PATH}
+    return $git
+}
 function Resolve-CourseGitHubCli {
     param([switch]$AllowMissing)
     $bindingPath=Join-Path $env:USERPROFILE '.ai-coding\github-cli.json'

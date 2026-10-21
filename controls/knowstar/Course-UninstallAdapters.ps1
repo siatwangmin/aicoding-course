@@ -130,10 +130,12 @@ function Get-CourseResourceCheck($Resource,[string]$Action) {
     }
 }
 function Remove-CourseNodeJsPathEntry($Resource) {
-    if($Resource.kind -ne 'tool' -or $Resource.metadata.productName -ne 'Node.js' -or $Resource.metadata.pathEntryOwned -ne $true){return}
+    if($Resource.kind -ne 'tool' -or $Resource.metadata.productName -notin @('Node.js','Git for Windows') -or $Resource.metadata.pathEntryOwned -ne $true){return}
     Assert-CourseDeleteBoundary $Resource
+    $entry=if($Resource.metadata.productName -eq 'Git for Windows'){Join-Path $Resource.locator 'cmd'}else{$Resource.locator}
+    if(-not(Test-CoursePathWithin $Resource.locator $entry -AllowEqual)){throw 'TOOL_PATH_BOUNDARY_REFUSED'}
     $current=[Environment]::GetEnvironmentVariable('Path','User')
-    $parts=@($current -split ';'|Where-Object {$_.TrimEnd('\') -ine $Resource.locator.TrimEnd('\')})
+    $parts=@($current -split ';'|Where-Object {$_.TrimEnd('\') -ine $entry.TrimEnd('\')})
     [Environment]::SetEnvironmentVariable('Path',($parts -join ';'),'User')
 }
 function Invoke-CourseResourceRemoval($Resource,[string]$Action) {

@@ -1,14 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.0",
-  "publicationSha256": "33ce849f78e7a3abad492a9ae42262d3a3fd2e698ce9af592fb1842d70993ff3",
+  "version": "2.5.2",
+  "publicationSha256": "f6c3863fda700a2cc8dc8ea0bc5ae91c962f1d07f5241bbad2c2cae64433e469",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "332abf5a11006cfb1d254c722d0431c1cc13acd5",
-    "tree": "1aecb89dbae698f375e8c2f9b2f9922c40b28e19",
-    "ref": "refs/environment-releases/revisions/v2.5.0/1aecb89dbae698f375e8c2f9b2f9922c40b28e19",
-    "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3",
-    "priorSnapshot": "d133fee50d34655223e75924bcb61502e2da125f"
+    "commit": "75f01ef439949fc8ff8c8104ec21de9f258ef2c1",
+    "tree": "48fecad1538bee65a130fbc9534ee2bfa393809c",
+    "ref": "refs/environment-releases/source/v2.5.2",
+    "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.0 · 2026-10-21\n\n用户级平台技能与标准 app 初始化\n\n- project、GitHub、CloudBase、Android 统一用户级可用，env 仅在准备目录；已登记旧副本按摘要迁移并保留自定义冲突。\n- 标准 app 固定复制，完整文件冲突预检、排他创建与复制事务保护已有材料；新建、恢复、验证、升级和连接分开。\n- 默认端口 5187，端口占用时自动恢复并输出核验后的实际网址；容器内部端口固定，项目编译继续使用原准备镜像。\n- 修复生命周期返回值契约与 PowerShell 7 时间身份比较；卸载准备目录时保留用户级技能及保留作品依赖。\n"
+  "notes": "## v2.5.2 · 2026-10-21\n\n通用工具手册与明确技能调用\n\n- 当前手册、网页、帮助、模板与技能说明统一采用通用工具表述，保留示例业务与固定历史版本。\n- 手册提示明确调用项目初始化、GitHub、CloudBase 与 Android 技能；通用流程与示例覆盖同步，技能继续支持自然语言目标。\n- 清理环境验收中的模型账号门槛及过时作用域说明；初始化只建立本地工程，平台资源按实际任务接入。\n- 继承 v2.5.1 的 Git for Windows 自动检测、国内源安装、摘要校验、共享归属与卸载能力。\n- 全量文字检查覆盖当前导出网页、模板与嵌套分发包；验证手册调用、版本与历史兼容，并通过真实离线 Git 安装回归。\n"
 }

@@ -1,6 +1,6 @@
 # 环境准备的稳定入口
 
-本地址不随版本变化。当前正式版本为 **v2.5.0**。首次准备和主动更新通过网站的 `VERSION.json`、`release-index.json` 选择正式版本，锁定固定版本清单并核验 SHA-256；不要让助手自行寻找下载包。本人指定版本时严格使用该版本，找不到或摘要不符时停止并说明原因。
+本地址不随版本变化。当前正式版本为 **v2.5.2**。首次准备和主动更新通过网站的 `VERSION.json`、`release-index.json` 选择正式版本，锁定固定版本清单并核验 SHA-256；不要让助手自行寻找下载包。本人指定版本时严格使用该版本，找不到或摘要不符时停止并说明原因。
 
 ## 首次准备
 
@@ -22,7 +22,7 @@ if (-not $?) { throw 'Preparation package installation failed.' }
 
 ## 已有准备目录与主动更新
 
-先读原 A 的 `.course-setup/materials.json`。仅恢复未完成任务时沿记录的原版本继续；本人要求“最新版准备”或“更新到 v2.5.0”时，必须使用更新入口，不能把旧版恢复成功当作新版准备成功。保留原工具、存储、账号绑定和作品。
+先读原 A 的 `.course-setup/materials.json`。仅恢复未完成任务时沿记录的原版本继续；本人要求“最新版准备”或“更新到 v2.5.2”时，必须使用更新入口，不能把旧版恢复成功当作新版准备成功。保留原工具、存储、账号绑定和作品。
 
 在原 A 的 Windows PowerShell 5.1 执行以下命令。它获取并校验目标版本的更新执行包，调用新版更新器，避免旧更新器沿用旧的技能安装作用域。默认从索引取得最新正式版本；本人指定版本时把 `$targetVersion` 改为指定值。
 
@@ -59,7 +59,7 @@ if (-not $?) { throw 'Update application failed.' }
 
 ## 版本核验与继续执行
 
-开始时说明目标版本及固定清单地址；下载后核对清单、ZIP SHA-256、包内 `VERSION.json` 与目标版本一致。安装或更新后再次读取 A 的 `.course-setup/materials.json`，确认 `CourseVersion`、`PackageRoot` 和实际技能文件属于同一目标版本。主动更新本次应为 v2.5.0；若本人另指定版本或发布索引已有更新，则以锁定目标为准。未达到目标时明确报告失败及当前版本，不能改用旧包并称为成功。
+开始时说明目标版本及固定清单地址；下载后核对清单、ZIP SHA-256、包内 `VERSION.json` 与目标版本一致。安装或更新后再次读取 A 的 `.course-setup/materials.json`，确认 `CourseVersion`、`PackageRoot` 和实际技能文件属于同一目标版本。主动更新本次应为 v2.5.2；若本人另指定版本或发布索引已有更新，则以锁定目标为准。未达到目标时明确报告失败及当前版本，不能改用旧包并称为成功。
 
 资料安装、Trae 实际加载、工具验证、平台授权分别验收；文件已更新不等于整套准备已完成。继续执行下面的环境准备与项目初始化工作流。
 
@@ -71,7 +71,7 @@ if (-not $?) { throw 'Update application failed.' }
 
 读取A内env的references/preparation-workflow.md；后台Start-CourseToolPreparation下载安装并验证工具、实际存储和固定镜像，前台依次接续GitHub与CloudBase。已有有效状态直接复用，需要本人授权/费用/重启时一次给一个动作。环境准备不要求模型供应商账号、Key或调用。工具、平台、实际Trae加载和汇总分别验证。
 
-新环境使用Podman CLI与独立Docker Compose，优先非系统盘ENV，只有系统盘时使用C:/ENV；已有准备和作品保持原storageRoot、引擎、镜像与连接。宿主准备Node.js LTS、npm/npx供官方CloudBase技能、本地MCP与CLI使用，安装包优先国内npmmirror、南大备用，npm默认国内registry；项目构建在同一准备镜像中执行。
+新环境使用Podman CLI与独立Docker Compose，优先非系统盘ENV，只有系统盘时使用C:/ENV；已有准备和作品保持原storageRoot、引擎、镜像与连接。宿主准备 Git for Windows（已有复用，缺失时优先 npmmirror、华为云镜像，固定摘要校验）及 Node.js LTS、npm/npx供官方CloudBase技能、本地MCP与CLI使用，安装包优先国内npmmirror、南大备用，npm默认国内registry；项目构建在同一准备镜像中执行。
 
 任意新作品目录 B 调用用户级 ai-coding-project。先检查全部拟生成文件的冲突，再原样复制标准 app、绑定准备环境，在容器中构建运行。默认端口 5187，占用时自动尝试其他端口，并核验、输出完整访问地址。初始化不询问三项平台选择，不复制平台或案例技能；后续按当前需求直接调用用户级平台技能，资源与授权仍按作品绑定。Android 配置在首次实际需要时生成。
 

@@ -23,6 +23,17 @@ function Test-PreparationStage([string]$Name,$Item){
     try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
     if($age -lt 0 -or $age -gt 24){return $false}
     if($Name -eq 'tools'){
+        $gitPath=Join-Path $root '.course-setup\git.json'
+        if(-not(Test-Path -LiteralPath $gitPath)){return $false}
+        try{
+            $hostGit=Read-CourseJson $gitPath
+            $gitAge=((Get-Date)-[datetime]::Parse($hostGit.checkedAt)).TotalHours
+            if($hostGit.status -ne 'verified' -or $gitAge -lt 0 -or $gitAge -gt 24 -or $hostGit.version -notmatch '^2\.\d+\.\d+\.windows\.\d+$' -or -not(Test-Path -LiteralPath $hostGit.path)){return $false}
+            . (Join-Path $PSScriptRoot 'Course-Native.ps1')
+            . (Join-Path $PSScriptRoot 'Course-Git.ps1')
+            if((Resolve-CourseGit) -ine $hostGit.path -or (Get-FileHash -LiteralPath $hostGit.path).Hash.ToLowerInvariant() -cne $hostGit.sha256){return $false}
+            $null=Get-CourseGitProbe $hostGit.path $root
+        }catch{return $false}
         $nodePath=Join-Path $root '.course-setup\nodejs.json'
         if(-not(Test-Path -LiteralPath $nodePath)){return $false}
         $hostNode=Read-CourseJson $nodePath

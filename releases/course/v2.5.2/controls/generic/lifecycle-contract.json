@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "entry": "Uninstall-Course.ps1",
+  "modes": ["Plan", "Apply", "Resume", "Verify"],
+  "scopes": ["KeepWork", "TestClean"],
+  "actions": ["retain", "blocked", "remove", "restorePrevious", "removeManagedBlock"],
+  "exitCodes": {"completed": 0, "invalid": 1, "partial": 2, "failed": 3, "needsAction": 4, "stale": 5},
+  "remotePolicy": "retain",
+  "devicePolicy": "retain",
+  "runnerFiles": ["Uninstall-Course.ps1", "Course-Uninstall.ps1", "Course-UninstallAdapters.ps1", "Course-Lifecycle.ps1", "Course-Context.ps1", "Course-Native.ps1"]
+}

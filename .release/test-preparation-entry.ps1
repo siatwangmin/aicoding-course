@@ -36,6 +36,16 @@ try {
     Assert-True ($current.CourseVersion -eq $ExpectedVersion) 'Fresh preparation did not select the target version'
     Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $fresh '.trae/skills') -Directory).Count -eq 1) 'Fresh preparation scopes incorrect'
     Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE '.trae-cn/skills') -Directory).Count -eq 4) 'Fresh user-level platform scopes incorrect'
+    $hostGitVerified=$false
+    if([version]$ExpectedVersion -ge [version]'2.5.1'){
+        # Hosted Windows already has Git: verify the real packaged reuse path, no download.
+        & (Join-Path $current.PackageRoot 'Setup-Git.ps1') -WorkingDirectory $fresh -Mode Verify | Out-Host
+        $hostGit=Get-Content -LiteralPath (Join-Path $fresh '.course-setup/git.json') -Raw -Encoding UTF8|ConvertFrom-Json
+        Assert-True ($hostGit.status -eq 'verified' -and -not $hostGit.managed) 'Packaged existing Git verification failed'
+        $manifest=Get-Content -LiteralPath (Join-Path $current.PackageRoot 'git-for-windows.json') -Raw -Encoding UTF8|ConvertFrom-Json
+        Assert-True ($manifest.downloadUrls[0] -like 'https://npmmirror.com/*' -and $manifest.downloadUrls[1] -like 'https://mirrors.huaweicloud.com/*') 'Domestic Git download order lost'
+        $hostGitVerified=$true
+    }
     # Install the real historical skill set into a separate isolated user profile.
     $env:USERPROFILE=Join-Path $fixture 'old-profile'
     $oldA=Join-Path $fixture 'OldA'
@@ -56,7 +66,7 @@ try {
     Assert-True ($updated.SkillScope -eq 'mixed') 'Upgrade retained old global scope'
     Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $oldA '.trae/skills') -Directory).Count -eq 1) 'Upgrade preparation scopes incorrect'
     Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE '.trae-cn/skills') -Directory).Count -eq 4) 'Upgrade did not install all user-level platform skills'
-    @{status='passed';fixture=$fixture;freshVersion=$current.CourseVersion;from='2.3.14';to=$updated.CourseVersion;scope=$updated.SkillScope;engineOperations=$false;externalNetwork=$false}|ConvertTo-Json|Set-Content -LiteralPath $OutputPath -Encoding UTF8
+    @{status='passed';fixture=$fixture;freshVersion=$current.CourseVersion;from='2.3.14';to=$updated.CourseVersion;scope=$updated.SkillScope;hostGitVerified=$hostGitVerified;engineOperations=$false;externalNetwork=$false}|ConvertTo-Json|Set-Content -LiteralPath $OutputPath -Encoding UTF8
     Write-Output ('PASS: actual documented commands; fresh latest selection and historical package/scope upgrade. Fixture: '+$fixture)
 }catch{
     @{status='failed';version=$ExpectedVersion;error=$_.Exception.Message}|ConvertTo-Json|Set-Content -LiteralPath $OutputPath -Encoding UTF8
