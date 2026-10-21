@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "version": "2.4.2",
+  "publicationSha256": "222480b4d8fcd4ec9e3242ee69dc088bbc663250f71c76c152adfb93ee1b1d7b",
+  "source": {
+    "kind": "existing-fixed-release",
+    "publicationCommit": "f5efffec298f3d563e38d00c3799e3d90b06d0f9"
+  },
+  "notes": "正式发布 v2.4.2，并补齐 GitHub Release 分发入口。\n\n- GitHub CLI 2.102.1 首选 GitCode 下载，失败依次回退 GHFast、gh-proxy、GitHub；固定 SHA-256 校验保持不变。\n- 用户级仅安装项目初始化技能；准备目录与作品目录按需安装各自技能，公共执行包承载工具与延后启用的能力。\n- 稳定环境准备说明恢复明确下载命令及版本核验。旧目录先取得经固定清单校验的新版更新器，再检查兼容性并升级，保留已有工具、存储、账号绑定及作品。\n- 标签、Release 附件和 GitHub Latest 与网站正式版本统一为 v2.4.2。\n\n本 Release 附件使用已经上线的 v2.4.2 固定版本文件，逐项验证 SHA-256；历史发布文件不改写。稳定准备说明可独立修复，使用同一固定版本执行包。\n\n[环境准备说明](https://siatwangmin.github.io/aicoding-course/setup-guide.md) · [操作入口](https://siatwangmin.github.io/aicoding-course/preparation.html) · [v2.4.2 固定版本清单](https://siatwangmin.github.io/aicoding-course/releases/course/v2.4.2/release-manifest.json)\n"
+}
