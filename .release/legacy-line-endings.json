@@ -1,0 +1,1046 @@
+{
+  "schemaVersion": 1,
+  "reason": "Pre-2.0 manifests recorded Windows CRLF; Git stored the same text as LF. Fixed historical files are not rewritten.",
+  "files": {
+    "releases/course/v1.0.0/knowstar-student-kit.sha256": {
+      "originalSha256": "2353f31b5862160edf3b4f5a93fa6ba5177b0ad2c59ce52733d34cbc461c8169",
+      "gitSha256": "0667cd2134bd2c67035d552311b3d738e95ac92cea9c6d47133f288140b3e018"
+    },
+    "releases/course/v1.0.0/knowstar-course-skill.sha256": {
+      "originalSha256": "c7bc80125a1a4fae49a10bc8b5883837f1b8fdcd3eb2c89949d4d45588c5c74a",
+      "gitSha256": "1298dc7a5ec102d686ac0fcccd9507aba5114cdcf3db697d7700593a564f82ff"
+    },
+    "releases/course/v1.0.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "038e883d69040b1f8e7effaecfa1c846c20001cf4aa1842d6bf704f625487c80",
+      "gitSha256": "e3de32bc68084df46d9a583891f7304f9e99696e9b59a7e41f7af717c3a53a7f"
+    },
+    "releases/course/v1.0.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "03213b1033089178f34be7d8e84e1d5f4fc3d64d9308356d13414696070ed550",
+      "gitSha256": "04ad18f917df520bd7367dd4f06b1386f6607ba1cfd8d80742bf6108db90b447"
+    },
+    "releases/course/v1.0.0/knowstar-env-skill.sha256": {
+      "originalSha256": "cf7f7c384eddcfcfbdf9e45632ca1d17fbc6b5829ec60c30c50d57bb161fdfe6",
+      "gitSha256": "291bd31363d058988873f0a1a4b1122d04b828ca42e66f20ce525cdbe93b6b7f"
+    },
+    "releases/course/v1.0.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "409e6197fdd55dce56e9adad597252cb53e6eccfba48f2a9e4e72144f5d8ebf9",
+      "gitSha256": "24f996b1eadfef9e547d550598a8497716160be89b33cd5c12ba6542ec417a3a"
+    },
+    "releases/course/v1.0.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "41a96e0c0d93b5c7283c518b2b23ae15e7fed68da9b892ba080617bbc2cd820d",
+      "gitSha256": "7f03df4de90d7f5cba50ec9f10b024e5865b8dae910e6ceedd777c23bc10f246"
+    },
+    "releases/course/v1.0.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "95a6e3f8812b630fc525846262b99781acad68b0c09c8237979531afeca0a751",
+      "gitSha256": "6f2451bc999737151cc44b5408745036dc5efdc985d7ed07cb0617d69915aa2c"
+    },
+    "releases/course/v1.0.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.0.0/VERSION.json": {
+      "originalSha256": "3125ff74f2c547201aa0a5f5ee50d58b4380b95f045b08b310882fe724f05744",
+      "gitSha256": "41f3042f392c2bd42c3c271ce7b51ade3dac2b19b6cac4742b14b2d5af423c50"
+    },
+    "releases/course/v1.0.0/CHANGELOG.md": {
+      "originalSha256": "fec109eda69b070bcf1bd64421508f88e024e164297df070a53c027fb74e4290",
+      "gitSha256": "e46ce4355d769655bbe73aa8f344522ba8f3ea92a42b3ef83b82557d92d3dc6d"
+    },
+    "releases/course/v1.1.0/knowstar-student-kit.sha256": {
+      "originalSha256": "fd2bb8ae955869a222b83870598dd4a8802a7560109746eba128f4bb9e5fe7c9",
+      "gitSha256": "15ae57a093eb682e3a62a053e1d41822b3dbae28d647aa2b09d0eb8971e61f06"
+    },
+    "releases/course/v1.1.0/knowstar-course-skill.sha256": {
+      "originalSha256": "a5411cb20d97f033584c40d72b27d9c0e6c1e0e67a9afd6a31dac3e9db4e29cf",
+      "gitSha256": "9717b6a68f3708097f1753351c7165e942d840e26ee014a50880ca4b8cc67052"
+    },
+    "releases/course/v1.1.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "ca4416db3ae5e5ab9d19ee208e2ce85a61f2b1e02f53dd031bd1a686871dd659",
+      "gitSha256": "027f176b4c2cf30b5f7180a084bff4acbc8cf85905a19cd4288377e2563d501d"
+    },
+    "releases/course/v1.1.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "f81a91621f7b6edd2798da78418f68b41c4dcf41120bfd34d49f98d9ed83c7bc",
+      "gitSha256": "8ca9361557e13950e97a2e054bf6e3d2d4e8e2680e9049e4195c327d3b496483"
+    },
+    "releases/course/v1.1.0/knowstar-env-skill.sha256": {
+      "originalSha256": "25e324ef1d1d8fa9d08d38098ca2cd03ddd987e8129b858b7278dcc5dc55c6a8",
+      "gitSha256": "0625d7a664078d713ff99947a119d34896de323084ed5b272671f94cced07a22"
+    },
+    "releases/course/v1.1.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "94f4868612a269aa9c8b30b9254ee0b92de1559d3e08748742db63a11c0bc9b7",
+      "gitSha256": "570bf0cd69b6e3b5fb4c1c1c87c5237eab25d64d48390b0a00eff5bcff755e3c"
+    },
+    "releases/course/v1.1.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.1.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "c856c5adf29c816c06102288d3f2b2be8c298b8a7f715b558af6fd387ae9e82c",
+      "gitSha256": "50d82203eb99cc58050bd407b2e5154de4d86efef61027c7e1c643e6f4366b37"
+    },
+    "releases/course/v1.1.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.1.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.1.0/VERSION.json": {
+      "originalSha256": "e40410f4185182bcb83b6850fcdacc7de760f91b1049d33883463b66137d8edd",
+      "gitSha256": "f7100e34b04d738c154fbfa7a5dccaa17e05a295384562981a26bc1fa648bc61"
+    },
+    "releases/course/v1.1.0/CHANGELOG.md": {
+      "originalSha256": "01f3c76fdd18f9d25b2d82b363aa74bb4f606e023cf735007490c8cb5aeff4fd",
+      "gitSha256": "3e28be026cf80ced56a683edff7fba3e1e7413ac33477afdc133adddeff10f79"
+    },
+    "releases/course/v1.2.0/knowstar-student-kit.sha256": {
+      "originalSha256": "e3a823d64e845023d0fa49d987b54004cdf1746d7a1fdcccbadca61d768c200c",
+      "gitSha256": "c490639c4a797fdd7d8e6d52851f9c0e89e7692595670b036610e8532ad7dd95"
+    },
+    "releases/course/v1.2.0/knowstar-course-skill.sha256": {
+      "originalSha256": "3a672c6ab687140d9abb6c84142b029ddfaf93b391ef726778042bf60bcfc0be",
+      "gitSha256": "48d5e077eb3ae79c3b733b728c7f3b2d943ca9993e4d3c7be8d0a85d3d663647"
+    },
+    "releases/course/v1.2.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "a0f4c391f1634a85ffeda10004580871a16b2c769bf1b3b0055ad56eb2e114f4",
+      "gitSha256": "10b69d5a8df4643f9eef6eacfe3c217190c301e468e383c0ee8e752ee52793d4"
+    },
+    "releases/course/v1.2.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "ac1c175e0ffef18955d1774cb9434fcebeac07791346d57bf918d11bf8168468",
+      "gitSha256": "c1bd74d463db73dfd08f26bd0a5fbcf0f91641ca0e1a1c02d44e7cdcdeaad8dd"
+    },
+    "releases/course/v1.2.0/knowstar-env-skill.sha256": {
+      "originalSha256": "25e324ef1d1d8fa9d08d38098ca2cd03ddd987e8129b858b7278dcc5dc55c6a8",
+      "gitSha256": "0625d7a664078d713ff99947a119d34896de323084ed5b272671f94cced07a22"
+    },
+    "releases/course/v1.2.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "94f4868612a269aa9c8b30b9254ee0b92de1559d3e08748742db63a11c0bc9b7",
+      "gitSha256": "570bf0cd69b6e3b5fb4c1c1c87c5237eab25d64d48390b0a00eff5bcff755e3c"
+    },
+    "releases/course/v1.2.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.2.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "c856c5adf29c816c06102288d3f2b2be8c298b8a7f715b558af6fd387ae9e82c",
+      "gitSha256": "50d82203eb99cc58050bd407b2e5154de4d86efef61027c7e1c643e6f4366b37"
+    },
+    "releases/course/v1.2.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.2.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.2.0/VERSION.json": {
+      "originalSha256": "c67254e11f8a1e729e2ee639315b26db6ee0736cdef8c97d7c22e10ac0d865b3",
+      "gitSha256": "3f7234b3b8d135aa7b9d6dd2f262e534bac03da3f9103065c42d88164b5b9ca4"
+    },
+    "releases/course/v1.2.0/CHANGELOG.md": {
+      "originalSha256": "fbfcd9831add3b4280f741b39a8aad3ae1de7793a4fe3a5a8ad5a597b928ceb7",
+      "gitSha256": "e40f043fdb176bd6f18d7542048f4aecc73481cebd0a7a9343be210714bd7487"
+    },
+    "releases/course/v1.2.1/aicoding-student-kit.sha256": {
+      "originalSha256": "d8cc35be777a70d4c1c30bab68c76d053ffc5462a879c45879f637c171535b2f",
+      "gitSha256": "7c2773d192e6d294325ad02851ea2863ab6b208d6800c028fffd54cb8fe0255d"
+    },
+    "releases/course/v1.2.1/knowstar-course-skill.sha256": {
+      "originalSha256": "69d6584dfa6799daa8c5c4b957776a3c7609a635e51d9c1658fc39c368a1585c",
+      "gitSha256": "fb80730a3215d2fb6b3b25cb61cb660c1ef24dfd572cb971f261d945e88ef081"
+    },
+    "releases/course/v1.2.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "8d62faa31638d6f38ce441beeb46575f7262ac8ab2b0f70b6bb1686034a51bcc",
+      "gitSha256": "554c5db037988bc933cf0857cf3a147b87531e2cd0a0de3fc359b478c44f0eb8"
+    },
+    "releases/course/v1.2.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "090e0bdc699d33e4a9e4814cd05af154234266218591dc0394c2fb03a711d846",
+      "gitSha256": "0c48a85f79f8328d7d72395a2a997ee54ab073ac849f52f36c87a46da956f39a"
+    },
+    "releases/course/v1.2.1/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.2.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.2.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.2.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "c856c5adf29c816c06102288d3f2b2be8c298b8a7f715b558af6fd387ae9e82c",
+      "gitSha256": "50d82203eb99cc58050bd407b2e5154de4d86efef61027c7e1c643e6f4366b37"
+    },
+    "releases/course/v1.2.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.2.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.2.1/VERSION.json": {
+      "originalSha256": "5bedd8b202083d5a724f9220e49264d1ee22780d9ec6cb2b60d229120461f617",
+      "gitSha256": "6f513975cbfc900e187c43b8f91ce548d73be6b6653c54cbe3cc0c9f1d35af5c"
+    },
+    "releases/course/v1.2.1/CHANGELOG.md": {
+      "originalSha256": "47ada2360b877230a08729b1b4714d555db91738e6fb316bfb79a58be476c2b3",
+      "gitSha256": "2e93faeff4408179ca6bd593908c2e54c6cf055c50e9511a570973badfa70638"
+    },
+    "releases/course/v1.2.2/aicoding-student-kit.sha256": {
+      "originalSha256": "f72fd7002a9ec4d8e1a761d66d9bc0fb9b09f76731fa2005fe5a5c83444fb321",
+      "gitSha256": "bcd7017f12f067de82c95ddd4167997fc2e6642cec2268ec5bda60d988b03daf"
+    },
+    "releases/course/v1.2.2/knowstar-course-skill.sha256": {
+      "originalSha256": "f65e4fadccf6bbbf4904b317da16d107f0ecfffd778db5251633ad460d101f16",
+      "gitSha256": "cda633671d99c3e4f9966d0a1cab21b4c42565b1f3cf83ccd51aa00ea5151ee3"
+    },
+    "releases/course/v1.2.2/ai-coding-toolkit.sha256": {
+      "originalSha256": "8d62faa31638d6f38ce441beeb46575f7262ac8ab2b0f70b6bb1686034a51bcc",
+      "gitSha256": "554c5db037988bc933cf0857cf3a147b87531e2cd0a0de3fc359b478c44f0eb8"
+    },
+    "releases/course/v1.2.2/knowstar-environment-kit.sha256": {
+      "originalSha256": "090e0bdc699d33e4a9e4814cd05af154234266218591dc0394c2fb03a711d846",
+      "gitSha256": "0c48a85f79f8328d7d72395a2a997ee54ab073ac849f52f36c87a46da956f39a"
+    },
+    "releases/course/v1.2.2/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.2.2/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.2.2/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.2.2/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "c856c5adf29c816c06102288d3f2b2be8c298b8a7f715b558af6fd387ae9e82c",
+      "gitSha256": "50d82203eb99cc58050bd407b2e5154de4d86efef61027c7e1c643e6f4366b37"
+    },
+    "releases/course/v1.2.2/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.2.2/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.2.2/VERSION.json": {
+      "originalSha256": "a48e32613ed06ecf86c8297e684db7f7849b7e158ba4858a6be5cc44e5fe31ec",
+      "gitSha256": "6dc3e0c3ed770b21ba481aee1dbcc79b254ff3b477825685e6143254cc7f1d06"
+    },
+    "releases/course/v1.2.2/CHANGELOG.md": {
+      "originalSha256": "7e8decaa62a8d241da93e3c37bda0247fba554484af4f9babca825041939adda",
+      "gitSha256": "33d8064f2607412ea0004c354334eb3b683820c96f5a7cadc9d2eb0aebc69c4e"
+    },
+    "releases/course/v1.2.3/aicoding-student-kit.sha256": {
+      "originalSha256": "7d2a0b830fe437ff13f8721fecbdaa031aa98d5b7f15ab91bd303297e55912ff",
+      "gitSha256": "c34303d49ce22c98f22597c27cf7e97b3064cdfc22e8cb50e3ef08fc1f9ecbb2"
+    },
+    "releases/course/v1.2.3/knowstar-course-skill.sha256": {
+      "originalSha256": "7eb9474ad2158a78c398919d51e6b313309b7dc1b4b880dfa0ae80f37acdda07",
+      "gitSha256": "dc5e2ebc9639cac18d1d2ee81a8f51c2d59bf82d4b03e5ae3669b6a034ed487f"
+    },
+    "releases/course/v1.2.3/ai-coding-toolkit.sha256": {
+      "originalSha256": "132024521b302b34890dfd724be1ebeddeb5f39838eedcf2112cafb4e16b0c32",
+      "gitSha256": "4b159b565f4c1b7f17b0b1554c787887961350697b42abed62c49ccf210f5e26"
+    },
+    "releases/course/v1.2.3/knowstar-environment-kit.sha256": {
+      "originalSha256": "b1004be7ace9ceaf82deeec969af6fb8be0a13e98a73f9e2664f3f6e319c88cc",
+      "gitSha256": "d882b3ba1ca091a8cf9c21575ef552b5e0298d57c6991bad8f1b05655617e762"
+    },
+    "releases/course/v1.2.3/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.2.3/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.2.3/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.2.3/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.2.3/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.2.3/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.2.3/VERSION.json": {
+      "originalSha256": "33b81c6e476e83909f31787037b8d4507ebdf098b457d9237dcb722d94ed66c2",
+      "gitSha256": "9d92a218195a0ceec0554674c748ba5fae51a6987e56173a3eac6740ce195b6b"
+    },
+    "releases/course/v1.2.3/CHANGELOG.md": {
+      "originalSha256": "3abde123979415b99a208cacf42263165f28825867b14d71f513170bab9b6aa9",
+      "gitSha256": "4956a3402141d6cc23b2a6a534102ac6c7afd71d067896b17d715e15b3291249"
+    },
+    "releases/course/v1.3.0/aicoding-student-kit.sha256": {
+      "originalSha256": "1ba925da3c73ba12473a4e4bd4a4beecd524f90e66fb622219f944003238aef1",
+      "gitSha256": "b110a8de9261a2f41144170d6209119919df5de3c1ac4462809250f0055cd0d4"
+    },
+    "releases/course/v1.3.0/knowstar-course-skill.sha256": {
+      "originalSha256": "b471220acbd92148b1be6e9aacdad11ac1b72adea535b780a9adc97d47bedd40",
+      "gitSha256": "6c8ecca9be4f8859e0cfb5817c52bc28299d1c05f62846f4063045e87d30014b"
+    },
+    "releases/course/v1.3.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "b426c7d13ee6852297e99f81fbe806dca6702f47bab82bb238d216c08c677d84",
+      "gitSha256": "b4f8e30e71dbcfe0afe195b7bdf0caae6c7656de6cd78e7fe2f316d999f6903b"
+    },
+    "releases/course/v1.3.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "bf6857ec8996f95b4e2843724edf8f26267b57a00e58eefa0b11c9dca9cf8b07",
+      "gitSha256": "ccb1c7b0da2a3b97125bfb84be22b1a45f3bbaddd8159e5987123a652bc52b1e"
+    },
+    "releases/course/v1.3.0/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.3.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.3.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.3.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.3.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.3.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.3.0/VERSION.json": {
+      "originalSha256": "7b307a422c56a9ec47a58002ac64218f7664043397dec81109c4fdb6dbbb51c9",
+      "gitSha256": "5489a2d04b8087e55f50125c0cee04eab241122990caee4f7d52fc0513b486fa"
+    },
+    "releases/course/v1.3.0/CHANGELOG.md": {
+      "originalSha256": "a67204daabf771222605e538fcd304f1b05892f91a1d1e16e2d2ffbef509bf64",
+      "gitSha256": "1d1aa161736f1dffaf62b185c56d5f488b6cdc2fc30a616d79aae962752a2dbe"
+    },
+    "releases/course/v1.3.1/aicoding-student-kit.sha256": {
+      "originalSha256": "33e213daa5fba5ccfe024cbbd4dbec4810868bab8bd06320305ef51e48285fff",
+      "gitSha256": "142be6274e6c9996f2f818c02464f571c6d5c3b74ac0b15a5a24e39ed79bc87e"
+    },
+    "releases/course/v1.3.1/knowstar-course-skill.sha256": {
+      "originalSha256": "acc558a15a427c92eb5ac9b879eb5d7532656a1b22c6ac3fda36bc8f782ccf2f",
+      "gitSha256": "087ca5f380880800087de6fc0e2f20c21e5629c86e2af23e0821453bf112575e"
+    },
+    "releases/course/v1.3.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "b426c7d13ee6852297e99f81fbe806dca6702f47bab82bb238d216c08c677d84",
+      "gitSha256": "b4f8e30e71dbcfe0afe195b7bdf0caae6c7656de6cd78e7fe2f316d999f6903b"
+    },
+    "releases/course/v1.3.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "bf6857ec8996f95b4e2843724edf8f26267b57a00e58eefa0b11c9dca9cf8b07",
+      "gitSha256": "ccb1c7b0da2a3b97125bfb84be22b1a45f3bbaddd8159e5987123a652bc52b1e"
+    },
+    "releases/course/v1.3.1/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.3.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.3.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.3.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.3.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.3.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.3.1/VERSION.json": {
+      "originalSha256": "a3bdfe2f1ab9674bc00ac8afb5acbb63b441140752b53c1b2b5123903d14869f",
+      "gitSha256": "e4784e390a51ea7fe0450af8fd3b397b4c78b4d7ae9fd1cb2daeaa1ca7c91a7c"
+    },
+    "releases/course/v1.3.1/CHANGELOG.md": {
+      "originalSha256": "f8a1371b597db15c21d2bbdd0587da3916d795b20fe6b99e971fbee3fdba847b",
+      "gitSha256": "28f8f32111b6939eb91b6de7d3a790bb3ef9990870e6f6dec69f49f113b7712f"
+    },
+    "releases/course/v1.4.0/aicoding-student-kit.sha256": {
+      "originalSha256": "80311d0d6a4c8c2ef59859e69a410ee8c642a2b1c2f5c2a2bb0848d62cb79cdf",
+      "gitSha256": "f625d810209a097d0a9023bf11b45bafb825118ac4301a37cad0bc038761f8d3"
+    },
+    "releases/course/v1.4.0/knowstar-course-skill.sha256": {
+      "originalSha256": "f13f48c4b05a5be5132df25273cc6c0b20a82b01e3931e73b3acb99ed47be6cb",
+      "gitSha256": "269307714d5b840571df76f3c114527b920248f59b4d2d3fc3caf7ba4a472e98"
+    },
+    "releases/course/v1.4.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "4cfddc1a5c98f5885908dcc0c0b1e02bacad93896b2657d436de64843ab33527",
+      "gitSha256": "1d617aadceb07db42f151d8c8d2a453e7f4d61725daf7d8b8f836013348ba95a"
+    },
+    "releases/course/v1.4.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "578d19270f4ac28b5195e709a22e0524f6a170d8dba80755d9ce9ded59663407",
+      "gitSha256": "148f6507af9951675ba2ad4a1aecffab9a266e9c30173af186e6f80fb8a87e6a"
+    },
+    "releases/course/v1.4.0/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.4.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.4.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "ec748d61d83c83e7d8c783da96eacec8dc8da6f74d073ee3dabb784e2af4f891",
+      "gitSha256": "fb0595d01f33bb5654d0b3d33b576b7bd22320c52f30546f4d217aa25712ce9b"
+    },
+    "releases/course/v1.4.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.4.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.4.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.4.0/VERSION.json": {
+      "originalSha256": "c11241431547c559d40151aaddbc5ff142de844ff7bbb244bcda05f663945228",
+      "gitSha256": "58f489b66890c38f62a8c1287ea9d0863ccaf6d97e9d93df04f40a9f8e66f27e"
+    },
+    "releases/course/v1.4.0/CHANGELOG.md": {
+      "originalSha256": "dfa0d5a660988bde6a37704a2bf922097bb6b49593cd27f057be67d41a4c6235",
+      "gitSha256": "2edf09ee7dd348873219008ee0bc4f2782c811d5df90466c1b050cd5fdbb6047"
+    },
+    "releases/course/v1.4.1/aicoding-student-kit.sha256": {
+      "originalSha256": "a5884e18dd11a4ea26877a7ad3b1b0e349229191476b4ffc05ed2e61adac287e",
+      "gitSha256": "77ee319f63b955b4b8b19f23ee7521059f33e06ebb088a19f31ad67da21bd027"
+    },
+    "releases/course/v1.4.1/knowstar-course-skill.sha256": {
+      "originalSha256": "599a625e127760060753fe681c1dfed3a918adf4ac3529f13587b490f910c169",
+      "gitSha256": "e9a8a965a4c53e1baa059c1d0303c035504c31194182cd8ace5cfe2eafcd06f5"
+    },
+    "releases/course/v1.4.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "0b5381c894671e5f890cbd5c630988d5a30d002414908ec77d7039f7b9dd15f9",
+      "gitSha256": "6483d4822c5def10c1d3168f4a0a54e3db1077b897834f6af7553fe77ad07ff5"
+    },
+    "releases/course/v1.4.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "77559e009f48e8c69f4b3896ea8a09f5baa67c33d3ebaf453d05c708c353a964",
+      "gitSha256": "b739637acde3d5e815b7427a06201324b47d93126cb934f37c669a0317b5f7ad"
+    },
+    "releases/course/v1.4.1/knowstar-env-skill.sha256": {
+      "originalSha256": "7b3d7cbcdb25ba430a0ce785f9a900bca282b9aa20f1a7e7955c3fad7856ad28",
+      "gitSha256": "e4c4bd872400f2244c0bba17c30a0c252c8336d644d8acb4fa5ff21e46459cdb"
+    },
+    "releases/course/v1.4.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "0e5ec16025f26503a4b3f9feb0f831fc0a6d53363a5ab5de2e0d20e4ce1df7d1",
+      "gitSha256": "1c26aab1f6c8f553bec6ce937a4e041cd9553838a97a11cf61f745d1b6e2c3c0"
+    },
+    "releases/course/v1.4.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "9dfbd6305096b9e3eb7af8186ea6509e8559916e5beef6c06d237d80189560ed",
+      "gitSha256": "c65a1060a5f94b45863364cab388e89f6f27d9587f14e8cfd395e1620d3b262d"
+    },
+    "releases/course/v1.4.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.4.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.4.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.4.1/VERSION.json": {
+      "originalSha256": "72e35f110f571211ca511796476977cdb78a81679b4fb719acb78b0f8dead4f3",
+      "gitSha256": "9e896eb078ed87a1ea355a713cae93de48bbe88de0661110334445a938b10014"
+    },
+    "releases/course/v1.4.1/CHANGELOG.md": {
+      "originalSha256": "8f62d16128dbdbe4d0866deb0499cfe376e32482c668c46f594c8da389cb5229",
+      "gitSha256": "193d8efc67565ae113a6dc00967dc4dba0adb0124ff61f34d9081a9626a29bec"
+    },
+    "releases/course/v1.5.0/aicoding-student-kit.sha256": {
+      "originalSha256": "edba695feac53ffb95a5be0bc202e2df865f86307cc87654d81c6baf95138169",
+      "gitSha256": "132d4c89cbd6f8e236b748637f9620e693d39056f71c91c58891ec72b4472443"
+    },
+    "releases/course/v1.5.0/knowstar-course-skill.sha256": {
+      "originalSha256": "48108c566914229b4006a32996b13eb9bbce8cebb5b59e5f8f0e7d838486e4eb",
+      "gitSha256": "5694d0491fa4657f3f80707c3a0ff23615da1f92dea21273baf66a42a60c344e"
+    },
+    "releases/course/v1.5.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "91b53bcfbdeaf327c2d1acfe57d8bc97f98f18af0869f21a0bee866f7b9e9cbd",
+      "gitSha256": "6d62d292eca5c8ee4fd246bf13f41a987e58d91432fa4cf1346c373013d028e5"
+    },
+    "releases/course/v1.5.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "f5b31765a37ceff49f7e93fa7041b9dd66ec76fe384da6ea795ea2415cefb693",
+      "gitSha256": "63ae4710a5170bc5ef86a01d73d276dacf11483c2c778948c8db25dd63f6eab4"
+    },
+    "releases/course/v1.5.0/knowstar-env-skill.sha256": {
+      "originalSha256": "21252b82f9ac63f534834450c80af994a9ed98aa2f3c9ce1443d7149a5bbf711",
+      "gitSha256": "d2626c7e96bff73b0d659d8a461343816715f7cd10b85768d6f1c57e2a2e8732"
+    },
+    "releases/course/v1.5.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "d1576cfe57aa195c03e9422d89e5fc5f7094b649691adb55ba21b30175c88e70",
+      "gitSha256": "548fd5a3bce2ed35d0e95b660a89fe741e6bb3921998d3fcdece98c0a442a729"
+    },
+    "releases/course/v1.5.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "9dfbd6305096b9e3eb7af8186ea6509e8559916e5beef6c06d237d80189560ed",
+      "gitSha256": "c65a1060a5f94b45863364cab388e89f6f27d9587f14e8cfd395e1620d3b262d"
+    },
+    "releases/course/v1.5.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.5.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.5.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.5.0/VERSION.json": {
+      "originalSha256": "23cf8b180f022a19579e7cb7afbe4b58eddfeccc250dfb031bb291388a3b98cb",
+      "gitSha256": "125c1d2ee64abf33e97accd439b8537ebf41ec03dc62b2c387ef07591f04f659"
+    },
+    "releases/course/v1.5.0/CHANGELOG.md": {
+      "originalSha256": "04cedd88154a997c53b65f43dbe73c9ffc46ead814f894f46e7f0faeba4f2d97",
+      "gitSha256": "cf53bc82840dffd7c332c339078ee1b138003597c95deb5f6b63c72aa23e7a1d"
+    },
+    "releases/course/v1.5.0/full-package.json": {
+      "originalSha256": "ffda92d36fde8c4d92a7d393b394096a08eb5721460fdbc29499cac3578a8359",
+      "gitSha256": "a54f91736f12065c63cfd1c292a5924ca9aea9ab7bb3a123a514de4d12681c0a"
+    },
+    "releases/course/v1.6.0/aicoding-student-kit.sha256": {
+      "originalSha256": "1895e962f0fd61c52d62d9103c648d2b251ec6bf2e5707249c3f14928444581e",
+      "gitSha256": "51a9c0be666e9f17a9156f3ff314c40f1747ad26af893b45c4f32be5af115c12"
+    },
+    "releases/course/v1.6.0/knowstar-course-skill.sha256": {
+      "originalSha256": "6da14c6f2f337ff5949a105b83f8988fcc4e8a86b0ab24f81a91f56fc51dabe2",
+      "gitSha256": "e111417bcd7c49c0629c5ef8ae536ea755aa27fb6fae30289985bc3b5fb7df7d"
+    },
+    "releases/course/v1.6.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "30db4233387dfcf6d7875919e43cb167b571305757b18c2e29adfd3b87b98bf9",
+      "gitSha256": "e446f52341a30ba29531463f28ba73f3137068d0677215c682d75daa8298b55e"
+    },
+    "releases/course/v1.6.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "17a5d642e6f8582830a6163eb60906abe7d388c1727a88b8399926d8fa6bc465",
+      "gitSha256": "cd17094bf31093d0db2695362409120dd180f352ff38a46b83e1509bb69494d2"
+    },
+    "releases/course/v1.6.0/knowstar-env-skill.sha256": {
+      "originalSha256": "b4cad765960fb1bbca9391032b872585d8ebf1e436ae627b30eded46c20eefaa",
+      "gitSha256": "c75ba2e7e886eb4d490f3aa4884e157a052d62475c89d16433750b23bf8950f5"
+    },
+    "releases/course/v1.6.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "907c52946bd3bc50c0e77409dcd06775dadb73601f17d809296155a727ab9851",
+      "gitSha256": "917788918bf5d048e958f352dc850fbb6d94ea058b520cf74726fa4eb7f3e762"
+    },
+    "releases/course/v1.6.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "9dfbd6305096b9e3eb7af8186ea6509e8559916e5beef6c06d237d80189560ed",
+      "gitSha256": "c65a1060a5f94b45863364cab388e89f6f27d9587f14e8cfd395e1620d3b262d"
+    },
+    "releases/course/v1.6.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "b8ee65317d75a74644e713c5238ba19344701611788f3c92fd7a69bcb70324c3",
+      "gitSha256": "7bf0f46bd63b870b946c07334c0208627116fa39ce9591b333e8adaf6917d025"
+    },
+    "releases/course/v1.6.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.6.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.6.0/VERSION.json": {
+      "originalSha256": "03c45aa1577ebdd50341be0b7ac0ba0480e2376aef16e686f7402de104f05b08",
+      "gitSha256": "5e756b5abef3b1569eebbe8e8d7dd40ed4f91b15500812aabeb732fd256812ae"
+    },
+    "releases/course/v1.6.0/CHANGELOG.md": {
+      "originalSha256": "39a533d06bb549a8f238b588a028955c0675eb5e34a9a6b6d383dda17007fcb8",
+      "gitSha256": "16cad193ded0be8ebad94dca0957f523c07799d7aaf8b2937c239733344b7197"
+    },
+    "releases/course/v1.6.1/aicoding-student-kit.sha256": {
+      "originalSha256": "0273c49f074da2196a33c3c6d79a4ae627d854de8a2d4473573fa2facff26e88",
+      "gitSha256": "e0eb047efe49ab8b1d89bf73338d80d22dce9dcdcf383a0085fc3a513c0929e8"
+    },
+    "releases/course/v1.6.1/knowstar-course-skill.sha256": {
+      "originalSha256": "72a9b62408a536165ab15ca64be87a4d209d4a9a9e92f67eda07f6aa35a1d93e",
+      "gitSha256": "c47100e4d33061b097e27cf8e5a90b627a47cffa9592f57f522604e9629bed53"
+    },
+    "releases/course/v1.6.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "35a1b5d44910fd425ee8e622d5be7febd23e33779e55f503f7c0e44873f7d8ed",
+      "gitSha256": "6d61f9a4b51b7443418a000c025972540f2e2f3adbf7fb6c0ca814089d030471"
+    },
+    "releases/course/v1.6.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "2698a750b354455e045e1660f6bbd26c0646d0c1a43ff0cc27b17f932235c121",
+      "gitSha256": "9d972a126380218533c9480685b51a77a3e0bd0bc792d470eb2a16d14ca53665"
+    },
+    "releases/course/v1.6.1/knowstar-env-skill.sha256": {
+      "originalSha256": "82de6f858a5a0ef51b0093665849cfc6d192055483eb0b3e2442ca87b6f34e51",
+      "gitSha256": "0ca60462a9ff1d811a59cc1e12785c00a2ae5465610770fc27079031e95c8a9a"
+    },
+    "releases/course/v1.6.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "e226c54153d2b9f3134509c541f81d527ec405204d84edd6388f0c455ddb525b",
+      "gitSha256": "853ee40fb3e7d66e66d14cbd7386a2cb3965b67d82b11f450e4d8ef7e6521d54"
+    },
+    "releases/course/v1.6.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "55a7e4804c8c139e744be91622686cefab752ebe366df50af337c804209aa062",
+      "gitSha256": "35b0ce4dea28533b64da7a9223ec906a0217d469acbd0dbee5d85c0189d249c3"
+    },
+    "releases/course/v1.6.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.6.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.6.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.6.1/VERSION.json": {
+      "originalSha256": "3d5afc7afac6f2174cc7f3a8686fda5b78d56f38471964ef99c38dc6114595e5",
+      "gitSha256": "453c4a0adf0ed4a33db187b0dc811ab3ecee87f545da2eef447f9e540f56f540"
+    },
+    "releases/course/v1.6.1/CHANGELOG.md": {
+      "originalSha256": "88349891770643f491f44254271e79f61469f5687b3e1014e3bd1e8814e56ff3",
+      "gitSha256": "acf500919fe2a54e7a1a7e77931baebb09c5df350843ceb2fe38b90bf8d9aae6"
+    },
+    "releases/course/v1.7.0/aicoding-student-kit.sha256": {
+      "originalSha256": "049b4eba9a53ffdcd67a2f2c6bdd28bf85c3e20c55daaffd225e1fadfda79745",
+      "gitSha256": "944f806f97529837045efd0b93d626af17c92468eb44ebdd05554d98e142af6d"
+    },
+    "releases/course/v1.7.0/knowstar-course-skill.sha256": {
+      "originalSha256": "73ea88262dfbcac54095ebc779398ea52a4a4d9bfc6a2a8dcb82db050d15d670",
+      "gitSha256": "5dbda2d17f7464160938ef76acf62008211d2b566f5ce8b2162862a7dcb8fb37"
+    },
+    "releases/course/v1.7.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "a6f2957e522593dbab91fb45cd9b87e6fe8b17292298c3cb6c3484d8cbfd42b5",
+      "gitSha256": "d72498a06a247f74eb392bbb1419168b9b75cab63c8770b234629f36f1705a9d"
+    },
+    "releases/course/v1.7.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "48e7de5a07d9c94297587bbbe17fdc4f2dea59c48547617c77d3b9ab9c5b5c32",
+      "gitSha256": "9f0705050184b568522cbe0c418c8c96099e51e8df55107cef05f38136446102"
+    },
+    "releases/course/v1.7.0/knowstar-env-skill.sha256": {
+      "originalSha256": "127b6bd6b1f2b411ef975554af57e0875db7335c03d6d990c91ab5d355a97405",
+      "gitSha256": "148336bdb6425f020b05d2aaa9c881b88c486a37e268add41475ae8f5b5c7c27"
+    },
+    "releases/course/v1.7.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "b545e9996ba7aa5c306586a2be596cd4e9da0b270c1565554b79f2f9879e8589",
+      "gitSha256": "b99db23e924efd43b66a1f80c356130d06873f0ef5c8cd46b03658c746f13596"
+    },
+    "releases/course/v1.7.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "3187ea0b811aea5245c1fdfeec41b2566ed26b60ecfdff66879e84bf352096dc",
+      "gitSha256": "c1eea14e8adb0e682bc8924bcd8ae0c07d9806d32115615e68c582664cb9e9d4"
+    },
+    "releases/course/v1.7.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.7.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.7.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.7.0/VERSION.json": {
+      "originalSha256": "dae0bd6d4194e280edfde1b4429a30e2cbfd279f1489c1a1c85b244d633f2eff",
+      "gitSha256": "9caf15a149479d44bc8834c85266e99e200c1388864c2a50a28665a2d5a78265"
+    },
+    "releases/course/v1.7.0/CHANGELOG.md": {
+      "originalSha256": "844673bc07562016549e179ae1f75396017c9b5baee9320f86f28eeab5fd9da5",
+      "gitSha256": "503a60a1766ece5c69451ca22476200305214014bb8c0ff028b40df2a6ffbcaf"
+    },
+    "releases/course/v1.7.1/aicoding-student-kit.sha256": {
+      "originalSha256": "da5d76226e9a23cd103db1e8780d76509e3e390bad559e116c257200ca50af19",
+      "gitSha256": "aaa972d68acf4d57bb1909171be77a3bb78236716d67c6f633fac1607c11e8c4"
+    },
+    "releases/course/v1.7.1/knowstar-course-skill.sha256": {
+      "originalSha256": "2cb675f5ef32f9aac8f39a67d0a70119ca4dccecdccca4e79f0c0b16aa36bd11",
+      "gitSha256": "ad68836959b655853a68034b00d7cc012baf865016799a5499d56874de89cc55"
+    },
+    "releases/course/v1.7.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "3873f0ae9c2d68953be663d9d1215e48aa6182106b66f38cfc2ec9f01e304656",
+      "gitSha256": "13204ce8e9e39500a08e14bf1b39c151876606a357be7c298506ecf34e587f49"
+    },
+    "releases/course/v1.7.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "053c2f879dc8d7431a929bbedae5c5e581db358c75abade440c1d3f73406ac98",
+      "gitSha256": "7520ea2a128834dfbb9d89090e01306b9fdd60d9ca628b7a955f7df660f5010e"
+    },
+    "releases/course/v1.7.1/knowstar-env-skill.sha256": {
+      "originalSha256": "127b6bd6b1f2b411ef975554af57e0875db7335c03d6d990c91ab5d355a97405",
+      "gitSha256": "148336bdb6425f020b05d2aaa9c881b88c486a37e268add41475ae8f5b5c7c27"
+    },
+    "releases/course/v1.7.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "b545e9996ba7aa5c306586a2be596cd4e9da0b270c1565554b79f2f9879e8589",
+      "gitSha256": "b99db23e924efd43b66a1f80c356130d06873f0ef5c8cd46b03658c746f13596"
+    },
+    "releases/course/v1.7.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "098b6147571993dcc51aa805b22af036804168606c0e973541e95178f874cc67",
+      "gitSha256": "a93fbdd18238d45ab9a5f43023c40963f9ba55f7e39bf7c97b2471c94c14b953"
+    },
+    "releases/course/v1.7.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.7.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.7.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.7.1/VERSION.json": {
+      "originalSha256": "6fc262c57475f64c6775645d8e7b029beac10a9a624e1e6c091167a59578399e",
+      "gitSha256": "2fe136fc1c2267167c20097fb70235f85ffff327557c3c41ab26364b887b620d"
+    },
+    "releases/course/v1.7.1/CHANGELOG.md": {
+      "originalSha256": "5dc33e8e9a2c42de21bb68404e2cca29b42c1fad82fdb0fbdf3b19dd6af9e3d5",
+      "gitSha256": "b9e1e72fa68034f4d058994d3eb5923cb58773f577d711ebfe0f563cd27bc7b0"
+    },
+    "releases/course/v1.7.2/aicoding-student-kit.sha256": {
+      "originalSha256": "ed0df372b33252097ef4991bcdb0d85f8e6b180e54b7a584b8483c2e257de120",
+      "gitSha256": "fa9d201abf32a8117addaad6a683a47e5d7eab597188108bfb77e8c0590a8583"
+    },
+    "releases/course/v1.7.2/knowstar-course-skill.sha256": {
+      "originalSha256": "f94d8ebbe519d87420b0d9644c70dc9d39b13c1aa4fe361ef221c00a412edb19",
+      "gitSha256": "a518f89c3f40b990bbdf55ba65b66dbfb9e39f03ecf3f6054d2d8e1e45fd45b9"
+    },
+    "releases/course/v1.7.2/ai-coding-toolkit.sha256": {
+      "originalSha256": "1490092fe7f3923924c1a045b49a8f9c26d71dc4bc78543b6fff57a8ecb713cf",
+      "gitSha256": "d4b6b14e603ebbec96bdd40a6627e62df47014f71667f86f5729bbd98f6b810a"
+    },
+    "releases/course/v1.7.2/knowstar-environment-kit.sha256": {
+      "originalSha256": "64c028c83173fd6eda267b9bac86fa2944954c565cb86080bd3c22d9e1fee385",
+      "gitSha256": "b92610755463babcda1eba880c81ee9d5b2951b3eeb28330ef5d6a1addaed5ec"
+    },
+    "releases/course/v1.7.2/knowstar-env-skill.sha256": {
+      "originalSha256": "127b6bd6b1f2b411ef975554af57e0875db7335c03d6d990c91ab5d355a97405",
+      "gitSha256": "148336bdb6425f020b05d2aaa9c881b88c486a37e268add41475ae8f5b5c7c27"
+    },
+    "releases/course/v1.7.2/ai-coding-env-skill.sha256": {
+      "originalSha256": "b545e9996ba7aa5c306586a2be596cd4e9da0b270c1565554b79f2f9879e8589",
+      "gitSha256": "b99db23e924efd43b66a1f80c356130d06873f0ef5c8cd46b03658c746f13596"
+    },
+    "releases/course/v1.7.2/ai-coding-project-skill.sha256": {
+      "originalSha256": "1caa4cc99c0e1e6407e10c397aa4b485217904f3dc65af382b8735cc485c6fac",
+      "gitSha256": "49382dbea8949196351ab942b89944178d5f5e450966670e418c559c6b466717"
+    },
+    "releases/course/v1.7.2/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.7.2/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.7.2/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.7.2/VERSION.json": {
+      "originalSha256": "d4a055a14f440aabfe5d8d049ba1e01553b697da87bd65db1ccabc68fafe6f5c",
+      "gitSha256": "4594ff4cbc6ae162eb52f61e18b7f71e737da56cf9577518d90a68b75b4b3200"
+    },
+    "releases/course/v1.7.2/CHANGELOG.md": {
+      "originalSha256": "dc00057ea2691ed6adb9da96ef46d62224250a6e3cf8c68f40097d06211d7e49",
+      "gitSha256": "280e4330e4d2333309dffff5cec68cf6b30d80eb0e3b5d2ce4a9b8a7bcc68b56"
+    },
+    "releases/course/v1.7.3/aicoding-student-kit.sha256": {
+      "originalSha256": "da90477483711661ef7a0719681eff1ce88a77514b4a6ff1174ff79fe35c4d1d",
+      "gitSha256": "9d6fa5c3075c1e25378f72a1e1199a03259378a0483ccdcf629a72a0e996b5a1"
+    },
+    "releases/course/v1.7.3/knowstar-course-skill.sha256": {
+      "originalSha256": "bf22d8d47f0a009af9ddc3d7a7cc50184bbf26cd93c0219cc41b8ca02f75545c",
+      "gitSha256": "51b237f1461e9c6c0fb9f100a3a9a84c68bdceada0e5796cc89af287351175ac"
+    },
+    "releases/course/v1.7.3/ai-coding-toolkit.sha256": {
+      "originalSha256": "4e404951e8f572b96f4bcc86d62b5e1aed11018a61b9294420b01ec47cda9d85",
+      "gitSha256": "07903df2cbaa78ee47ca6a967598c9fecd33c5c8cb0ac26c003b2134d145218e"
+    },
+    "releases/course/v1.7.3/knowstar-environment-kit.sha256": {
+      "originalSha256": "10bdacf4895c58ed36191cf179fad7354ce01717dbf182859f45880bde2e2d9c",
+      "gitSha256": "86a71f95e20426bd10fd509665e1888cb2c65c1fde52228a15910735f55d09e3"
+    },
+    "releases/course/v1.7.3/knowstar-env-skill.sha256": {
+      "originalSha256": "4f3f70150ecc81642e62c9af18eecd92f2651adeac81cfbd67d8eb5e55804d8f",
+      "gitSha256": "8f8fd2005a649ac617ba87df431b66e8bd7570bb23403376de3956c092477bf1"
+    },
+    "releases/course/v1.7.3/ai-coding-env-skill.sha256": {
+      "originalSha256": "cbaff14eeae1d6328ced391d189bc42e71ee135bc018d1af0be7725fef126984",
+      "gitSha256": "e75bc2ece54b0178d2bd6c012f6283881c1490d77788df16745b3cd6f9dd38c1"
+    },
+    "releases/course/v1.7.3/ai-coding-project-skill.sha256": {
+      "originalSha256": "1caa4cc99c0e1e6407e10c397aa4b485217904f3dc65af382b8735cc485c6fac",
+      "gitSha256": "49382dbea8949196351ab942b89944178d5f5e450966670e418c559c6b466717"
+    },
+    "releases/course/v1.7.3/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.7.3/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.7.3/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.7.3/VERSION.json": {
+      "originalSha256": "54aa53f9d4ba530a1e8cc37df233863158085dbb91a4c149d946319745080ca8",
+      "gitSha256": "a2eb331f98f79a9d91523618e6d9d74fd6e12f0648fa2815437c29e83185513a"
+    },
+    "releases/course/v1.7.3/CHANGELOG.md": {
+      "originalSha256": "d5888060ac476e202e11557a940766ea095228c02f56538fadbf35fc9cf3ba2a",
+      "gitSha256": "33aadd13d93e1278fa5434fc8f904a13901830af147a16aad4525eeeb2fd98c2"
+    },
+    "releases/course/v1.7.4/aicoding-student-kit.sha256": {
+      "originalSha256": "cde001d57be6987440dfc46e8e43b0450a2f6fe7ebc6371be0adb97802f71044",
+      "gitSha256": "e6b43132e7986c7e35dbc918064ed320a51cb8279d4203ac57113194e750bd01"
+    },
+    "releases/course/v1.7.4/knowstar-course-skill.sha256": {
+      "originalSha256": "61db0bc324aad8ae7093fc6e5de44ca86be1980048f3ae59de10aab512848783",
+      "gitSha256": "6b0adc25ee334d5a68b450b4f0d8f8a1182d40fb95b0c5c57d4db977482447c3"
+    },
+    "releases/course/v1.7.4/ai-coding-toolkit.sha256": {
+      "originalSha256": "95a73fe169db333dcfde8039f5f2acedd1299017c28694b52ec94f025cb93cd0",
+      "gitSha256": "aed85be703d68e91949bb01a5a989bcc6dde8d5793912dc87df1240f04e94f9b"
+    },
+    "releases/course/v1.7.4/knowstar-environment-kit.sha256": {
+      "originalSha256": "b4fe4495d86a65424ab859418541c86ddb34776d11327d9d1d8d1898d396603c",
+      "gitSha256": "2b2ad199721cdc50a52ba6ad03fd456773ea41324963a445e0ea13db38e7e9ab"
+    },
+    "releases/course/v1.7.4/knowstar-env-skill.sha256": {
+      "originalSha256": "900cd7c24d01d0dd905621bba5216ba7906210ffaa8d87f87c67d961586a487a",
+      "gitSha256": "83c7588ceebc14e6c4fadccef10a632af6861eb78752074c7241c40fe577a2f1"
+    },
+    "releases/course/v1.7.4/ai-coding-env-skill.sha256": {
+      "originalSha256": "ff10350391e9fe67f4e5c30d525fd9a188709a368bdbf819b2bbce7a7e75f0ba",
+      "gitSha256": "5f099b644146cf2e8e670186332f2e445b8b861048df8d35e5d3e2161cfbd8b1"
+    },
+    "releases/course/v1.7.4/ai-coding-project-skill.sha256": {
+      "originalSha256": "1caa4cc99c0e1e6407e10c397aa4b485217904f3dc65af382b8735cc485c6fac",
+      "gitSha256": "49382dbea8949196351ab942b89944178d5f5e450966670e418c559c6b466717"
+    },
+    "releases/course/v1.7.4/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.7.4/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.7.4/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.7.4/VERSION.json": {
+      "originalSha256": "87401254c7c60c29952827004f31f0331ec5e2a23366f263d4a37dccc2d5d9b5",
+      "gitSha256": "0bb5ecfb8ac0efbde0dcd9bb7c5ba936aef148c310bdecde6f0110f391c73e74"
+    },
+    "releases/course/v1.7.4/CHANGELOG.md": {
+      "originalSha256": "c32b93cd4d47831607dfcfc4d7d408ae108dfa1ab6cbeff20f591325a105a857",
+      "gitSha256": "1c425837fa5ba641f62b8448b1de39f2d07aa43f6e0c4698cf5e89c2b83d6870"
+    },
+    "releases/course/v1.8.0/aicoding-student-kit.sha256": {
+      "originalSha256": "0dfc124d67ca960c2cc176e623f0f5736e38f4062b68928d36e99d3393f7abd2",
+      "gitSha256": "839b189c6f2752d15f628a99beaaad26626fb1dd22b012071cbf464b7dd3c46b"
+    },
+    "releases/course/v1.8.0/knowstar-course-skill.sha256": {
+      "originalSha256": "b856710f08240128d4aa8c2abe759639652b493ed3ae7247b5d203438c4a9e9c",
+      "gitSha256": "90db0bd7141d4afbf796432443abcb3d76bd7e8a0b3a0bc18aad0137d352243c"
+    },
+    "releases/course/v1.8.0/ai-coding-toolkit.sha256": {
+      "originalSha256": "95a73fe169db333dcfde8039f5f2acedd1299017c28694b52ec94f025cb93cd0",
+      "gitSha256": "aed85be703d68e91949bb01a5a989bcc6dde8d5793912dc87df1240f04e94f9b"
+    },
+    "releases/course/v1.8.0/knowstar-environment-kit.sha256": {
+      "originalSha256": "b4fe4495d86a65424ab859418541c86ddb34776d11327d9d1d8d1898d396603c",
+      "gitSha256": "2b2ad199721cdc50a52ba6ad03fd456773ea41324963a445e0ea13db38e7e9ab"
+    },
+    "releases/course/v1.8.0/knowstar-env-skill.sha256": {
+      "originalSha256": "900cd7c24d01d0dd905621bba5216ba7906210ffaa8d87f87c67d961586a487a",
+      "gitSha256": "83c7588ceebc14e6c4fadccef10a632af6861eb78752074c7241c40fe577a2f1"
+    },
+    "releases/course/v1.8.0/ai-coding-env-skill.sha256": {
+      "originalSha256": "ff10350391e9fe67f4e5c30d525fd9a188709a368bdbf819b2bbce7a7e75f0ba",
+      "gitSha256": "5f099b644146cf2e8e670186332f2e445b8b861048df8d35e5d3e2161cfbd8b1"
+    },
+    "releases/course/v1.8.0/ai-coding-project-skill.sha256": {
+      "originalSha256": "1caa4cc99c0e1e6407e10c397aa4b485217904f3dc65af382b8735cc485c6fac",
+      "gitSha256": "49382dbea8949196351ab942b89944178d5f5e450966670e418c559c6b466717"
+    },
+    "releases/course/v1.8.0/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.8.0/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.8.0/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.8.0/VERSION.json": {
+      "originalSha256": "f4a98cd4ebcc26d431397f00b7236a3697a0aa2d33375e73ebe4673f71e2f438",
+      "gitSha256": "c2ec273a77d20f0820f09cf6ba13f052d89cb75dede9bb65481a416299212997"
+    },
+    "releases/course/v1.8.0/CHANGELOG.md": {
+      "originalSha256": "b8943ff8325435bdfe9314276c71c32dd139521f724cbcb4a50f2d356e972943",
+      "gitSha256": "d592c1bdc5dd86d4ad5f55a6681a2985f5e1dcb1af0867b11a27344982978538"
+    },
+    "releases/course/v1.8.1/aicoding-student-kit.sha256": {
+      "originalSha256": "bd219732d385e57440516cbc07f822840406be6bff63055a5c541e66f620cbef",
+      "gitSha256": "a6e23c5c6c307d4503506a49dfd47532eaf46adb905e375d0cc628bf889d1ea7"
+    },
+    "releases/course/v1.8.1/knowstar-course-skill.sha256": {
+      "originalSha256": "495d7a5d98e32affa1bdfb03fff125715b8a49ba933fe11ccb5c02e6bf98880b",
+      "gitSha256": "78f378e8f8e4ecc148b4ec3d9e7a2c72a033cd679f5f20332962b52244ecdf99"
+    },
+    "releases/course/v1.8.1/ai-coding-toolkit.sha256": {
+      "originalSha256": "95a73fe169db333dcfde8039f5f2acedd1299017c28694b52ec94f025cb93cd0",
+      "gitSha256": "aed85be703d68e91949bb01a5a989bcc6dde8d5793912dc87df1240f04e94f9b"
+    },
+    "releases/course/v1.8.1/knowstar-environment-kit.sha256": {
+      "originalSha256": "b4fe4495d86a65424ab859418541c86ddb34776d11327d9d1d8d1898d396603c",
+      "gitSha256": "2b2ad199721cdc50a52ba6ad03fd456773ea41324963a445e0ea13db38e7e9ab"
+    },
+    "releases/course/v1.8.1/knowstar-env-skill.sha256": {
+      "originalSha256": "900cd7c24d01d0dd905621bba5216ba7906210ffaa8d87f87c67d961586a487a",
+      "gitSha256": "83c7588ceebc14e6c4fadccef10a632af6861eb78752074c7241c40fe577a2f1"
+    },
+    "releases/course/v1.8.1/ai-coding-env-skill.sha256": {
+      "originalSha256": "ff10350391e9fe67f4e5c30d525fd9a188709a368bdbf819b2bbce7a7e75f0ba",
+      "gitSha256": "5f099b644146cf2e8e670186332f2e445b8b861048df8d35e5d3e2161cfbd8b1"
+    },
+    "releases/course/v1.8.1/ai-coding-project-skill.sha256": {
+      "originalSha256": "1caa4cc99c0e1e6407e10c397aa4b485217904f3dc65af382b8735cc485c6fac",
+      "gitSha256": "49382dbea8949196351ab942b89944178d5f5e450966670e418c559c6b466717"
+    },
+    "releases/course/v1.8.1/ai-coding-cloudbase-skill.sha256": {
+      "originalSha256": "58ba41321fb8deb69cfdd1c6d5bd38592420e3a8f2f7d899e1cb9cae70a6ce10",
+      "gitSha256": "641812a7d697d304549dff56e533a2e7476f11854fd9c5215bc96b575e3e6f98"
+    },
+    "releases/course/v1.8.1/ai-coding-github-skill.sha256": {
+      "originalSha256": "612d289439195ad809dd8505eb141ad1d08f081ff29bdb5a7d09a5da55139d1d",
+      "gitSha256": "3ded33e5ec4c1d401702417df6caf5da5ed374e0dea20549782ccd0c5ed35ba5"
+    },
+    "releases/course/v1.8.1/ai-coding-siliconflow-skill.sha256": {
+      "originalSha256": "a367414eba159136046d602d4e0a4713a25bec101a5da69e1cbc265907e63a41",
+      "gitSha256": "f9766900dfad4d82949196aed14fc6380a92c0f9303819d2183eaab7069fd3c2"
+    },
+    "releases/course/v1.8.1/VERSION.json": {
+      "originalSha256": "6df96f4947e34f20b6ef2cc90c4223c874b0b7db4c8d4328b330be870fc3f3ed",
+      "gitSha256": "3ba378309c060c7c628d9ca10e026450567d4bf2dce72e3465238fba1f4e5bbd"
+    },
+    "releases/course/v1.8.1/CHANGELOG.md": {
+      "originalSha256": "b80ae8e759f02c8be2e2d01e0d4dc2b5ee7858a31abaad0d31961c829f894d66",
+      "gitSha256": "b3e46affe3e3737b04f169d0aca6fba85f7becd04efa877a9fc0c26f728cf6d2"
+    },
+    "releases/course/v1.0.0/manifest.json": {
+      "originalSha256": "2cd9b99abf3eddaa1f70cc111dd56097904997cf1790602061fb3f91a59a6a12",
+      "gitSha256": "4664f760db0fabd4b10c21625238159fb73f5b4df9b78eba07d333c3413ff899"
+    },
+    "releases/course/v1.1.0/manifest.json": {
+      "originalSha256": "0222055799642876003002d52b8265278c48e906740f449b2206b7667d30478f",
+      "gitSha256": "dfff32424f20e56df42665a17ea00fa362f0995868400e00f15a340a58bf9e00"
+    },
+    "releases/course/v1.2.0/manifest.json": {
+      "originalSha256": "f014fbaca4a2093d9f9924c113571c4b015232fb96ed9445f455479ad38da993",
+      "gitSha256": "eeeabb3b5644c673e8f41c2f01770596bab193d8cce5f230cfa9a3092c86fb42"
+    },
+    "releases/course/v1.2.1/manifest.json": {
+      "originalSha256": "571f155fa814c948fb81e23798c913cabb862922933c510378b2328e243c4f9a",
+      "gitSha256": "2dfe8656238da62c96fa825eb8f16d0c72f9d9ae1e471ecd0e9c8f608b2e634d"
+    },
+    "releases/course/v1.2.2/manifest.json": {
+      "originalSha256": "8e38d7108f72627ee0fcb9ff5fa2806c720681cd674014ab3f255443c81aa578",
+      "gitSha256": "64193cd05b6976a0a995bdc3745180d9a2c1695869b1aed97362215cdb8f09ae"
+    },
+    "releases/course/v1.2.3/manifest.json": {
+      "originalSha256": "8d124cedf67d7e882585d81695806725aa82c45d1a91d7491ed39a2c6b7b3d3e",
+      "gitSha256": "502246e8b54b70891e4af869fc862ffbccf6ed2002cec2d601d837b2c8eb9dfc"
+    },
+    "releases/course/v1.3.0/manifest.json": {
+      "originalSha256": "5d39cbcb5e0d99a30f4d75e4a4df0ba82ea30799a9d98a66e514c26b4c01ea8f",
+      "gitSha256": "73d15eee2c6806188e86b27f778faf4d8fe31c9dbfd475ffd7f03c56c01f2962"
+    },
+    "releases/course/v1.3.1/manifest.json": {
+      "originalSha256": "931219a798f42ef3c055f59bccfcc6ed9b90ecbe64e903502b5d42bc77c5fe0e",
+      "gitSha256": "293cf5a2d5685c8fceea86488d97e96ff4c035efa06e568c3108d23d2ae8994a"
+    },
+    "releases/course/v1.4.0/manifest.json": {
+      "originalSha256": "9f81edfcc6197daa49b92ac56d53d1243fa3d1b364c8f6913cae3711ac14b770",
+      "gitSha256": "ee7351ee83d440adf8abbf2a5b2a6c560c6ab93530731d636f21e9a77eeac678"
+    },
+    "releases/course/v1.4.1/manifest.json": {
+      "originalSha256": "43a44f2a92f44e26585444574063f91d992dfb577fa70b83de555d66a2191f87",
+      "gitSha256": "b40c6eb916c442a2e08d545ca028f75a16e4096234f931f026b72c94f1a62a0a"
+    },
+    "releases/course/v1.5.0/manifest.json": {
+      "originalSha256": "fefd6960ccdf0d2cb0dffb3663083b391f7b5f539194187106ed1bd45c06ef0b",
+      "gitSha256": "03295518c855b83ab3cf316e7f780f5e9499f895182052ec21146fb60a4c04a1"
+    },
+    "releases/course/v1.6.0/manifest.json": {
+      "originalSha256": "3dcfece9d825941a4cc02ed3b4ec0c7071d13bcf754594ec3903f300ce590703",
+      "gitSha256": "37010d82b60753278ddb0e976bb2765ecd20e7b05522ab157fe469c8fa273a8a"
+    },
+    "releases/course/v1.6.1/manifest.json": {
+      "originalSha256": "56f00373da2d2c45bfd2674f2dc54cca14c2b78c59782fefc95c2c84f4b34de9",
+      "gitSha256": "db491619e8b437dd57bf16ffee6244f0f48a4bd97b376752c10682bf95d223d7"
+    },
+    "releases/course/v1.7.0/manifest.json": {
+      "originalSha256": "891941cf6528840ee8335932e90d61c0f1943a98eb7444dc09d6a0795581495e",
+      "gitSha256": "7dc249f7faab7daa909ee0b1e2aecd486617e79ca424014ae8abf41db8488a55"
+    },
+    "releases/course/v1.7.1/manifest.json": {
+      "originalSha256": "e14ca934e85fdac686f94e2a57ca2d933d22b2c40850c3c716ece50f63694521",
+      "gitSha256": "4344e75965a9c5bae63ce7167a5f07df0b34083c73b94faa2a97ed464a83092c"
+    },
+    "releases/course/v1.7.2/manifest.json": {
+      "originalSha256": "d5f567ab92d482f974e75008abf67059e88198dcae1fe9f0a0efe16d1dc8b05d",
+      "gitSha256": "d7152ffb14b2560d112a64f95522099071c09712c339752b9f9f7b4364ac0238"
+    },
+    "releases/course/v1.7.3/manifest.json": {
+      "originalSha256": "9c76b650f22da95d134117e3bd55e889fc98f09237b5a2e0835e039c87de1b8f",
+      "gitSha256": "e6bc6b0a37f330faa693940d1969b104f3e1ec0a013ff504e78607ee3485e590"
+    },
+    "releases/course/v1.7.4/manifest.json": {
+      "originalSha256": "f27137669590d2cc67b0d38a898fbcba5e6a1037338fff7614d79d8349f88f5d",
+      "gitSha256": "3dfa95cc15a535fd82cb191667c8bcd194e80f3bcca3c0e0461bb6d4f76a9742"
+    },
+    "releases/course/v1.8.0/manifest.json": {
+      "originalSha256": "ed3d861d8aa5a3ef58cffed9fba7d5ccb2125bc336c4afee956b228176e6fa4c",
+      "gitSha256": "6070b837440b76faf976022643e96e90706f9699bb0b1c22d75cb92e9985039e"
+    },
+    "releases/course/v1.8.1/manifest.json": {
+      "originalSha256": "5b24e155475d8a1e8f7a22d249f40be3e6549b93097cbeba7601a6b0b4ea806f",
+      "gitSha256": "3b3c14180a69145652197f7270827d1c078b1e58c7816f8942c85913613f8f2e"
+    }
+  }
+}

@@ -217,5 +217,19 @@ class ReleaseTests(unittest.TestCase):
         p.verify_assets(self.api.release, p.expected_assets(self.runner.checked))
         self.assertIn(('/releases/assets/100', 'DELETE'), self.api.mutations)
 
+    def test_only_pinned_historical_text_representation_is_accepted(self):
+        folder = self.site / 'releases/course/v1.0.0'; folder.mkdir()
+        original = b'historical\r\n'; canonical = b'historical\n'
+        (folder / 'CHANGELOG.md').write_bytes(canonical)
+        p.atomic_json(folder / 'manifest.json', {'version': '1.0.0', 'files': {'CHANGELOG.md': p.digest(original)}})
+        controls = self.base / 'controls'; controls.mkdir()
+        p.atomic_json(controls / 'legacy-line-endings.json', {'files': {'releases/course/v1.0.0/CHANGELOG.md': {
+            'originalSha256': p.digest(original), 'gitSha256': p.digest(canonical)}}})
+        with patch.object(p, '__file__', str(controls / 'pipeline.py')):
+            result = p.validate_site(self.site)
+            self.assertEqual(len(result['legacyTextRepresentations']), 1)
+            (folder / 'CHANGELOG.md').write_bytes(b'changed\n')
+            with self.assertRaisesRegex(p.ReleaseError, 'HISTORICAL_FILE_MISMATCH'): p.validate_site(self.site)
+
 
 if __name__ == '__main__': unittest.main()

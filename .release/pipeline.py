@@ -175,10 +175,20 @@ def validate_site(site, version=None):
     require(manifest['version'] == version and manifest['status'] == 'release' and manifest['baseUrl'] == base, 'FIXED_MANIFEST_MISMATCH')
     # All retained frozen snapshots must still satisfy their own original manifests.
     snapshots = list((site / 'releases/course').glob('v*/manifest.json'))
+    legacy_file = Path(__file__).parent / 'legacy-line-endings.json'
+    legacy = read_json(legacy_file)['files'] if legacy_file.exists() else {}
+    legacy_matches = []
     for snapshot in snapshots:
         data = read_json(snapshot)
         for name, expected in data['files'].items():
-            require(digest(safe_path(snapshot.parent, name).read_bytes()) == expected, 'HISTORICAL_FILE_MISMATCH: ' + str(snapshot.parent.name) + '/' + name)
+            path = safe_path(snapshot.parent, name)
+            actual = digest(path.read_bytes())
+            if actual != expected:
+                relative = path.relative_to(site).as_posix()
+                known = legacy.get(relative, {})
+                require(known.get('originalSha256') == expected and known.get('gitSha256') == actual,
+                        'HISTORICAL_FILE_MISMATCH: ' + relative)
+                legacy_matches.append(relative)
         website = snapshot.parent / 'website-manifest.json'
         if website.exists():
             for name, expected in read_json(website)['files'].items():
@@ -204,7 +214,7 @@ def validate_site(site, version=None):
         data = read_json(request)
         require(data['version'] == version and data['publicationSha256'] == digest((site / 'publication.json').read_bytes()), 'RELEASE_REQUEST_MISMATCH')
     return {'version': version, 'tag': info['gitTag'], 'manifest': manifest, 'profiles': profiles,
-            'publication': publication, 'fixed': fixed, 'snapshots': len(snapshots)}
+            'publication': publication, 'fixed': fixed, 'snapshots': len(snapshots), 'legacyTextRepresentations': legacy_matches}
 
 
 def expected_assets(checked):
@@ -257,7 +267,8 @@ class Runner:
             require(evidence['status'] == 'passed' and evidence['freshVersion'] == self.version and evidence['to'] == self.version,
                     'PREPARATION_EVIDENCE_MISMATCH')
             self.report['checks']['preparation'] = {'status': 'passed', 'from': evidence['from'], 'to': evidence['to']}
-        self.report['checks']['local'] = {'status': 'passed', 'files': len(self.checked['publication']['files']), 'historicalSnapshots': self.checked['snapshots']}
+        self.report['checks']['local'] = {'status': 'passed', 'files': len(self.checked['publication']['files']),
+            'historicalSnapshots': self.checked['snapshots'], 'legacyTextRepresentations': self.checked['legacyTextRepresentations']}
         self.save(status='running')
 
     def find_release(self):
