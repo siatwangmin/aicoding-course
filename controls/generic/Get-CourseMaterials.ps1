@@ -1,8 +1,14 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
-param([string]$WorkingDirectory, [string]$CourseVersion, [string]$PreviewId, [switch]$SkipInstallers,
-      [ValidateSet('generic','knowstar')][string]$PackageProfile='generic',
-      [ValidateSet('docker','podman')][string]$ContainerRuntime='podman')
+# Public aliases preserve CLI compatibility; private names cannot reset a caller's
+# WorkingDirectory/ContainerRuntime when this zero-material entry is dot-sourced.
+param([Alias('WorkingDirectory')][string]$MaterialsWorkingDirectory,
+      [Alias('CourseVersion')][string]$MaterialsCourseVersion,
+      [Alias('PreviewId')][string]$MaterialsPreviewId,
+      [Alias('SkipInstallers')][switch]$MaterialsSkipInstallers,
+      [Alias('PackageProfile')][ValidateSet('generic','knowstar')][string]$MaterialsPackageProfile='generic',
+      [Alias('ContainerRuntime')][ValidateSet('docker','podman')][string]$MaterialsContainerRuntime='podman',
+      [Alias('CheckOnly')][switch]$MaterialsCheckOnly)
 
 function Receive-CourseFile {
     param([string]$Url, [string]$Destination)
@@ -346,9 +352,21 @@ function Get-CourseMaterials {
 
 if ($MyInvocation.InvocationName -ne '.') {
     $ErrorActionPreference = 'Stop'
-    if (-not $WorkingDirectory) { $WorkingDirectory = (Get-Location).Path }
-    $arguments=@{Workspace=$WorkingDirectory;Version=$CourseVersion;Preview=$PreviewId;WithoutInstallers=$SkipInstallers}
-    if($PSBoundParameters.ContainsKey('PackageProfile')){$arguments.Profile=$PackageProfile}
-    if($PSBoundParameters.ContainsKey('ContainerRuntime')){$arguments.Runtime=$ContainerRuntime}
+    if($MaterialsCheckOnly){
+        if(-not $MaterialsWorkingDirectory){throw 'EXPLICIT_PREPARATION_DIRECTORY_REQUIRED'}
+        $preflight=(Resolve-Path -LiteralPath $MaterialsWorkingDirectory -ErrorAction Stop).Path
+        if(-not(Test-Path -LiteralPath $preflight -PathType Container)){throw 'PREPARATION_DIRECTORY_REQUIRED'}
+        $cursor=[IO.Path]::GetFullPath($preflight)
+        while($cursor){
+            if((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Preparation path traverses a link.'}
+            $parent=Split-Path $cursor -Parent;if($parent -eq $cursor){break};$cursor=$parent
+        }
+        [pscustomobject]@{status='entry-preflight-passed';workingDirectory=$preflight;installationPerformed=$false;networkRequested=$false;writesPerformed=$false}|ConvertTo-Json
+        return
+    }
+    if (-not $MaterialsWorkingDirectory) { $MaterialsWorkingDirectory = (Get-Location).Path }
+    $arguments=@{Workspace=$MaterialsWorkingDirectory;Version=$MaterialsCourseVersion;Preview=$MaterialsPreviewId;WithoutInstallers=$MaterialsSkipInstallers}
+    if($PSBoundParameters.ContainsKey('MaterialsPackageProfile')){$arguments.Profile=$MaterialsPackageProfile}
+    if($PSBoundParameters.ContainsKey('MaterialsContainerRuntime')){$arguments.Runtime=$MaterialsContainerRuntime}
     Get-CourseMaterials @arguments
 }

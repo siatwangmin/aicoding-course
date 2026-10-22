@@ -50,10 +50,14 @@ function Assert-CourseTraeLoadObservation([string]$Root,$Item) {
         if(-not(Test-Path -LiteralPath $path -PathType Leaf) -or (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant() -cne $loaded[0].sha256){throw ('TRAE_RULE_CONTENT_CHANGED: '+$relative)}
     }
 }
+function Assert-CourseLearnerReview($Item){
+    if($Item.kind -ne 'learner' -or -not $Item.reference){throw 'SUMMARY_REQUIRES_LEARNER_OBSERVATION'}
+}
 function Write-CourseObservation([string]$Root,[string]$Stage,[string]$Check,[string]$Outcome,[string]$Kind,[string]$Reference,$TraeObservation){
     $required=@(Get-CourseRequiredChecks $Stage)
     if($Check -notin $required -or $Outcome -notin @('passed','failed','pending') -or $Kind -notin @('command','tool','browser','learner') -or -not $Reference){throw 'ACTUAL_OBSERVATION_FIELDS_REQUIRED'}
     if($Reference -ne (Protect-CourseOutput $Reference)){throw 'OBSERVATION_REFERENCE_CONTAINS_SECRET'}
+    if($Check -eq 'currentResultsReviewed' -and $Outcome -eq 'passed'){Assert-CourseLearnerReview ([pscustomobject]@{kind=$Kind;reference=$Reference})}
     $path=Join-Path $Root ('.course-setup\observations\'+$Stage+'.json')
     $old=if(Test-Path -LiteralPath $path){Read-CourseJson $path}else{$null}
     $items=@($old.observations|Where-Object {$_.check -and $_.check -ne $Check})
@@ -82,6 +86,7 @@ function Save-CoursePreparationEvidence([string]$Root,[string]$Stage,[string]$Ob
         if($item.kind -notin @('command','tool','browser','learner') -or -not $item.reference){throw ('OBSERVATION_SOURCE_REQUIRED:'+ $name)}
         if($Stage -eq 'github' -and $name -in @('cliAvailable','cliAuthVerified','gitCredentialConfigured') -and $item.kind -ne 'command'){throw 'GITHUB_CLI_REQUIRES_COMMAND_OBSERVATION'}
         if($name -eq 'traeLoadObserved'){Assert-CourseTraeLoadObservation $Root $item}
+        if($name -eq 'currentResultsReviewed'){Assert-CourseLearnerReview $item}
         $time=Get-CourseObservationTime $item.observedAt
         if($time -lt $earliest){$earliest=$time}
         $reference=[string]$item.reference
@@ -107,6 +112,9 @@ function Assert-CourseEvidenceSources($Evidence,[string]$Root){
         $items=@($Evidence.evidence|Where-Object check -eq 'traeLoadObserved')
         if($items.Count -ne 1){throw 'TRAE_SESSION_OBSERVATION_REQUIRED'}
         Assert-CourseTraeLoadObservation $Root $items[0]
+        $reviews=@($Evidence.evidence|Where-Object check -eq 'currentResultsReviewed')
+        if($reviews.Count -ne 1){throw 'SUMMARY_REQUIRES_LEARNER_OBSERVATION'}
+        Assert-CourseLearnerReview $reviews[0]
     }
     if($Evidence.schemaVersion -ne 3){return}
     if(-not $Evidence.observationFile -or -not(Test-Path -LiteralPath $Evidence.observationFile -PathType Leaf)){throw 'EVIDENCE_SOURCE_MISSING'}

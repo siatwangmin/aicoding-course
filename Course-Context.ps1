@@ -3,7 +3,11 @@
 function Assert-CoursePlainPath([string]$Path) {
     $cursor=[IO.Path]::GetFullPath($Path)
     while ($cursor) {
-        if ((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Course path traverses a link.' }
+        # Atomic JSON replacement may briefly remove a leaf between filesystem
+        # calls. Only missing paths are tolerated; access/other errors still fail.
+        $item=$null
+        try{$item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop}catch [System.Management.Automation.ItemNotFoundException]{}
+        if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Course path traverses a link.' }
         $next=Split-Path $cursor -Parent; if($next -eq $cursor){break}; $cursor=$next
     }
 }
@@ -170,7 +174,7 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
     $entry=if($prior.Count -eq 1){$prior[0]}else{[pscustomobject]@{preparationId=$source.record.preparationId;cloudbase=$null;ai=$null;github=$null}}
     if($GithubLogin){
         if($GithubLogin -notmatch '^[a-zA-Z0-9][a-zA-Z0-9-]{0,38}$'){throw 'Invalid GitHub login.'}
-        $entry|Add-Member -MemberType NoteProperty -Name github -Value ([pscustomobject]@{login=$GithubLogin;authorizationStatus='pending';checkedAt=(Get-Date).ToString('o')}) -Force
+        $entry|Add-Member -MemberType NoteProperty -Name github -Value ([pscustomobject]@{login=$GithubLogin;authorizationStatus='pending';authorizationMeaning='not-checked-by-registration';requiresLiveAuthorizationCheck=$true;checkedAt=(Get-Date).ToString('o')}) -Force
     }
     $publicFile=Join-Path $Workspace '.cloudbase-setup\connection.env'
     if(Test-Path -LiteralPath $publicFile){
@@ -178,7 +182,7 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
         foreach($line in [IO.File]::ReadAllLines($publicFile)){
             if($line -match '^\s*(VITE_CLOUDBASE_ENV_ID|VITE_CLOUDBASE_PUBLISHABLE_KEY)\s*=\s*([a-zA-Z0-9._:-]+)\s*$'){$values[$Matches[1]]=$Matches[2]}
         }
-        if($values.Count -eq 2){$entry.cloudbase=[pscustomobject]@{envId=$values.VITE_CLOUDBASE_ENV_ID;publishableKey=$values.VITE_CLOUDBASE_PUBLISHABLE_KEY;authorizationStatus='pending'}}
+        if($values.Count -eq 2){$entry.cloudbase=[pscustomobject]@{envId=$values.VITE_CLOUDBASE_ENV_ID;publishableKey=$values.VITE_CLOUDBASE_PUBLISHABLE_KEY;authorizationStatus='pending';authorizationMeaning='not-checked-by-registration';requiresLiveAuthorizationCheck=$true}}
     }
     $aiFile=Join-Path $Workspace '.ai-setup\verification.json'
     $accountFile=Join-Path $Workspace '.ai-setup\account-readiness.json'
@@ -211,7 +215,7 @@ function Register-CourseServices([string]$Workspace,[string]$GithubLogin) {
             $null=Register-CourseResource -InstallationId $installation.installationId -Kind credential -Locator $credential -Ownership reused -DataClass credential -AllowedRoot (Split-Path $credential -Parent)
         }
     }
-    return [pscustomobject]@{preparationId=$entry.preparationId;status='service-records-registered';authorizationStatus='pending'}
+    return [pscustomobject]@{preparationId=$entry.preparationId;status='service-records-registered';authorizationStatus='pending';authorizationMeaning='not-checked-by-registration';requiresLiveAuthorizationCheck=$true}
 }
 function Get-CourseStorageDrives {return [IO.DriveInfo]::GetDrives()}
 function Get-CourseStorageDriveInfo([string]$Root) {return New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($Root))}
