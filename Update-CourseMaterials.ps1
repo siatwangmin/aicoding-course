@@ -72,6 +72,7 @@ function Invoke-CourseMaterialsUpdate {
         $priorFile=Join-Path $Workspace '.course-setup/materials.json'
         if(-not(Test-Path -LiteralPath $priorFile)){throw 'PREPARATION_NOT_FOUND: use the stable preparation entry for the first installation.'}
         $prior=Read-CourseJson $priorFile
+        $explicitProfile=[bool]$Profile
         if(-not $Profile){$Profile=if($prior.SkillNames -contains 'knowstar-course'){'knowstar'}else{'generic'}}
         $pendingFile=Join-Path $Workspace '.course-setup/pending-update.json'
         $pending=if(Test-Path -LiteralPath $pendingFile){Read-CourseJson $pendingFile}else{$null}
@@ -79,6 +80,10 @@ function Invoke-CourseMaterialsUpdate {
         if(-not $Version -and $pending.status -in @('Downloading','Downloaded','Applying')){$Version=$pending.version;$preview=$pending.distributionId}
         $selection=Resolve-CourseRelease -Workspace $Workspace -Version $Version -Preview $preview
         $release=$selection.manifest;$entry=$selection.entry
+        if([version]$entry.version -ge [version]'2.5.3' -and $Profile -eq 'knowstar' -and -not $release.profiles.knowstar){
+            if($explicitProfile){throw 'CASE_PACKAGE_RETIRED: use generic updates; existing case projects and historical packages are preserved.'}
+            $Profile='generic'
+        }
         if($pending.status -in @('Downloading','Downloaded','Applying') -and $pending.version -ceq $entry.version -and $pending.distributionId -ceq $entry.distributionId -and $pending.manifestSha256 -cne $selection.manifestSha256){throw 'PENDING_RELEASE_LOCK_CHANGED'}
         Write-Host ('当前资料 v'+$prior.CourseVersion+'；目标资料 v'+$entry.version+$(if($entry.status -eq 'candidate'){'（候选版）'}else{''})+'。')
         $id=$entry.version+'-'+$(if($entry.distributionId){$entry.distributionId}else{'release'})

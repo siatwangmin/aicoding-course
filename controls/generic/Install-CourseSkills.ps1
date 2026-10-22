@@ -221,6 +221,8 @@ function Install-LegacyCourseSkills {
         if(-not(Get-Command Expand-CourseMaterials -ErrorAction SilentlyContinue)){. (Join-Path $PSScriptRoot 'Get-CourseMaterials.ps1')}
         . (Join-Path $PSScriptRoot 'Course-Upgrade.ps1')
         $bundle=Assert-CourseBundle $Root
+        . (Join-Path $PSScriptRoot 'Course-InstallRecovery.ps1')
+        $null=Repair-CourseInstallationForInstall $Workspace
         $names=@($bundle.skills.PSObject.Properties|Where-Object {-not $CaseOnly -or $_.Value.kind -eq 'case'}|ForEach-Object {$_.Name})
         if(-not $names.Count){throw 'CASE_PROFILE_REQUIRED'}
         $installed=Invoke-CourseSkillTransaction -Workspace $Workspace -PackageRoot $Root -Names $names -ReleaseId $releaseVersion -AllowUnprepared
@@ -315,6 +317,8 @@ function Install-LegacyCourseSkills {
         if(Get-Command Register-CourseInstallation -ErrorAction SilentlyContinue){
             $versionFile=Join-Path $Root 'VERSION.json'
             $packageVersion=if(Test-Path -LiteralPath $versionFile){(Read-CourseJson $versionFile).version}else{$null}
+            . (Join-Path $PSScriptRoot 'Course-InstallRecovery.ps1')
+            $null=Repair-CourseInstallationForInstall $Workspace
             $lifecycleInstallation=Register-CourseInstallation $Workspace $packageVersion
             $lifecycleLease=Enter-CourseOperation $Workspace 'InstallSkills'
         }

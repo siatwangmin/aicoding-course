@@ -4,6 +4,7 @@ function Test-CoursePodmanProxyPair([string]$Client,[string]$Server) {
     return ($Client -in @('6.0.2','6.1.4') -and $Client -eq $Server) -or ($Client -eq '6.1.4' -and $Server -eq '6.0.2')
 }
 . (Join-Path $PSScriptRoot 'Course-Native.ps1')
+. (Join-Path $PSScriptRoot 'Course-PodmanSsh.ps1')
 $lifecycleHelper=Join-Path $PSScriptRoot 'Course-Lifecycle.ps1'
 if(Test-Path -LiteralPath $lifecycleHelper){. $lifecycleHelper}
 
@@ -152,7 +153,7 @@ function Install-CourseSystemPrerequisites([string]$Workspace) {
 }
 
 function Get-SetupPodman {
-    param([string]$Machine='podman-machine-default', [string]$RepairWorkspace)
+    param([string]$Machine='podman-machine-default', [string]$RepairWorkspace,[switch]$RepairSshPermissions)
     $paths=Get-PodmanPaths
     if (-not $paths.Cli) { throw 'Podman CLI is missing; run Setup-Podman.ps1 -Mode Prepare.' }
     $provider=Get-CourseComposeBinding
@@ -167,9 +168,18 @@ function Get-SetupPodman {
     $connectionList=ConvertFrom-Json -InputObject $connections.Output
     $local=@($connectionList | Where-Object { $_.Name -eq $connection -and $_.IsMachine -eq $true -and $_.URI -match '^ssh://(?:root|user)@127\.0\.0\.1:\d+/run/(?:user/\d+/)?podman/podman\.sock$' })
     if (@($local).Count -ne 1) { throw 'Podman verification requires the selected local machine connection; remote services cannot substitute.' }
+    $sshIdentity=Test-CoursePodmanSshIdentity $machineInfo $local[0] -Repair:$RepairSshPermissions -EvidenceDirectory $(if($RepairWorkspace){Join-Path $RepairWorkspace '.podman-setup'})
+    $rootAuthorization=Test-CoursePodmanRootAuthorization $machineInfo $local[0] $paths.Cli -Repair:$RepairSshPermissions -EvidenceDirectory $(if($RepairWorkspace){Join-Path $RepairWorkspace '.podman-setup'})
     $info=Invoke-SetupNative $paths.Cli @('--connection',$connection,'info','--format','json')
-    if ($info.ExitCode -ne 0) { throw $info.Output }
+    if ($info.ExitCode -ne 0) {
+        if($info.Output -match '(?i)unable to authenticate|Permission denied.*publickey|handshake.*failed'){
+            throw ('PODMAN_SSH_AUTHENTICATION_FAILED: selected '+$connection+' user='+$sshIdentity.username+' key='+$sshIdentity.fingerprint+'; local key/ACL verified, inspect this account authorization and connection. Preserve keys and machine.')
+        }
+        throw $info.Output
+    }
     $engine=$(if($info.Stdout){$info.Stdout}else{$info.Output}) | ConvertFrom-Json
+    if([bool]$engine.host.security.rootless -eq [bool]$machineInfo.Rootful){throw 'PODMAN_SSH_ENGINE_ROLE_MISMATCH'}
+    $sshIdentity.serverAuthorization='verified-for-selected-account'
     $compose=Invoke-SetupNative $paths.Cli @('--connection',$connection,'compose','version')
     if ($engine.host.os -ne 'linux' -or $engine.host.arch -ne 'amd64' -or $compose.ExitCode -ne 0) { throw 'Linux amd64 Podman Server and Compose must both be available.' }
     # compose version alone works even when the Windows API forwarding pipe is absent.
@@ -202,7 +212,47 @@ function Get-SetupPodman {
     }
     return [pscustomobject]@{ Cli=$paths.Cli; ComposeBinding=$provider; Machine=$Machine; Connection=$connection; Endpoint=$local[0].URI; ApiEndpoint=("npipe:////./pipe/$Machine");
         ServerVersion=$engine.version.Version; Rootless=[bool]$engine.host.security.rootless; Compose=$compose.Output;
-        NetworkMode=$(if($engine.host.security.rootless){'pasta'}else{'bridge'}) }
+        SshIdentity=$sshIdentity;RootAuthorization=$rootAuthorization;NetworkMode=$(if($engine.host.security.rootless){'pasta'}else{'bridge'}) }
+}
+
+function Resolve-CoursePodmanStartResult($Operation,[string]$Machine,[string]$Cli,[string]$Workspace) {
+    if(-not $Operation -or $Operation.ExitCode -eq 0){return $null}
+    $path=Join-Path $Workspace '.podman-setup\start-failure.json'
+    $evidence=@{machine=$Machine;exitCode=$Operation.ExitCode;output=$Operation.Output;checkedAt=[datetimeoffset]::UtcNow.ToString('o');status='failed'}
+    Write-CourseJson $path $evidence
+    # A running VM may remain after these known startup failures. Never accept
+    # an unrelated error, a timeout, a stopped VM or mere CLI availability.
+    if($Operation.TimedOut -or $Operation.Output -notmatch '(?i)unable to authenticate|Permission denied.*publickey|win-sshproxy\.exe failed to start'){
+        throw ('PODMAN_START_FAILED: inspect '+$path+'; '+$Operation.Output)
+    }
+    $inspection=Invoke-SetupNative $Cli @('machine','inspect',$Machine) 20
+    if($inspection.ExitCode -ne 0){throw ('PODMAN_START_FAILED: machine inspection failed; inspect '+$path)}
+    $items=@($inspection.Output|ConvertFrom-Json)
+    if($items.Count -ne 1 -or $items[0].Name -cne $Machine -or $items[0].State -cne 'running'){
+        throw ('PODMAN_START_FAILED: original machine is not running; inspect '+$path)
+    }
+    $evidence.status='pending-verification';Write-CourseJson $path $evidence
+    # The caller must still pass root SSH, selected engine and real Compose API.
+    return [pscustomobject]@{status='pending-verification';evidence=$path;originalExitCode=$Operation.ExitCode}
+}
+
+function Get-CoursePodmanStateAfterStart($Operation,[string]$Machine,[string]$Cli,[string]$Workspace) {
+    $recovery=Resolve-CoursePodmanStartResult $Operation $Machine $Cli $Workspace
+    try {
+        $snapshot=Get-SetupPodman $Machine $Workspace -RepairSshPermissions
+    } catch {
+        if($recovery){
+            $failed=Read-CourseJson $recovery.evidence
+            $failed.status='recovery-failed';Write-CourseJson $recovery.evidence $failed
+        }
+        throw
+    }
+    if($recovery){
+        $verified=Read-CourseJson $recovery.evidence
+        $verified.status='recovered';Write-CourseJson $recovery.evidence $verified
+        $recovery.status='recovered'
+    }
+    return [pscustomobject]@{Snapshot=$snapshot;StartRecovery=$recovery}
 }
 
 function Invoke-PodmanSetup {
@@ -269,10 +319,24 @@ function Invoke-PodmanSetup {
                     $null=Register-CourseResource -InstallationId $lifecycleInstallation.installationId -Kind machine -Locator $Machine -Ownership created -Metadata @{runtime='podman';cli=$paths.Cli;cliHash=(Get-FileHash -LiteralPath $paths.Cli).Hash.ToLowerInvariant();machineName=$Machine;createdAt=[string]$actual.Created;dataHome=$dataHome;dataHomeOwned=(-not $dataHomeExisted);dataHomeParent=$plan.podmanData;provider='wsl'}
                 }
             }
-            elseif (-not $existing.Running) { $operation=Invoke-SetupNative $paths.Cli @('machine','start',$Machine) 300 }
-            if ($operation -and $operation.ExitCode -ne 0) { throw $operation.Output }
+            elseif (-not $existing.Running) {
+                $beforeStart=Invoke-SetupNative $paths.Cli @('machine','inspect',$Machine) 20
+                if($beforeStart.ExitCode -ne 0){throw 'PODMAN_SSH_MACHINE_INSPECTION_FAILED'}
+                $startInfo=@($beforeStart.Output|ConvertFrom-Json)[0]
+                $connectionInfo=Invoke-SetupNative $paths.Cli @('system','connection','list','--format','json') 20
+                if($connectionInfo.ExitCode -ne 0){throw 'PODMAN_SSH_CONNECTION_INSPECTION_FAILED'}
+                $name=if($startInfo.Rootful){$Machine+'-root'}else{$Machine}
+                $selected=@($connectionInfo.Output|ConvertFrom-Json|Where-Object Name -eq $name)
+                if($selected.Count -ne 1){throw 'PODMAN_SSH_CONNECTION_IDENTITY_MISMATCH'}
+                $null=Test-CoursePodmanSshIdentity $startInfo $selected[0] -Repair -EvidenceDirectory $folder
+                $operation=Invoke-SetupNative $paths.Cli @('machine','start',$Machine) 300
+            }
         }
-        $record.Snapshot=if($Action -eq 'Prepare'){Get-SetupPodman $Machine $Workspace}else{Get-SetupPodman $Machine}
+        if($Action -eq 'Prepare'){
+            $started=Get-CoursePodmanStateAfterStart $operation $Machine $paths.Cli $Workspace
+            $record.Snapshot=$started.Snapshot
+            if($started.StartRecovery){$record['StartRecovery']=$started.StartRecovery}
+        }else{$record.Snapshot=Get-SetupPodman $Machine}
         if($lifecycleInstallation){
             $bindingPaths=Get-PodmanPaths
             foreach($tool in @($bindingPaths.Cli,$bindingPaths.Compose)){

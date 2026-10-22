@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "version": "24.22.0",
+  "lts": "Krypton",
+  "npmVersion": "11.19.1",
+  "file": "node-v24.22.0-win-x64.zip",
+  "sha256": "f9683a19877e12a9b167305c8db71040d812876359de21f0d2e97c3f321f80c3",
+  "executableSha256": "ba93f9a70bd86fce3ebbb39ec758501458453467aa92a34a0a3602d1e3fc2b9c",
+  "checksumsUrl": "https://nodejs.org/dist/v24.22.0/SHASUMS256.txt",
+  "registry": "https://registry.npmmirror.com/",
+  "downloadUrls": [
+    "https://npmmirror.com/mirrors/node/v24.22.0/node-v24.22.0-win-x64.zip",
+    "https://mirrors.nju.edu.cn/nodejs-release/v24.22.0/node-v24.22.0-win-x64.zip",
+    "https://nodejs.org/dist/v24.22.0/node-v24.22.0-win-x64.zip"
+  ]
+}

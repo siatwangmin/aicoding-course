@@ -118,6 +118,11 @@ function Install-CourseScopedSkills {
     $lock = Enter-CourseUpgradeLock
     try {
         Repair-CourseScopedTransactions $Workspace
+        if($Scope -eq 'Preparation'){
+            . (Join-Path $PSScriptRoot 'Course-InstallRecovery.ps1')
+            $recovery=Repair-CourseInstallationForInstall $Workspace
+            if($recovery.status -eq 'ready-to-install'){Write-Host ('旧安装残留已清理：'+$recovery.removed+' 项；共享及自定义内容保留。报告：'+$recovery.report)}
+        }
         if (-not $Names.Count) { $Names = switch ($Scope) { Preparation { @($contract.skillScopes.user)+@($contract.skillScopes.preparation) } User { @($contract.skillScopes.user) } Project { @() } } }
         $Names = @($Names | Select-Object -Unique)
         if (-not $Names.Count) { throw 'EXPLICIT_PROJECT_SKILLS_REQUIRED' }

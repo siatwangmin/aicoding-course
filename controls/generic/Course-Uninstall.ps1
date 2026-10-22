@@ -115,6 +115,14 @@ function New-CourseUninstallPlan {
         foreach($tool in @($items|Where-Object {$_.resource.kind -eq 'tool' -and $_.action -eq 'remove'})){
             if(@($items|Where-Object {$_.resource.kind -eq 'machine' -and $_.action -eq 'retain' -and $_.resource.metadata.cli -eq $tool.resource.locator}).Count){$tool.action='retain';$tool.reason='provider-for-retained-machine'}
         }
+        foreach($backup in @($items|Where-Object {$_.resource.metadata.backupFor -and $_.action -eq 'remove'})){
+            $target=@($items|Where-Object resourceKey -eq $backup.resource.metadata.backupFor)|Select-Object -First 1
+            if(-not $target -or $target.action -eq 'retain'){
+                $catalogTarget=@($db.resources|Where-Object resourceKey -eq $backup.resource.metadata.backupFor)
+                $required=@($db.resources|Where-Object {$_.status -eq 'present' -and $_.backupPath -ieq $backup.resource.locator})
+                if($required.Count -or $catalogTarget.Count -ne 1){$backup.action='retain';$backup.reason='backup-required-or-unverified'}
+            }
+        }
         $projects=New-Object Collections.Generic.List[object]
         foreach($project in @($install.projects)){
             $delete=$Scope -eq 'TestClean' -and $ProjectIds -contains $project.projectId
@@ -124,7 +132,7 @@ function New-CourseUninstallPlan {
             $snapshot=if($delete){Get-CourseFileBaseline $project.path}else{$null}
             $projects.Add([pscustomobject]@{projectId=$project.projectId;path=$project.path;delete=$delete;baseline=$snapshot;protectedDigest=$(if(-not $delete){Get-CourseProtectedProjectSnapshot $project.path}else{$null});manifestDigest=(Get-FileHash -LiteralPath (Join-Path $project.path '.ai-coding\project.json')).Hash})
         }
-        $plan=[pscustomobject]@{schemaVersion=1;operationId=$operationId;installationId=$InstallationId;userSid=$install.userSid;machine=$install.machine;workspace=$install.workspace;scope=$Scope;createdAt=(Get-Date).ToUniversalTime().ToString('o');outputDirectory=$output;items=@($items.ToArray());projects=@($projects.ToArray());pendingIntents=@($db.intents|Where-Object {$_.installationId -eq $InstallationId -and $_.status -eq 'pending'});removePreparation=[bool]$RemovePreparationDirectory;preparationBaseline=$(if($RemovePreparationDirectory){Get-CourseFileBaseline $install.workspace}else{$null});remote='retained';phone='retained';systemComponents='retained'}
+        $plan=[pscustomobject]@{schemaVersion=1;operationId=$operationId;installationId=$InstallationId;installationGeneration=$(if($install.PSObject.Properties['recoveryGeneration']){[int]$install.recoveryGeneration}else{0});userSid=$install.userSid;machine=$install.machine;workspace=$install.workspace;scope=$Scope;createdAt=(Get-Date).ToUniversalTime().ToString('o');outputDirectory=$output;items=@($items.ToArray());projects=@($projects.ToArray());pendingIntents=@($db.intents|Where-Object {$_.installationId -eq $InstallationId -and $_.status -eq 'pending'});removePreparation=[bool]$RemovePreparationDirectory;preparationBaseline=$(if($RemovePreparationDirectory){Get-CourseFileBaseline $install.workspace}else{$null});remote='retained';phone='retained';systemComponents='retained'}
         foreach($item in $plan.items){if($item.action -notin @('retain','blocked') -and $item.resource.allowedRoot -and (Test-CoursePathWithin $item.resource.locator $output -AllowEqual)){throw 'REPORT_INSIDE_DELETE_TARGET'}}
         Protect-CourseDirectory $op;Protect-CourseDirectory $output
         $file=Join-Path $op 'plan.json';Write-CourseJson $file $plan
@@ -148,6 +156,7 @@ function Read-CourseUninstallOperation([string]$OperationId,[string]$ExpectedDig
     $plan=Read-CourseJson $file
     if($plan.schemaVersion -ne 1 -or $plan.operationId -ne $OperationId -or $plan.items.Count -gt 20000 -or $plan.scope -notin @('KeepWork','TestClean')){throw 'INVALID_UNINSTALL_PLAN'}
     $install=Get-CourseInstallation $plan.installationId
+    if([int]$plan.installationGeneration -ne [int]$install.recoveryGeneration){throw 'PLAN_STALE: installation was recovered; create a new uninstall plan.'}
     if($plan.userSid -ne $install.userSid -or $plan.machine -ne $install.machine){throw 'PLAN_IDENTITY_MISMATCH'}
     foreach($item in $plan.items){if($item.action -notin @('retain','blocked','remove','restorePrevious','removeManagedBlock')){throw 'UNKNOWN_UNINSTALL_ACTION'}}
     return [pscustomobject]@{directory=$dir;state=$state;plan=$plan;installation=$install}
@@ -211,8 +220,14 @@ function Invoke-CourseUninstallApply([string]$OperationId,[string]$ExpectedDiges
                 if($item.resource.metadata.backupFor){
                     $dependent=@($op.plan.items|Where-Object resourceKey -eq $item.resource.metadata.backupFor)|Select-Object -First 1
                     $saved=@($op.state.items|Where-Object resourceKey -eq $item.resource.metadata.backupFor)|Select-Object -First 1
-                    if($dependent.action -ne 'retain' -and $saved.status -ne 'done'){throw 'BACKUP_STILL_REQUIRED'}
-                    if($dependent.action -eq 'retain' -and $dependent.reason -eq 'shared'){throw 'BACKUP_SHARED_REFERENCE_REQUIRED'}
+                    $catalog=Read-CourseLifecycle
+                    $required=@($catalog.resources|Where-Object {$_.status -eq 'present' -and $_.backupPath -ieq $item.resource.locator})
+                    if(-not $dependent){
+                        $target=@($catalog.resources|Where-Object resourceKey -eq $item.resource.metadata.backupFor)
+                        if($target.Count -ne 1 -or $required.Count){throw 'BACKUP_STILL_REQUIRED'}
+                    }elseif($dependent.action -eq 'retain'){
+                        if($required.Count){throw 'BACKUP_STILL_REQUIRED'}
+                    }elseif($saved.status -ne 'done'){throw 'BACKUP_STILL_REQUIRED'}
                 }
                 if($item.resource.kind -eq 'tool'){
                     foreach($dependent in @($op.plan.items|Where-Object {$_.resource.metadata.cli -eq $item.resource.locator})){

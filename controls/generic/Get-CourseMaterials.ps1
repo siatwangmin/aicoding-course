@@ -131,6 +131,7 @@ function Get-CourseMaterials {
           [ValidateSet('generic','knowstar')][string]$Profile='generic',
           [ValidateSet('docker','podman')][string]$Runtime='podman')
     $workspacePath = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
+    $requestedProfile=$Profile
     if(-not $PSBoundParameters.ContainsKey('Runtime')){
         $Runtime=Resolve-CourseBootstrapRuntime $workspacePath
     }
@@ -162,17 +163,28 @@ function Get-CourseMaterials {
         $Version=$lockedRelease.entry.version;$Preview=$lockedRelease.entry.distributionId
     }
     if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid course version.' }
+    if([version]$Version -ge [version]'2.5.3'){
+        if($requestedProfile -eq 'knowstar'){throw 'CASE_PACKAGE_RETIRED: new releases provide the generic toolkit; use a pinned historical version for the case package.'}
+        $Profile='generic'
+    }
     if($Preview -and $Preview -notmatch '^[a-f0-9]{12}$'){throw 'Invalid preview identity.'}
     if($lockedRelease -and -not $lockedRelease.entry.legacy -and $priorActive.CourseVersion -ceq $Version -and $priorActive.DistributionId -ceq $Preview -and $priorActive.PackageProfile -ceq $Profile){
         $upgrade=Join-Path $priorActive.PackageRoot 'Course-Upgrade.ps1'
         if(Test-Path -LiteralPath $upgrade){
             . $upgrade
             $existingBundle=Assert-CourseBundle $priorActive.PackageRoot
+            $resumeNeedsCleanup=$false
             if(Test-CourseInstalledCompatibility $existingBundle $workspacePath){
-                Write-Host ('沿资料 v'+$Version+' 恢复；共享技能按已验证内容与兼容约定复用，不因恢复任务自动降级或重装。')
-                return $priorActive
+                $recoveryHelper=Join-Path $PSScriptRoot 'Course-InstallRecovery.ps1'
+                if(-not(Test-Path -LiteralPath $recoveryHelper)){$recoveryHelper=Join-Path $priorActive.PackageRoot 'Course-InstallRecovery.ps1'}
+                if(Test-Path -LiteralPath $recoveryHelper){. $recoveryHelper;$null=Repair-CourseInstallationForInstall $workspacePath}
+                elseif(Get-Command Find-CourseInstallation -ErrorAction SilentlyContinue){$oldInstall=Find-CourseInstallation $workspacePath;$resumeNeedsCleanup=($oldInstall -and $oldInstall.status -ne 'active')}
+                if(-not $resumeNeedsCleanup){
+                    Write-Host ('沿资料 v'+$Version+' 恢复；共享技能按已验证内容与兼容约定复用，不因恢复任务自动降级或重装。')
+                    return $priorActive
+                }
             }
-            if(Test-Path -LiteralPath (Join-Path (Get-CourseUserRoot) 'installed-skills.json')){throw 'SHARED_SKILL_SET_CHANGED: preserve the active preparation and use the update compatibility check; never downgrade shared skills while resuming.'}
+            if(-not $resumeNeedsCleanup -and (Test-Path -LiteralPath (Join-Path (Get-CourseUserRoot) 'installed-skills.json'))){throw 'SHARED_SKILL_SET_CHANGED: preserve the active preparation and use the update compatibility check; never downgrade shared skills while resuming.'}
         }
     }
     $distribution=if($Preview){"previews/v$Version/$Preview"}else{"releases/course/v$Version"}

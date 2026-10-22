@@ -64,8 +64,16 @@ function ConvertFrom-SetupBytes {
     return $encoding.GetString($Bytes).TrimStart([char]0xFEFF).Trim()
 }
 
+function Get-CourseWindowsOpenSshDirectory {
+    $directory=Join-Path $env:SystemRoot 'System32\OpenSSH'
+    foreach($name in @('ssh.exe','ssh-keygen.exe')){
+        $path=Join-Path $directory $name;Assert-CoursePlainPath $path
+        if(-not(Test-Path -LiteralPath $path -PathType Leaf)){throw 'WINDOWS_OPENSSH_REQUIRED: restore the Windows OpenSSH Client feature; do not substitute Git SSH.'}
+    }
+    return $directory
+}
 function Invoke-SetupNative {
-    param([string]$FilePath, [string[]]$Arguments, [int]$TimeoutSeconds = 30, [string]$WorkingDirectory)
+    param([string]$FilePath, [string[]]$Arguments, [int]$TimeoutSeconds = 30, [string]$WorkingDirectory, [string]$InputText)
     $start = [Diagnostics.ProcessStartInfo]::new()
     $start.FileName = $FilePath
     if($WorkingDirectory){$start.WorkingDirectory=$WorkingDirectory}
@@ -76,12 +84,17 @@ function Invoke-SetupNative {
     $start.CreateNoWindow = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
+    $start.RedirectStandardInput = $PSBoundParameters.ContainsKey('InputText')
     # Verification must never inherit a remote Docker endpoint from the user's environment.
     $start.EnvironmentVariables.Remove('DOCKER_HOST')
     $start.EnvironmentVariables.Remove('DOCKER_CONTEXT')
     $start.EnvironmentVariables.Remove('DOCKER_TLS_VERIFY')
     $start.EnvironmentVariables.Remove('DOCKER_CERT_PATH')
     if ([IO.Path]::GetFileNameWithoutExtension($FilePath) -eq 'podman') {
+        # Podman invokes ssh-keygen/ssh by name. Keep generation and native reading
+        # on the Windows OpenSSH suite, independent of Git's inherited PATH.
+        $sshDirectory=Get-CourseWindowsOpenSshDirectory
+        $start.EnvironmentVariables['PATH']=$sshDirectory+';'+$start.EnvironmentVariables['PATH']
         $binding=Get-CoursePodmanBinding
         if($binding.dataHome){$start.EnvironmentVariables['XDG_DATA_HOME']=$binding.dataHome}
         if($Arguments -contains 'compose') {
@@ -99,6 +112,7 @@ function Invoke-SetupNative {
         # Read both pipes concurrently as bytes; wsl.exe redirects UTF-16, Docker emits UTF-8.
         $stdout = $process.StandardOutput.BaseStream.CopyToAsync($outBuffer)
         $stderr = $process.StandardError.BaseStream.CopyToAsync($errBuffer)
+        if($start.RedirectStandardInput){$process.StandardInput.Write($InputText);$process.StandardInput.Close()}
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
             $process.Kill()
             $process.WaitForExit()

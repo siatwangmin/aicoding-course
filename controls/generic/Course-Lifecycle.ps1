@@ -67,6 +67,13 @@ function Get-CourseInstallation([string]$InstallationId) {
     if($items[0].userSid -ne [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -or $items[0].machine -ne $env:COMPUTERNAME){throw 'INSTALLATION_IDENTITY_MISMATCH'}
     return $items[0]
 }
+function Assert-CourseInstallationStatus([string]$Status) {
+    if($Status -eq 'active'){return}
+    if($Status -eq 'partial'){throw 'INSTALLATION_INCOMPLETE: previous cleanup is partial; rerun the current installation entry for automatic recovery.'}
+    if($Status -eq 'uninstalling'){throw 'INSTALLATION_UNINSTALLING: uninstall is in progress or interrupted; rerun the current installation entry to recover, or Resume uninstall.'}
+    if($Status -eq 'removed'){throw 'INSTALLATION_REMOVED: select an active preparation or reinstall.'}
+    throw ('INSTALLATION_STATE_UNSUPPORTED: status='+$Status)
+}
 function Register-CourseInstallation([string]$Workspace,[string]$Version,[string]$PackageSha256,[switch]$Recovered) {
     $workspacePath=(Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path;Assert-CoursePlainPath $workspacePath
     $gate=Get-CourseCheckedLifecycleLock
@@ -76,7 +83,7 @@ function Register-CourseInstallation([string]$Workspace,[string]$Version,[string
         if($found.Count -gt 1){throw 'AMBIGUOUS_INSTALLATION'}
         if($found.Count){
             $entry=$found[0]
-            if($entry.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING: resume uninstall before installing.'}
+            $null=Assert-CourseInstallationStatus $entry.status
             if($Version){$entry.version=$Version};if($PackageSha256){$entry.packageSha256=$PackageSha256}
         }else{
             $entry=[pscustomobject]@{installationId=[guid]::NewGuid().ToString('N');workspace=$workspacePath;userSid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;machine=$env:COMPUTERNAME;version=$Version;packageSha256=$PackageSha256;preparationId=$null;status='active';recovered=[bool]$Recovered;createdAt=(Get-Date).ToUniversalTime().ToString('o');projects=@()}
@@ -125,7 +132,9 @@ function Register-CourseResource {
     $gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$existing=@($db.resources|Where-Object resourceKey -eq $key)
-        if(@($db.installations|Where-Object {$_.installationId -eq $InstallationId -and $_.status -eq 'active'}).Count -ne 1){throw 'INSTALLATION_UNINSTALLING'}
+        $current=@($db.installations|Where-Object installationId -eq $InstallationId)
+        if($current.Count -ne 1){throw 'INSTALLATION_NOT_FOUND'}
+        $null=Assert-CourseInstallationStatus $current[0].status
         $baseline=$null
         if($Kind -in @('file','directory','skill','project','tool','credential')){
             if(-not $AllowedRoot -or -not(Test-CoursePathWithin $AllowedRoot $Locator)){throw 'RESOURCE_BOUNDARY_REQUIRED'}
@@ -163,7 +172,7 @@ function Register-CourseResource {
 }
 function Assert-CourseInstallationActive([string]$Workspace) {
     $entry=Find-CourseInstallation $Workspace
-    if($entry -and $entry.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING'}
+    if($entry){$null=Assert-CourseInstallationStatus $entry.status}
     $p=Join-Path $Workspace '.ai-coding\project.json'
     if(Test-Path -LiteralPath $p){$project=Read-CourseJson $p;if($project.preparationStatus -eq 'detached'){throw 'PROJECT_PREPARATION_DETACHED: restore user skills and original approved preparation, then Connect-Project and verify.'}}
 }
@@ -177,7 +186,7 @@ function Enter-CourseOperation([string]$Workspace,[string]$Action) {
             if(Test-Path -LiteralPath $projectFile){$p=Read-CourseJson $projectFile;$entry=@($db.installations|Where-Object {$_.installationId -eq $p.installationId})|Select-Object -First 1}
         }
         if(-not $entry){return $null}
-        if($entry.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING'}
+        $null=Assert-CourseInstallationStatus $entry.status
         $process=Get-Process -Id $PID
         $lease=[pscustomobject]@{id=[guid]::NewGuid().ToString('N');installationId=$entry.installationId;pid=$PID;processStart=$process.StartTime.ToUniversalTime().ToString('o');action=$Action}
         $db.leases=@($db.leases)+@($lease);$null=Write-CourseLifecycle $db;return $lease.id
@@ -196,7 +205,7 @@ function Register-CourseProjectLifecycle([string]$ProjectDirectory,[string]$Prep
     $gate=Get-CourseCheckedLifecycleLock
     try{
         $db=Read-CourseLifecycle;$i=@($db.installations|Where-Object installationId -eq $entry.installationId)[0]
-        if($i.status -ne 'active'){throw 'INSTALLATION_UNINSTALLING'}
+        $null=Assert-CourseInstallationStatus $i.status
         $i.preparationId=$p.preparationId
         $id=Get-CourseLifecycleHash ([IO.Path]::GetFullPath($ProjectDirectory).ToLowerInvariant())
         $i.projects=@($i.projects|Where-Object projectId -ne $id)+@([pscustomobject]@{projectId=$id;path=[IO.Path]::GetFullPath($ProjectDirectory)})

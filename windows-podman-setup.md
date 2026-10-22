@@ -19,6 +19,10 @@ WSL、Podman CLI 和独立 Docker Compose 的固定安装包默认从 GitCode �
 
 Podman info 与 compose version 不代表 Windows Docker 兼容 API 可用，还要实际 compose ls/config/up/exec。先核 machine 状态，再核所选 SSH 连接、API pipe 和 provider。连接错误不切到其他 machine 或 Docker，引擎健康但 API 缺失时保留分层错误。
 
+WSL 的 rootless 启动也通过 root SSH 配置代理环境，因此 Verify 同时验证原 machine 的 root SSH。Prepare 遇到明确的公钥认证失败，先验证原普通用户可用、所选密钥与 machine 绑定一致，再仅向该 WSL machine 的 root authorized_keys 补充当前公钥；保留全部旧公钥，原文件在 guest 同目录备份，A 保存指纹与恢复记录。不复制私钥、不换密钥、不切换 rootful、不重建 machine。非 WSL、普通用户认证失败或非认证类 SSH 故障不自动修改授权。
+
+machine start 返回已知 SSH/转发失败时先保存 start-failure.json，确认同一 machine 实际 running 后继续上述检查和受控 pipe 恢复；只有 root SSH、所选引擎和真实 Compose API 全部通过才标 recovered/Ready。未知启动失败、超时或 machine 未运行时保留失败，不用重试启动或清理虚拟机绕过。
+
 Prepare 在已核所选本机连接、machine 自己 pipe 缺失且客户端版本为 6.0.2/6.1.4 时，可使用其同目录官方 win-sshproxy.exe 恢复该 pipe，记录 helper hash/PID/版本/日志目录和停止条件。参数依据 [v6.1.4 官方实现](https://github.com/podman-container-tools/podman/blob/v6.1.4/pkg/machine/machine_windows.go)。不占 docker_engine，不杀其他进程，不重启共享工作负载。其他版本或 pipe 已存在但 API 失败时记录故障并查相应版本；不循环重建 machine。重启后的 Start 入口复查并仅恢复缺项。
 
 新准备默认 rootless+pasta，端口只绑定 127.0.0.1。既有健康 rootful 可保留 bridge。历史 6.0.2/WSL 2.5.7 的 nftables 故障仅为案例证据；切换模式会使用不同存储，必须先核工作负载和影响，不自动切换。代理按宿主/machine/容器分别实测，直连确实可用时才选择项目级清空代理；不禁 TLS 或防火墙。
@@ -53,4 +57,4 @@ Prepare 需要系统组件时仅以一次 RunAs 启动 InstallSystem 阶段，�
 
 ## 与账号准备并行
 
-完整环境准备优先调用 `scripts/Start-CourseToolPreparation.ps1 -WorkingDirectory <A> -Action Start -ContainerRuntime podman`，它在隐藏的独立PowerShell进程执行本文安装链、存储核验及工具链验证，前台立即按GitHub→硅基流动→CloudBase引导注册。用同一入口 `-Action Status` 读取状态、当前phase和attention；运行中复用同一任务，失败或重启后同一A重试并复用缓存。UAC由Windows显示并由助手提醒本人；需要重启时保存注册进度，等待本人决定，不自动重启。后台不写前台账号进度；Verified后由前台登记实际tools证据。离线镜像可向Start传原 `-ImageArchive` / `-SkipPull`，已有引擎按记录恢复。
+完整环境准备优先调用 `scripts/Start-CourseToolPreparation.ps1 -WorkingDirectory <A> -Action Start -ContainerRuntime podman`，它在隐藏的独立PowerShell进程执行本文安装链、存储核验及工具链验证，前台立即按GitHub→CloudBase接续账号与必要授权；模型供应商在实际启用AI时接入。用同一入口 `-Action Status` 读取状态、当前phase和attention；运行中复用同一任务，失败或重启后同一A重试并复用缓存。UAC由Windows显示并由助手提醒本人；需要重启时保存注册进度，等待本人决定，不自动重启。后台不写前台账号进度；Verified后由前台登记实际tools证据。离线镜像可向Start传原 `-ImageArchive` / `-SkipPull`，已有引擎按记录恢复。

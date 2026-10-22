@@ -18,7 +18,7 @@ function Test-PreparationStage([string]$Name,$Item){
     Assert-CoursePlainPath $Item.path
     if((Get-FileHash -LiteralPath $Item.path).Hash.ToLowerInvariant() -ne $Item.sha256){return $false}
     $e=Read-CourseJson $Item.path
-    try{Assert-CourseEvidenceSources $e}catch{return $false}
+    try{Assert-CourseEvidenceSources $e $root}catch{return $false}
     $time=if($Name -eq 'tools'){$e.VerifiedAt}else{$e.checkedAt}
     try{$age=((Get-Date)-[datetime]::Parse($time)).TotalHours}catch{return $false}
     if($age -lt 0 -or $age -gt 24){return $false}

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.2",
-  "publicationSha256": "f6c3863fda700a2cc8dc8ea0bc5ae91c962f1d07f5241bbad2c2cae64433e469",
+  "version": "2.5.3",
+  "publicationSha256": "25329586aa9223c27cbf60f2e5430f32894e259eff5c0498755766d659dac138",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "75f01ef439949fc8ff8c8104ec21de9f258ef2c1",
-    "tree": "48fecad1538bee65a130fbc9534ee2bfa393809c",
-    "ref": "refs/environment-releases/source/v2.5.2",
+    "commit": "90779b0a576a876a78cdf68bea85b89d7c6f5a9c",
+    "tree": "ec21ac499a029c8b49b2ebe179d5b522c605c214",
+    "ref": "refs/environment-releases/source/v2.5.3",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.2 · 2026-10-21\n\n通用工具手册与明确技能调用\n\n- 当前手册、网页、帮助、模板与技能说明统一采用通用工具表述，保留示例业务与固定历史版本。\n- 手册提示明确调用项目初始化、GitHub、CloudBase 与 Android 技能；通用流程与示例覆盖同步，技能继续支持自然语言目标。\n- 清理环境验收中的模型账号门槛及过时作用域说明；初始化只建立本地工程，平台资源按实际任务接入。\n- 继承 v2.5.1 的 Git for Windows 自动检测、国内源安装、摘要校验、共享归属与卸载能力。\n- 全量文字检查覆盖当前导出网页、模板与嵌套分发包；验证手册调用、版本与历史兼容，并通过真实离线 Git 安装回归。\n"
+  "notes": "## v2.5.3 · 2026-10-22\n\n修复环境恢复与 Trae 验收，精简分发包\n\n- 修复 Podman SSH 工具混用、私钥权限与 root 公钥未授权；启动报错后按实际虚拟机和服务状态进入恢复并重新验证。\n- 修复旧安装恢复死锁和状态误报；仅清理由本工具管理且未修改的残留，保留共享、自定义与项目资源，并拒绝过期卸载计划。\n- Trae 加载验收要求新会话的技能与项目规则实际发现证据，网页访问、文件存在或旧会话记录不再替代加载通过。\n- 新版本仅发布通用工具箱及五个独立技能包，停止生成旧名兼容包和案例整合包；已发布历史版本与标签完整保留。\n- 清理当前手册、环境准备与技能说明中的过期作用域、模型准备门槛和自动发布文案。\n"
 }
