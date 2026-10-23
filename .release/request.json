@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.5",
-  "publicationSha256": "30d0d31ae88a87763a56963363613ed53d44d3b1db2e0efd1cde3ba649fd0a21",
+  "version": "2.5.6",
+  "publicationSha256": "264e055a6f02b86b620b82cbf2f112a17b0e103bcc9dd69bf4f7d6dce38a4652",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "7d7b51978bd8ca4543bf9c8235f20158587d94e9",
-    "tree": "f06afbbe44c571f7bb68da41a8bbf73980e607fd",
-    "ref": "refs/environment-releases/source/v2.5.5",
+    "commit": "2e1ef107c945cd9eccfdb2f29d8855d00b0e87cf",
+    "tree": "5c7f6649af7397ee517fe6f7e3e7b60de192ef58",
+    "ref": "refs/environment-releases/source/v2.5.6",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.5 · 2026-10-22\n\n改进后台准备、授权接续与本人验收\n\n- 后台工具准备新增有界 Watch、心跳、状态建议、各轮历史与阶段计时；失败、重启和中断按真实进程状态接续，保留已完成账号结果。\n- 区分证书信任、代理认证、DNS、超时和摘要错误；固化 GitHub、CloudBase 官方授权轮询接续与必要 CA 排查方法，不自动导入证书或关闭 TLS。\n- 本人汇总确认必须来自明确反馈；保留当前目录五项技能、作用域、新会话和两份规则的实际加载证据，工具读取报告不再代替本人验收。\n- 服务登记明确 pending 仅表示未实时检查授权；修复资料入口 dot-source 覆盖调用方参数，增加只读目录预检。\n- 修复原子替换状态文件时的并发路径检查误报；验证 PowerShell 5.1/7、生成包安装、项目隔离和历史保留。真实公网授权与企业证书链仍按现场结果验收。\n"
+  "notes": "## v2.5.6 · 2026-10-23\n\n新增 Style Lab 设计风格资源\n\n- 将 StyleLab.html 原样作为在线设计资源发布到 GitHub.io，纳入网站清单和固定版本快照。\n- ai-coding-project 在项目初始化验收完成后的交付回复末尾提供 Style Lab 链接，提示选择不同设计风格并复制提示词用于页面设计。\n- 设计风格选择为可选资源，保留已有确认设计，不增加初始化门槛。\n"
 }

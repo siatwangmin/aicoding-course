@@ -25,13 +25,25 @@ function Protect-CourseDirectory([string]$Path) {
     $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'))
     if($legacyAclApi){[IO.Directory]::SetAccessControl($Path,$acl)}else{[IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($Path),$acl)}
 }
+function Remove-CourseTransientFile([string]$Path) {
+    # Only call for a known transient file, never a recovery backup or a directory.
+    try {
+        Assert-CoursePlainPath $Path
+        if(Test-Path -LiteralPath $Path -PathType Leaf){Remove-Item -LiteralPath $Path -Force -ErrorAction Stop}
+    } catch {Write-Warning ('COURSE_CLEANUP_PENDING: '+$Path) -WarningAction Continue}
+}
 function Write-CourseJson([string]$Path,$Value) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path (Split-Path $Path -Parent) -Force)
     $temp=$Path+'.'+[guid]::NewGuid().ToString('N')+'.tmp'
+    $committed=$false
     try {
         [IO.File]::WriteAllText($temp,($Value | ConvertTo-Json -Depth 20),[Text.UTF8Encoding]::new($false))
         if(Test-Path -LiteralPath $Path){[IO.File]::Replace($temp,$Path,($temp+'.backup'))}else{[IO.File]::Move($temp,$Path)}
-    } finally {foreach($file in @($temp,($temp+'.backup'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file -Force}}}
+        $committed=$true
+    } finally {
+        # Preserve recovery material if commit failed; never mask the primary error.
+        if($committed){foreach($file in @($temp,($temp+'.backup'))){Remove-CourseTransientFile $file}}
+    }
 }
 function Read-CourseJson([string]$Path) {
     Assert-CoursePlainPath $Path

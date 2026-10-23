@@ -10,6 +10,7 @@
     "course/custom.html": "course/custom.html"
   },
   "websiteFiles": [
+    "StyleLab.html",
     "README.md",
     "CHANGELOG.md",
     "course/updates.html",

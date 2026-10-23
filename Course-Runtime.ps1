@@ -129,7 +129,7 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
                     $response=Invoke-WebRequest -UseBasicParsing -Uri $verifiedUrl -TimeoutSec 15
                     if($response.StatusCode -ne 200){throw 'HOST_PROJECT_HTTP_UNAVAILABLE'}
                 }finally{
-                    foreach($file in @($probeFile,($probeFile+'.back'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file -Force}}
+                    foreach($file in @($probeFile,($probeFile+'.back'))){Remove-CourseTransientFile $file}
                 }
             }
             Write-CourseJson (Join-Path $Root '.ai-coding\runtime-check.json') @{schemaVersion=2;runtime=$p.containerRuntime;connection=$p.connection;compose=$composeBinding;containerId=$containerIds[0];imageId=$actual.Id;hostPort=$actualPort;url=$verifiedUrl;portStart=$portStart;actualMountsVerified=$true;mountRoundtripAndHostHttp=$(if($Start){'verified'}else{'not-checked'});checkedAt=(Get-Date).ToString('o')}
