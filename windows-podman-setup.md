@@ -58,3 +58,5 @@ Prepare 需要系统组件时仅以一次 RunAs 启动 InstallSystem 阶段，�
 ## 与账号准备并行
 
 完整环境准备优先调用 `scripts/Start-CourseToolPreparation.ps1 -WorkingDirectory <A> -Action Start -ContainerRuntime podman`，它在隐藏的独立PowerShell进程执行本文安装链、存储核验及工具链验证，前台立即按GitHub→CloudBase接续账号与必要授权；模型供应商在实际启用AI时接入。用同一入口 `-Action Status` 读取状态、当前phase和attention；运行中复用同一任务，失败或重启后同一A重试并复用缓存。UAC由Windows显示并由助手提醒本人；需要重启时保存注册进度，等待本人决定，不自动重启。后台不写前台账号进度；Verified后由前台登记实际tools证据。离线镜像可向Start传原 `-ImageArchive` / `-SkipPull`，已有引擎按记录恢复。
+
+账号交互期间按 reliable-preparation.md 检查后台 Status；无其他可执行动作时使用有界 Watch。必要授权轮询保持运行，后台完成后立即接续真实工具验收与汇总。

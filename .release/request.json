@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.6",
-  "publicationSha256": "264e055a6f02b86b620b82cbf2f112a17b0e103bcc9dd69bf4f7d6dce38a4652",
+  "version": "2.5.7",
+  "publicationSha256": "a1bce96d73de4a1212ccf6163523eb4516898c8f46a58f418c8eafa7cde53c16",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "2e1ef107c945cd9eccfdb2f29d8855d00b0e87cf",
-    "tree": "5c7f6649af7397ee517fe6f7e3e7b60de192ef58",
-    "ref": "refs/environment-releases/source/v2.5.6",
+    "commit": "9d09af140c60ae8150270f6b5d4132f52174ba08",
+    "tree": "b7c391f9a6735ddf6b74127bbfe24af9bfd43ea0",
+    "ref": "refs/environment-releases/source/v2.5.7",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.6 · 2026-10-23\n\n新增 Style Lab 设计风格资源\n\n- 将 StyleLab.html 原样作为在线设计资源发布到 GitHub.io，纳入网站清单和固定版本快照。\n- ai-coding-project 在项目初始化验收完成后的交付回复末尾提供 Style Lab 链接，提示选择不同设计风格并复制提示词用于页面设计。\n- 设计风格选择为可选资源，保留已有确认设计，不增加初始化门槛。\n"
+  "notes": "## v2.5.7 · 2026-10-23\n\n合入 GitHub、CloudBase 与项目初始化优化，保留 Style Lab 设计资源\n\n- GitHub 静态发布采用必要运行环境检查，远端预检与本地副本准备并行；自动记录阶段耗时，长报告按需生成。\n- 专用静态副本保留原始文件字节，批量核对 Git 暂存内容；换行差异与真实内容冲突分别诊断，避免 Windows 换行转换造成误报。\n- Pages 后台增加启动早期日志、就绪应答与本地心跳，意外退出沿同一提交有界接续；核心浏览器检查与本人完整体验分别留证。\n- CloudBase 工作流加入依赖就绪后的后台接续、首次部署/恢复/前端更新模板、原始错误脱敏和自动耗时汇总；外部结果未知时先查证，不盲目重发。\n- CloudBase 复用与项目、镜像及输入绑定的有效检查证据，变化时重新验证；默认托管域名策略按实际证据适配，保留文件摘要、浏览器与业务验收。\n- 项目初始化合入可恢复热更新探针、准备目录保护及真实观察 v4；已通过检查独立保留，缺失证据单独接续，避免重复执行。\n- 继续提供 Style Lab 在线风格资源及初始化完成后的可选提示，保留已有确认设计、工具箱、独立技能包和历史固定版本。\n"
 }

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "sinceVersion": "2.2.3",
+  "websitePages": {
+    "index.html": "course/index.html",
+    "preparation.html": "course/preparation.html",
+    "custom.html": "course/custom.html",
+    "course/index.html": "course/index.html",
+    "course/preparation.html": "course/preparation.html",
+    "course/custom.html": "course/custom.html"
+  },
+  "websiteFiles": [
+    "StyleLab.html",
+    "README.md",
+    "CHANGELOG.md",
+    "course/updates.html",
+    "course/help.html",
+    "course/course-steps.json",
+    "course/download-links.json",
+    "course-contract/distribution.json",
+    "course-contract/compatibility.json",
+    "course/preparation-updates.html",
+    "installation-downloads.md",
+    "uninstall.md",
+    "windows-podman-setup.md",
+    "windows-docker-setup.md"
+  ],
+  "websiteMarkdown": "course/*.md",
+  "packageProfiles": {
+    "generic": {
+      "archive": "ai-coding-toolkit.zip",
+      "includeCase": false
+    },
+    "knowstar": {
+      "archive": "aicoding-student-kit.zip",
+      "includeCase": true
+    }
+  },
+  "packageMetadata": [
+    "VERSION.json",
+    "setup-guide.md"
+  ],
+  "generatedSkillReferences": [
+    "course-steps.json"
+  ],
+  "obsoleteCourseSources": [
+    "00-学员操作路线.md",
+    "09-网页上线案例.md",
+    "10-开通CloudBase.md"
+  ],
+  "legacyWebsiteAliases": {
+    "course/00-学员操作路线.md": "操作路线已合入 index.html 与 help.html。",
+    "course/09-网页上线案例.md": "网页展示说明已合入 index.html 的 V2-PAGES。",
+    "course/10-开通CloudBase.md": "云服务准备说明已合入 preparation.html 的 E-06。"
+  },
+  "compatibilityArchives": [
+    "knowstar-environment-kit.zip",
+    "knowstar-env-skill.zip"
+  ]
+}

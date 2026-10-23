@@ -11,7 +11,13 @@ function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     }
     return [IO.Path]::GetFullPath($Actual).TrimEnd('\') -eq [IO.Path]::GetFullPath($Expected).TrimEnd('\')
 }
-function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDependencyMaintenance) {
+function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDependencyMaintenance,
+    [ValidateSet('Development','StaticPublish')][string]$Profile='Development',$PriorContext,[string]$OperationId) {
+    if($Profile -eq 'StaticPublish'){
+        if($ForDependencyMaintenance){throw 'STATIC_PUBLISH_DEPENDENCY_MODE_CONFLICT'}
+        . (Join-Path $PSScriptRoot 'Course-StaticRuntime.ps1')
+        return Get-CourseStaticRuntime -Root $Root -ExecutionRoot (Split-Path $PSScriptRoot -Parent) -Start:$Start -PriorContext $PriorContext -OperationId $OperationId
+    }
     $Root=Resolve-CourseProjectRoot $Root
     if(Get-Command Assert-CourseInstallationActive -ErrorAction SilentlyContinue){Assert-CourseInstallationActive $Root}
     $lifecycleLease=$null

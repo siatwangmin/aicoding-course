@@ -11,7 +11,13 @@ function Test-CourseSourceMount([string]$Actual,[string]$Expected) {
     }
     return [IO.Path]::GetFullPath($Actual).TrimEnd('\') -eq [IO.Path]::GetFullPath($Expected).TrimEnd('\')
 }
-function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDependencyMaintenance) {
+function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDependencyMaintenance,
+    [ValidateSet('Development','StaticPublish')][string]$Profile='Development',$PriorContext,[string]$OperationId) {
+    if($Profile -eq 'StaticPublish'){
+        if($ForDependencyMaintenance){throw 'STATIC_PUBLISH_DEPENDENCY_MODE_CONFLICT'}
+        . (Join-Path $PSScriptRoot 'Course-StaticRuntime.ps1')
+        return Get-CourseStaticRuntime -Root $Root -ExecutionRoot (Split-Path $PSScriptRoot -Parent) -Start:$Start -PriorContext $PriorContext -OperationId $OperationId
+    }
     $Root=Resolve-CourseProjectRoot $Root
     if(Get-Command Assert-CourseInstallationActive -ErrorAction SilentlyContinue){Assert-CourseInstallationActive $Root}
     $lifecycleLease=$null
@@ -129,7 +135,7 @@ function Get-CourseProjectRuntime([string]$Root,[switch]$Start,[switch]$ForDepen
                     $response=Invoke-WebRequest -UseBasicParsing -Uri $verifiedUrl -TimeoutSec 15
                     if($response.StatusCode -ne 200){throw 'HOST_PROJECT_HTTP_UNAVAILABLE'}
                 }finally{
-                    foreach($file in @($probeFile,($probeFile+'.back'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file -Force}}
+                    foreach($file in @($probeFile,($probeFile+'.back'))){Remove-CourseTransientFile $file}
                 }
             }
             Write-CourseJson (Join-Path $Root '.ai-coding\runtime-check.json') @{schemaVersion=2;runtime=$p.containerRuntime;connection=$p.connection;compose=$composeBinding;containerId=$containerIds[0];imageId=$actual.Id;hostPort=$actualPort;url=$verifiedUrl;portStart=$portStart;actualMountsVerified=$true;mountRoundtripAndHostHttp=$(if($Start){'verified'}else{'not-checked'});checkedAt=(Get-Date).ToString('o')}

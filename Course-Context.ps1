@@ -6,8 +6,18 @@ function Assert-CoursePlainPath([string]$Path) {
         # Atomic JSON replacement may briefly remove a leaf between filesystem
         # calls. Only missing paths are tolerated; access/other errors still fail.
         $item=$null
-        try{$item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop}catch [System.Management.Automation.ItemNotFoundException]{}
-        if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Course path traverses a link.' }
+        try{
+            $item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+            $attributes=$item.Attributes
+            # A FileInfo captured during an atomic replace can disappear before
+            # Attributes is read; .NET returns -1, which has every flag set.
+            if([int]$attributes -eq -1){
+                $item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+                $attributes=$item.Attributes
+                if([int]$attributes -eq -1){throw 'Course path attributes unavailable.'}
+            }
+        }catch [System.Management.Automation.ItemNotFoundException]{$item=$null}
+        if($item -and ($attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Course path traverses a link.'}
         $next=Split-Path $cursor -Parent; if($next -eq $cursor){break}; $cursor=$next
     }
 }

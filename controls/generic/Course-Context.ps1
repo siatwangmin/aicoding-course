@@ -6,8 +6,18 @@ function Assert-CoursePlainPath([string]$Path) {
         # Atomic JSON replacement may briefly remove a leaf between filesystem
         # calls. Only missing paths are tolerated; access/other errors still fail.
         $item=$null
-        try{$item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop}catch [System.Management.Automation.ItemNotFoundException]{}
-        if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Course path traverses a link.' }
+        try{
+            $item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+            $attributes=$item.Attributes
+            # A FileInfo captured during an atomic replace can disappear before
+            # Attributes is read; .NET returns -1, which has every flag set.
+            if([int]$attributes -eq -1){
+                $item=Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+                $attributes=$item.Attributes
+                if([int]$attributes -eq -1){throw 'Course path attributes unavailable.'}
+            }
+        }catch [System.Management.Automation.ItemNotFoundException]{$item=$null}
+        if($item -and ($attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Course path traverses a link.'}
         $next=Split-Path $cursor -Parent; if($next -eq $cursor){break}; $cursor=$next
     }
 }
@@ -25,13 +35,25 @@ function Protect-CourseDirectory([string]$Path) {
     $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'))
     if($legacyAclApi){[IO.Directory]::SetAccessControl($Path,$acl)}else{[IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($Path),$acl)}
 }
+function Remove-CourseTransientFile([string]$Path) {
+    # Only call for a known transient file, never a recovery backup or a directory.
+    try {
+        Assert-CoursePlainPath $Path
+        if(Test-Path -LiteralPath $Path -PathType Leaf){Remove-Item -LiteralPath $Path -Force -ErrorAction Stop}
+    } catch {Write-Warning ('COURSE_CLEANUP_PENDING: '+$Path) -WarningAction Continue}
+}
 function Write-CourseJson([string]$Path,$Value) {
     Assert-CoursePlainPath $Path; [void](New-Item -ItemType Directory -Path (Split-Path $Path -Parent) -Force)
     $temp=$Path+'.'+[guid]::NewGuid().ToString('N')+'.tmp'
+    $committed=$false
     try {
         [IO.File]::WriteAllText($temp,($Value | ConvertTo-Json -Depth 20),[Text.UTF8Encoding]::new($false))
         if(Test-Path -LiteralPath $Path){[IO.File]::Replace($temp,$Path,($temp+'.backup'))}else{[IO.File]::Move($temp,$Path)}
-    } finally {foreach($file in @($temp,($temp+'.backup'))){if(Test-Path -LiteralPath $file){Remove-Item -LiteralPath $file -Force}}}
+        $committed=$true
+    } finally {
+        # Preserve recovery material if commit failed; never mask the primary error.
+        if($committed){foreach($file in @($temp,($temp+'.backup'))){Remove-CourseTransientFile $file}}
+    }
 }
 function Read-CourseJson([string]$Path) {
     Assert-CoursePlainPath $Path

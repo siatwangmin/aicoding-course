@@ -1,0 +1,22 @@
+{
+  "version": "2.5.7",
+  "date": "2026-10-23",
+  "gitTag": "course-v2.5.7",
+  "files": {
+    "ai-coding-toolkit.zip": "3f4316392e1b57a49c075929dc1354a4a8b92f77379e423f145b50a850e101a5",
+    "ai-coding-env-skill.zip": "2533d8c677128bd475e489f7a01fc6f0fda68fa81ee7c36527a34bb6e4061e0e",
+    "ai-coding-project-skill.zip": "7c83d60300feb44171f733c85b23f662927d6b92ea44c36b5ada6bc262985574",
+    "ai-coding-cloudbase-skill.zip": "de48af1211ea49906c2859d91e9d0c9575ebf230838682a866fcd726e6479030",
+    "ai-coding-github-skill.zip": "8d0e36c721e8e5137319fe77f480f1e8103c625086fcfd1c95b85ffb9be01b4d",
+    "ai-coding-android-skill.zip": "9c21b2a5a30fbd50a2f5fd8efb35f0d7723b3501537f50820021f9e7452fbee3",
+    "ai-coding-toolkit.sha256": "aa1fb0da372e73a63fff69ec319f1855afaf1b1c0408c5c8bbbbc0873d7eda8b",
+    "ai-coding-env-skill.sha256": "790dad6b1ff99be37787f616b4eb0f03d18754008f4827b5c6db544f57fe235a",
+    "ai-coding-project-skill.sha256": "2e95cc65f7a36d0b76da75349df68777f8763e13767e6b72ba7322f62474e2f2",
+    "ai-coding-cloudbase-skill.sha256": "c407913be630522797f10c156049ce98f4dd75f2964e679f9a66a11db0b43805",
+    "ai-coding-github-skill.sha256": "d923c84ced2ef2a9ca5c1c3bc46e5996d66da174b41ae97a0cb2e3d368f29846",
+    "ai-coding-android-skill.sha256": "e58e04616bddb2421e4d3edc7a05940b3b7bd46c008ce6e647cd2fa6e5d2b2d4",
+    "VERSION.json": "32bb682f3ce4fb0b35396e016f1e5dd76ff89dbd4193274b08ca7c771a3574b8",
+    "CHANGELOG.md": "81f8d25fd69912de5c5b4cc070ff54fd14589c727f36523487f927397316295a",
+    "website-manifest.json": "5c6e912f3edf9e62de8c5eb034de21a69a9ea11349f3a7619ead8e1161bdf24c"
+  }
+}
