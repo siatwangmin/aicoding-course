@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.7",
-  "publicationSha256": "a1bce96d73de4a1212ccf6163523eb4516898c8f46a58f418c8eafa7cde53c16",
+  "version": "2.5.8",
+  "publicationSha256": "1452cbd5a12f0ae0d8f8c41442956ab395d4633775d74e6a76af93d179d482e5",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "9d09af140c60ae8150270f6b5d4132f52174ba08",
-    "tree": "b7c391f9a6735ddf6b74127bbfe24af9bfd43ea0",
-    "ref": "refs/environment-releases/source/v2.5.7",
+    "commit": "ba3988219220b2f9b29f96727ea7805c742997ae",
+    "tree": "f7ebcf976a782558025b304ef6a7cec5e8ff5f7c",
+    "ref": "refs/environment-releases/source/v2.5.8",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.7 · 2026-10-23\n\n合入 GitHub、CloudBase 与项目初始化优化，保留 Style Lab 设计资源\n\n- GitHub 静态发布采用必要运行环境检查，远端预检与本地副本准备并行；自动记录阶段耗时，长报告按需生成。\n- 专用静态副本保留原始文件字节，批量核对 Git 暂存内容；换行差异与真实内容冲突分别诊断，避免 Windows 换行转换造成误报。\n- Pages 后台增加启动早期日志、就绪应答与本地心跳，意外退出沿同一提交有界接续；核心浏览器检查与本人完整体验分别留证。\n- CloudBase 工作流加入依赖就绪后的后台接续、首次部署/恢复/前端更新模板、原始错误脱敏和自动耗时汇总；外部结果未知时先查证，不盲目重发。\n- CloudBase 复用与项目、镜像及输入绑定的有效检查证据，变化时重新验证；默认托管域名策略按实际证据适配，保留文件摘要、浏览器与业务验收。\n- 项目初始化合入可恢复热更新探针、准备目录保护及真实观察 v4；已通过检查独立保留，缺失证据单独接续，避免重复执行。\n- 继续提供 Style Lab 在线风格资源及初始化完成后的可选提示，保留已有确认设计、工具箱、独立技能包和历史固定版本。\n"
+  "notes": "## v2.5.8 · 2026-10-25\n\n以当前用户技能为准更新 CloudBase、GitHub 和项目初始化\n\n- 合入当前 Trae 用户目录的 CloudBase、GitHub 和项目技能，统一工具箱、独立技能包及共用维护源。\n- CloudBase 增加统一部署控制器、资源预检、项目浏览器适配、冒烟和按计划执行的独立会话同步验收；复用已有项目接线与已验证节点。\n- CloudBase 整轮任务与部署子流程分别计时，保留失败尝试和恢复历史；未知外部结果先查证，明确失败按指定节点接续。\n- 资源与 RLS 检查按项目契约执行，保留原环境、镜像、权限和数据；人工同步模式明确记录待本人确认。\n- 项目初始化空白页改为“AI Coding容器环境已经建立，工作空间已经就绪。”，同步模板身份、手册检查与热更新标记，兼容旧模板探针。\n- 保留现有 GitHub 发布实现、Style Lab 入口、准备流程与历史固定版本。\n"
 }
