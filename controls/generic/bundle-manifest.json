@@ -155,10 +155,10 @@
     },
     "ai-coding-project": {
       "archive": "ai-coding-project-skill.zip",
-      "sha256": "028b23b76e589ff0be1290118061641a5281a2fa7f7ac1ae522de39e406a5f81",
+      "sha256": "5f879968d1543a28ca9d063738f50eab6d7435777f6c2cb113e615b297f0ba8c",
       "kind": "generic",
       "files": {
-        "assets/AGENTS.project.md": "021089efce9b106e79deb38f26f7782a26539e635270eb487ee944cf90e92da4",
+        "assets/AGENTS.project.md": "c18dbd216dd5e07574b7429c4b3882686711f973ab3c9169f4c2bb1b1bf84588",
         "assets/app/.env.example": "2e629d91b83681aebf2e1857227cc75b2fd3384ab911fb3f9ab7be6b3783e012",
         "assets/app/.gitignore": "a058924aa5bc0668cfd5f9fa2692452d11114132f6fcf9845bcbb903578d420c",
         "assets/app/.npmrc": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456",
@@ -413,14 +413,14 @@
     "github-cli.json": "07c95867a27e105250a1d3035a11df127398de14eb0137e583aee072801f24f7",
     "git-for-windows.json": "ca96ea8b6924c3828ab1a8923575703667c598d3e02f08bdbcb38d9d6b226c3d",
     "nodejs.json": "8bca88df09d24cbda88ce06afee5d81d5f57b6a6251c2c6ae1717ccdda61683e",
-    "VERSION.json": "0da8e179a1034bff2f1808686f68e86380b9e25615da1e031344b2521e94ea1b",
+    "VERSION.json": "14d10036657b6e3cae83071a725b3aa9f3fb19803a9cd6b3e413623f881f4576",
     "setup-guide.md": "15afe7d24f687fd6851aa69ee918e7d50318897225c2383a70b5dfa73acdaee5",
     "course-contract/compatibility.json": "e25714f0637e1ce6df6fe693cc4a00b3354e8ab2aa334d1bf79df1713eb809e3",
     "ai-coding-env-skill.sha256": "790dad6b1ff99be37787f616b4eb0f03d18754008f4827b5c6db544f57fe235a",
-    "ai-coding-project-skill.sha256": "db7055c3ef2a72a236b36c6e10c8bddd7dcdd9292c84c9324702a43f48ed87c2",
+    "ai-coding-project-skill.sha256": "4396c5cd01e18cbb5bb3893e36b0c6bc0ead162fa3a80c5885c19aaa98cd5fd0",
     "ai-coding-cloudbase-skill.sha256": "d273797fda98150899270284ac3495925582578b663dcc59a3bf5f80656d842f",
     "ai-coding-github-skill.sha256": "d923c84ced2ef2a9ca5c1c3bc46e5996d66da174b41ae97a0cb2e3d368f29846",
     "ai-coding-android-skill.sha256": "e58e04616bddb2421e4d3edc7a05940b3b7bd46c008ce6e647cd2fa6e5d2b2d4"
   },
-  "contentId": "b149f46cd7839e8aa295e9663f7a979b15ab99d1e1788b0509c3d3b713aebf83"
+  "contentId": "2b47975ec9a6b807b0d3768c1c00505b8013f6be82e8ad96f4dd4f34bc7f1826"
 }

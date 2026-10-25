@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.8",
-  "publicationSha256": "1452cbd5a12f0ae0d8f8c41442956ab395d4633775d74e6a76af93d179d482e5",
+  "version": "2.5.9",
+  "publicationSha256": "bf86bf512f0c2a05ff5bb37ccc651e6ded4ff5a007248d30494b4324e411116a",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "ba3988219220b2f9b29f96727ea7805c742997ae",
-    "tree": "f7ebcf976a782558025b304ef6a7cec5e8ff5f7c",
-    "ref": "refs/environment-releases/source/v2.5.8",
+    "commit": "af707498d37f2eaba935ed8e0b2447dbe4e07042",
+    "tree": "f76b31ba40551d9a89c52d9723dc99ca58c855a2",
+    "ref": "refs/environment-releases/source/v2.5.9",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.8 · 2026-10-25\n\n以当前用户技能为准更新 CloudBase、GitHub 和项目初始化\n\n- 合入当前 Trae 用户目录的 CloudBase、GitHub 和项目技能，统一工具箱、独立技能包及共用维护源。\n- CloudBase 增加统一部署控制器、资源预检、项目浏览器适配、冒烟和按计划执行的独立会话同步验收；复用已有项目接线与已验证节点。\n- CloudBase 整轮任务与部署子流程分别计时，保留失败尝试和恢复历史；未知外部结果先查证，明确失败按指定节点接续。\n- 资源与 RLS 检查按项目契约执行，保留原环境、镜像、权限和数据；人工同步模式明确记录待本人确认。\n- 项目初始化空白页改为“AI Coding容器环境已经建立，工作空间已经就绪。”，同步模板身份、手册检查与热更新标记，兼容旧模板探针。\n- 保留现有 GitHub 发布实现、Style Lab 入口、准备流程与历史固定版本。\n"
+  "notes": "## v2.5.9 · 2026-10-25\n\n项目根规则明确浏览器验证交给人工\n\n- 项目根 AGENTS.md 模板追加人工浏览器验收规则，开发过程中助手不执行浏览器验证，部署后提供实际地址、验证步骤和预期结果。\n- 技术检查以 TypeScript 类型检查与构建通过为准，禁止浏览器自动化逐按钮验收，验收环节不擅自修复前序任务遗留问题。\n- 更新项目独立技能包和统一工具箱，保留已有准备环境、资源绑定及历史固定版本。\n"
 }
