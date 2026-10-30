@@ -351,7 +351,8 @@ class Runner:
     def verify_pages(self, fetch=None, attempts=8):
         wanted = self.checked['publication']['files']
         paths = ['publication.json', 'VERSION.json', 'release-index.json', 'setup-guide.md', 'Get-CourseMaterials.ps1',
-                 'Update-CourseMaterials.ps1', 'preparation.html', 'course/course-steps.json', 'ai-coding-toolkit.zip',
+                 'Update-CourseMaterials.ps1', 'index.html', 'preparation.html', 'course/index.html',
+                 'course/preparation.html', 'course/course-steps.json', 'ai-coding-toolkit.zip',
                  'releases/course/v' + self.version + '/VERSION.json',
                  'releases/course/v' + self.version + '/release-manifest.json',
                  'releases/course/v' + self.version + '/ai-coding-toolkit.zip']

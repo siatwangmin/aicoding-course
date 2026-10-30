@@ -48,7 +48,8 @@ def fixture(site):
     (site / 'setup-guide.md').write_text('Get-CourseMaterials.ps1 Update-CourseMaterials.ps1 release-index.json CourseVersion -Action Check -Action Apply', encoding='utf-8')
     entry = {'status': 'release', 'baseUrl': manifest['baseUrl'], 'manifestUrl': manifest['baseUrl'] + '/release-manifest.json', 'manifestSha256': p.digest(files['release-manifest.json'])}
     (site / 'release-index.json').write_bytes(encoded({'latest': version, 'versions': {version: entry}}))
-    for name in ('Get-CourseMaterials.ps1', 'Update-CourseMaterials.ps1', 'preparation.html', 'course/course-steps.json'):
+    for name in ('Get-CourseMaterials.ps1', 'Update-CourseMaterials.ps1', 'index.html', 'preparation.html',
+                 'course/index.html', 'course/preparation.html', 'course/course-steps.json'):
         path = site / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('fixture', encoding='utf-8')
     publication = {'version': version, 'status': 'release', 'files': {x.relative_to(site).as_posix(): p.digest(x.read_bytes()) for x in site.rglob('*') if x.is_file()}}
     (site / 'publication.json').write_bytes(encoded(publication))
@@ -149,6 +150,18 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(p.ReleaseError, 'GATE_MISSING'): self.runner.finalize()
         self.assertEqual(self.api.latest_version, '2.4.2')
         self.assertTrue(self.api.release['draft'])
+
+    def test_stale_default_homepage_prevents_latest(self):
+        self.runner.check(); self.runner.prepare()
+        def stale_homepage(url):
+            if urlparse(url).path == '/aicoding-course/index.html':
+                return b'previous homepage'
+            return self.fetch(url)
+        with self.assertRaisesRegex(p.ReleaseError, 'PUBLIC_CONTENT_NOT_READY'):
+            self.runner.verify_pages(stale_homepage, attempts=1)
+        with self.assertRaisesRegex(p.ReleaseError, 'GATE_MISSING'):
+            self.runner.finalize()
+        self.assertEqual(self.api.latest_version, '2.4.2')
 
     def test_missing_gate_cannot_be_promoted(self):
         with self.assertRaisesRegex(p.ReleaseError, 'GATE_MISSING'): self.runner.finalize()

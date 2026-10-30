@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sinceVersion": "2.2.3",
   "websitePages": {
-    "index.html": "course/index.html",
-    "preparation.html": "course/preparation.html",
+    "index.html": "index.html",
+    "preparation.html": "preparation.html",
     "custom.html": "course/custom.html",
     "course/index.html": "course/index.html",
     "course/preparation.html": "course/preparation.html",
