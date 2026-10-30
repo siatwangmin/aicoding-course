@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Style Lab · UI 风格提示词生成器</title>
+<!-- 无外部依赖：全部样式内联，可离线双击打开 -->
+<style>
+:root{
+  --ink:#0d0d10; --ink-2:#3d3d46; --ink-3:#71717f; --line:#e4e4e9; --line-2:#efeff3;
+  --bg:#fbfbfc; --panel:#ffffff; --accent:#4f46e5; --accent-soft:#eef0ff;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:50;background:rgba(251,251,252,.82);backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line-2)}
+.top-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.3px;font-size:15px}
+.brand-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:13px;font-family:var(--mono)}
+.top-nav{display:flex;align-items:center;gap:22px;font-size:13.5px;color:var(--ink-3)}
+.top-nav a{color:inherit;text-decoration:none;transition:color .15s}
+.top-nav a:hover{color:var(--ink)}
+.sel-pill{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid #dfe1ff;font-weight:550;max-width:260px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.sel-pill.empty{background:#f4f4f6;color:var(--ink-3);border-color:var(--line)}
+
+/* ---------- hero ---------- */
+.hero{padding:72px 0 44px;max-width:780px}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:20px}
+.kicker i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:block}
+.hero h1{font-size:clamp(34px,5vw,54px);line-height:1.06;letter-spacing:-.035em;font-weight:680;margin:0 0 18px}
+.hero h1 em{font-style:normal;color:var(--ink-3)}
+.hero p{font-size:16px;line-height:1.65;color:var(--ink-2);margin:0;max-width:620px}
+
+/* ---------- filter bar ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 22px;border-top:1px solid var(--line-2);flex-wrap:wrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12.5px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;transition:.16s;font-family:inherit}
+.chip:hover{border-color:#c9c9d4;color:var(--ink)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bar-hint{font-size:12.5px;color:var(--ink-3)}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(348px,1fr));gap:22px;padding-bottom:70px}
+.card{border-radius:16px;background:var(--panel);border:1px solid var(--line);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,border-color .22s;position:relative}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 34px -18px rgba(13,13,16,.28);border-color:#d3d3dc}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 16px 38px -20px rgba(79,70,229,.5)}
+.card-preview{height:246px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:34px 18px 18px;border-bottom:1px solid var(--line-2)}
+.card-badge{position:absolute;left:14px;top:12px;font-family:var(--mono);font-size:10.5px;color:rgba(0,0,0,.32);letter-spacing:.06em;z-index:3}
+.card-check{position:absolute;right:12px;top:12px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;display:grid;place-items:center;opacity:0;transform:scale(.6);transition:.2s;z-index:3}
+.card.selected .card-check{opacity:1;transform:scale(1)}
+.card-meta{padding:16px 18px 18px}
+.card-title-row{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.card-meta h3{margin:0;font-size:15px;font-weight:640;letter-spacing:-.2px}
+.card-cn{font-size:12.5px;color:var(--ink-3)}
+.card-desc{margin:0 0 12px;font-size:12.8px;line-height:1.55;color:var(--ink-2)}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.card-tags span{font-size:10.5px;font-family:var(--mono);padding:3px 7px;border-radius:4px;background:#f4f4f7;color:var(--ink-3);border:1px solid #ececf1}
+
+/* ---------- workspace / prompt panel ---------- */
+.workspace{padding:10px 0 90px}
+.ws-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.ws-head h2{margin:0 0 8px;font-size:26px;letter-spacing:-.5px;font-weight:660}
+.ws-head p{margin:0;font-size:14px;color:var(--ink-3)}
+.ws-tabs{display:flex;gap:4px;padding:4px;background:#f3f3f6;border-radius:10px;border:1px solid #ececf1}
+.ws-tab{font-size:12.5px;padding:6px 14px;border-radius:7px;border:0;background:transparent;color:var(--ink-3);cursor:pointer;font-family:inherit;transition:.16s;font-weight:520}
+.ws-tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.panel{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;display:grid;grid-template-columns:1fr 272px}
+.panel-main{display:flex;flex-direction:column;min-width:0}
+.panel-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-2);background:#fcfcfd;flex-wrap:wrap}
+.panel-file{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.panel-file b{color:var(--ink);font-weight:600}
+.btn{font-family:inherit;font-size:12.5px;font-weight:550;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#f7f7f9;border-color:#d0d0da}
+.btn:active{transform:translateY(.5px)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:#000}
+.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.accent:hover{background:#4338ca}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-3)}
+.btn.ghost:hover{background:#f4f4f7;color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:11.5px;border-radius:6px}
+.panel-body{flex:1;overflow:auto;position:relative;max-height:560px;min-height:360px}
+pre.code{margin:0;padding:20px 22px;font-family:var(--mono);font-size:12.2px;line-height:1.72;color:#1f2430;white-space:pre-wrap;word-break:break-word;tab-size:2}
+pre.code::selection,pre.code *::selection{background:#c7d2fe}
+.k-sect{color:#7c3aed;font-weight:700}
+.k-key{color:#0b7285}
+.k-val{color:#2b2b33}
+.k-cmt{color:#a1a1aa;font-style:italic}
+.k-neg{color:#c02626}
+.k-bold{color:#111318;font-weight:700}
+.k-row{color:#4b5563}
+.panel-side{border-left:1px solid var(--line-2);background:#fcfcfd;padding:18px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.side-block h4{margin:0 0 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:650}
+.tok-list{display:flex;flex-direction:column;gap:8px}
+.tok{display:flex;align-items:center;gap:10px;font-size:11.8px}
+.tok .sw{width:26px;height:26px;border-radius:7px;flex:none;border:1px solid rgba(0,0,0,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.tok .tx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.tok .tx b{font-weight:560;color:var(--ink);font-size:11.8px}
+.tok .tx code{font-family:var(--mono);font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dont-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.dont-list li{font-size:11.6px;line-height:1.5;color:var(--ink-2);display:flex;gap:7px}
+.dont-list li::before{content:"✕";color:#d94a4a;font-size:10px;line-height:1.9;flex:none}
+.export-row{display:flex;flex-direction:column;gap:7px}
+.export-row .btn{justify-content:space-between;width:100%;font-family:var(--mono);font-size:11px}
+
+/* ---------- empty state ---------- */
+.empty-state{grid-column:1/-1;border:1px dashed #d8d8e0;border-radius:16px;padding:64px 20px;text-align:center;color:var(--ink-3);font-size:13.5px;background:#fff}
+.empty-state b{display:block;color:var(--ink);font-size:15px;margin-bottom:6px}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line-2);padding:26px 0 40px;color:var(--ink-3);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:12.5px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.28s cubic-bezier(.2,.7,.3,1);z-index:99;display:flex;align-items:center;gap:8px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast i{width:6px;height:6px;border-radius:50%;background:#4ade80;display:block}
+
+/* ================= preview styles (scoped) ================= */
+/* ============ 每个风格的隔离预览样式 ============ */
+
+/* --- soft "canvas" backgrounds --- */
+.card-preview[data-th="brutal"]{background:#f5f2e8;background-image:radial-gradient(#dcd6c4 1px,transparent 1px);background-size:14px 14px}
+.card-preview[data-th="glass"]{background:#6d5df6;background-image:radial-gradient(at 18% 12%,#ff7ab8 0,transparent 58%),radial-gradient(at 86% 78%,#33d6c4 0,transparent 56%),radial-gradient(at 62% 8%,#ffcf5c 0,transparent 45%)}
+.card-preview[data-th="bento"]{background:#0b0b0f}
+.card-preview[data-th="cyber"]{background:#06060b;background-image:linear-gradient(rgba(0,255,247,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,247,.055) 1px,transparent 1px);background-size:22px 22px}
+.card-preview[data-th="swiss"]{background:#f7f7f5}
+.card-preview[data-th="soft"]{background:#f3eef8;background-image:radial-gradient(at 78% 14%,#dbe6ff 0,transparent 55%)}
+.card-preview[data-th="editorial"]{background:#f4efe6}
+.card-preview[data-th="neo"]{background:#eceff4}
+
+.pv{width:100%;max-width:286px;font-size:11px;line-height:1.4;position:relative;z-index:1}
+
+/* 便当盒：压缩尺寸以确保在卡片预览框内完整可见 */
+[data-th="bento"] .pv{max-width:278px}
+[data-th="bento"] .pv-l-wrap{padding:11px}
+[data-th="bento"] .pv-l-wrap h4{font-size:13.5px}
+[data-th="bento"] .pv-l-wrap p{font-size:8px;margin-bottom:8px}
+[data-th="bento"] .pv-l-row{margin-bottom:8px}
+[data-th="bento"] .pv-l-cards{grid-template-rows:30px 30px}
+
+/* 玻璃：收紧高度 */
+[data-th="glass"] .pv{max-width:272px}
+[data-th="glass"] .pv-form{padding:11px}
+[data-th="glass"] .pv-f-head h4{font-size:12.5px}
+[data-th="glass"] .pv-f-head p{margin-bottom:8px}
+[data-th="glass"] .pv-form input{padding:5px 9px}
+[data-th="glass"] .pv-f-row{margin-top:10px}
+
+/* ================= 1. NEO-BRUTALISM ================= */
+[data-th="brutal"] .pv-dash{background:#fff;border:2.5px solid #000;border-radius:0;box-shadow:5px 5px 0 #000;overflow:hidden;font-family:"Arial Black","Helvetica Neue",Arial,sans-serif}
+[data-th="brutal"] .pv-d-bar{display:flex;align-items:center;gap:6px;padding:7px 9px;background:#ffde59;border-bottom:2.5px solid #000}
+[data-th="brutal"] .pv-d-bar b{font-size:10.5px;font-weight:900;letter-spacing:-.2px;text-transform:uppercase}
+[data-th="brutal"] .pv-d-tag{margin-left:auto;font-size:8px;font-weight:900;background:#000;color:#ffde59;padding:2px 5px;letter-spacing:.06em}
+[data-th="brutal"] .pv-dots{display:flex;gap:3px}
+[data-th="brutal"] .pv-dots i{width:7px;height:7px;border:1.5px solid #000;border-radius:50%;background:#ff5c5c;display:block}
+[data-th="brutal"] .pv-dots i:nth-child(2){background:#5cff9d}
+[data-th="brutal"] .pv-dots i:nth-child(3){background:#5cc8ff}
+[data-th="brutal"] .pv-d-body{display:flex}
+[data-th="brutal"] .pv-d-side{width:66px;border-right:2.5px solid #000;padding:6px 0;background:#c6f56a}
+[data-th="brutal"] .pv-d-nav{font-size:8px;font-weight:900;text-transform:uppercase;padding:5px 7px;letter-spacing:-.1px}
+[data-th="brutal"] .pv-d-nav.on{background:#000;color:#fff}
+[data-th="brutal"] .pv-d-main{flex:1;padding:8px;background:#fff}
+[data-th="brutal"] .pv-d-kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+[data-th="brutal"] .pv-d-kpi{border:2px solid #000;padding:5px 6px;background:#ffde59;box-shadow:2px 2px 0 #000}
+[data-th="brutal"] .pv-d-kpi:nth-child(2){background:#ff9ec4}
+[data-th="brutal"] .pv-d-kpi span{display:block;font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;opacity:.7}
+[data-th="brutal"] .pv-d-kpi strong{display:block;font-size:14px;font-weight:900;letter-spacing:-.5px;margin:1px 0}
+[data-th="brutal"] .pv-d-kpi em{font-size:7px;font-style:normal;font-weight:900;background:#000;color:#fff;padding:1px 3px}
+[data-th="brutal"] .pv-d-chart{display:flex;align-items:flex-end;gap:3px;height:44px;margin:8px 0;border-bottom:2px solid #000;padding-bottom:0}
+[data-th="brutal"] .pv-d-chart i{flex:1;background:#5c8cff;border:2px solid #000;border-bottom:0;display:block}
+[data-th="brutal"] .pv-d-actions{display:flex;gap:6px}
+[data-th="brutal"] .pv-d-btn{font-family:inherit;font-size:8.5px;font-weight:900;text-transform:uppercase;padding:4px 8px;background:#000;color:#fff;border:2px solid #000;border-radius:0;box-shadow:2px 2px 0 #5c8cff;cursor:pointer}
+[data-th="brutal"] .pv-d-btn.ghost{background:#fff;color:#000;box-shadow:2px 2px 0 #000}
+
+/* ================= 2. GLASSMORPHISM ================= */
+[data-th="glass"] .pv-form{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.42);border-radius:16px;padding:14px;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 10px 30px -8px rgba(18,10,60,.4),inset 0 1px 0 rgba(255,255,255,.5);color:#fff;font-family:-apple-system,"Segoe UI",sans-serif}
+[data-th="glass"] .pv-f-head h4{margin:0 0 2px;font-size:13px;font-weight:600;letter-spacing:-.2px;color:#fff}
+[data-th="glass"] .pv-f-head p{margin:0 0 11px;font-size:8.5px;color:rgba(255,255,255,.78)}
+[data-th="glass"] .pv-form label{display:block;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:7px}
+[data-th="glass"] .pv-form input{display:block;width:100%;margin-top:3px;padding:6px 9px;font-size:9.5px;border-radius:8px;border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.14);color:#fff;outline:none;font-family:inherit}
+[data-th="glass"] .pv-form input::placeholder{color:rgba(255,255,255,.55)}
+[data-th="glass"] .pv-f-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+[data-th="glass"] .pv-f-btn{font-family:inherit;font-size:9.5px;font-weight:600;padding:6px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(255,255,255,.78));color:#3b2a8f;cursor:pointer;box-shadow:0 3px 10px rgba(20,10,70,.28)}
+[data-th="glass"] .pv-f-link{font-size:9px;color:rgba(255,255,255,.8)}
+
+/* ================= 3. BENTO GRID ================= */
+[data-th="bento"] .pv-land{padding:0;font-family:-apple-system,"SF Pro Text","Segoe UI",sans-serif}
+[data-th="bento"] .pv-l-wrap{background:linear-gradient(160deg,#16171d,#0b0b0f 60%);border:1px solid rgba(255,255,255,.075);border-radius:18px;padding:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 40px -24px #000;color:#fff}
+[data-th="bento"] .pv-l-eyebrow{display:inline-block;font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:#a5b4fc;background:rgba(99,102,241,.14);border:1px solid rgba(129,140,248,.24);border-radius:999px;padding:2px 7px;margin-bottom:7px}
+[data-th="bento"] .pv-l-wrap h4{margin:0 0 3px;font-size:14.5px;font-weight:600;letter-spacing:-.45px;line-height:1.2;background:linear-gradient(120deg,#fff,#b9c0d8);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-th="bento"] .pv-l-wrap p{margin:0 0 9px;font-size:8.5px;color:#8b8fa3;line-height:1.5}
+[data-th="bento"] .pv-l-row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+[data-th="bento"] .pv-l-btn{font-family:inherit;font-size:8.5px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:#fff;color:#0b0b0f;cursor:pointer}
+[data-th="bento"] .pv-l-ghost{font-size:8.5px;color:#a1a1b5}
+[data-th="bento"] .pv-l-cards{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:34px 34px;gap:5px}
+[data-th="bento"] .pv-l-card{border-radius:9px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(150deg,rgba(255,255,255,.085),rgba(255,255,255,.02));position:relative;overflow:hidden}
+[data-th="bento"] .pv-l-card::after{content:"";position:absolute;inset:0;background:radial-gradient(at 70% 0%,rgba(129,140,248,.28),transparent 62%)}
+[data-th="bento"] .pv-l-card:nth-child(1){grid-row:span 2;background:linear-gradient(150deg,rgba(99,102,241,.3),rgba(255,255,255,.02))}
+
+/* ================= 4. CYBERPUNK ================= */
+[data-th="cyber"] .pv-dash{background:rgba(6,8,16,.92);border:1px solid #00f0ff;border-radius:2px;overflow:hidden;font-family:ui-monospace,"SF Mono",Consolas,monospace;box-shadow:0 0 0 1px rgba(0,240,255,.18),0 0 22px -4px rgba(0,240,255,.55),inset 0 0 26px -12px rgba(0,240,255,.5);color:#c8fff9;clip-path:polygon(0 6px,6px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 6px),calc(100% - 6px) 100%,8px 100%,0 calc(100% - 8px))}
+[data-th="cyber"] .pv-d-bar{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid rgba(0,240,255,.28);background:linear-gradient(90deg,rgba(255,0,128,.14),transparent 60%)}
+[data-th="cyber"] .pv-d-bar b{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#ff2ea6;text-shadow:0 0 7px rgba(255,46,166,.9)}
+[data-th="cyber"] .pv-d-tag{margin-left:auto;font-size:6.5px;letter-spacing:.14em;color:#00f0ff;border:1px solid rgba(0,240,255,.45);padding:1px 4px;text-shadow:0 0 6px rgba(0,240,255,.8)}
+[data-th="cyber"] .pv-dots{display:none}
+[data-th="cyber"] .pv-d-body{display:flex}
+[data-th="cyber"] .pv-d-side{width:56px;border-right:1px solid rgba(0,240,255,.2);padding:5px 0}
+[data-th="cyber"] .pv-d-nav{font-size:7px;letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;color:#5f8f95}
+[data-th="cyber"] .pv-d-nav.on{color:#00f0ff;background:rgba(0,240,255,.1);border-left:2px solid #00f0ff;text-shadow:0 0 8px rgba(0,240,255,.9)}
+[data-th="cyber"] .pv-d-main{flex:1;padding:7px}
+[data-th="cyber"] .pv-d-kpis{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+[data-th="cyber"] .pv-d-kpi{border:1px solid rgba(0,240,255,.26);padding:4px 5px;background:rgba(0,240,255,.035)}
+[data-th="cyber"] .pv-d-kpi span{display:block;font-size:6px;letter-spacing:.14em;text-transform:uppercase;color:#ff2ea6}
+[data-th="cyber"] .pv-d-kpi strong{display:block;font-size:12px;color:#e8fffd;letter-spacing:-.3px;text-shadow:0 0 10px rgba(0,240,255,.75)}
+[data-th="cyber"] .pv-d-kpi em{font-size:6px;font-style:normal;color:#39ff88}
+[data-th="cyber"] .pv-d-chart{display:flex;align-items:flex-end;gap:2px;height:38px;margin:7px 0;border-bottom:1px solid rgba(255,46,166,.4)}
+[data-th="cyber"] .pv-d-chart i{flex:1;background:linear-gradient(180deg,#00f0ff,rgba(0,240,255,.06));box-shadow:0 0 6px rgba(0,240,255,.65);display:block}
+[data-th="cyber"] .pv-d-actions{display:flex;gap:5px}
+[data-th="cyber"] .pv-d-btn{font-family:inherit;font-size:6.8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;background:rgba(255,46,166,.14);color:#ff6fc0;border:1px solid #ff2ea6;cursor:pointer;text-shadow:0 0 6px rgba(255,46,166,.8);box-shadow:0 0 10px -2px rgba(255,46,166,.6)}
+[data-th="cyber"] .pv-d-btn.ghost{background:transparent;color:#00f0ff;border-color:rgba(0,240,255,.55);text-shadow:0 0 6px rgba(0,240,255,.8);box-shadow:none}
+
+/* ================= 5. SWISS / MINIMAL ================= */
+[data-th="swiss"] .pv-land{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC",sans-serif;color:#111}
+[data-th="swiss"] .pv-l-wrap{border-top:2px solid #111;padding-top:8px}
+[data-th="swiss"] .pv-l-eyebrow{font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:#777;display:block;margin-bottom:6px;font-weight:500}
+[data-th="swiss"] .pv-l-wrap h4{margin:0 0 8px;font-size:21px;line-height:1.02;letter-spacing:-.045em;font-weight:500;max-width:92%}
+[data-th="swiss"] .pv-l-wrap p{margin:0 0 12px;font-size:8.5px;line-height:1.6;color:#555;max-width:86%;border-left:1px solid #ddd;padding-left:7px}
+[data-th="swiss"] .pv-l-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+[data-th="swiss"] .pv-l-btn{font-family:inherit;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;background:#111;color:#fff;border:0;border-radius:0;cursor:pointer;font-weight:500}
+[data-th="swiss"] .pv-l-ghost{font-size:8px;color:#111;border-bottom:1px solid #111;padding-bottom:1px}
+[data-th="swiss"] .pv-l-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #ddd}
+[data-th="swiss"] .pv-l-card{height:26px;border-right:1px solid #ddd;position:relative}
+[data-th="swiss"] .pv-l-card:last-child{border-right:0}
+[data-th="swiss"] .pv-l-card::after{content:"";position:absolute;left:0;top:6px;width:9px;height:1px;background:#111}
+[data-th="swiss"] .pv-l-card::before{content:"";position:absolute;left:3px;top:11px;width:3px;height:3px;border-radius:50%;background:#111}
+
+/* ================= 6. SOFT UI ================= */
+[data-th="soft"] .pv-form{background:#f3eef8;border-radius:18px;padding:14px;box-shadow:7px 7px 16px #dcd2e8,-7px -7px 16px #ffffff;color:#4a3f5c;font-family:-apple-system,"Segoe UI",sans-serif}
+[data-th="soft"] .pv-f-head h4{margin:0 0 2px;font-size:13px;font-weight:600;color:#3d3350;letter-spacing:-.2px}
+[data-th="soft"] .pv-f-head p{margin:0 0 11px;font-size:8.5px;color:#8a7d9e}
+[data-th="soft"] .pv-form label{display:block;font-size:8px;font-weight:600;color:#8a7d9e;margin-bottom:7px;letter-spacing:.02em}
+[data-th="soft"] .pv-form input{display:block;width:100%;margin-top:3px;padding:6px 9px;font-size:9.5px;border-radius:10px;border:0;background:#f3eef8;color:#3d3350;outline:none;font-family:inherit;box-shadow:inset 2px 2px 5px #dcd2e8,inset -2px -2px 5px #ffffff}
+[data-th="soft"] .pv-form input::placeholder{color:#b3a8c4}
+[data-th="soft"] .pv-f-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+[data-th="soft"] .pv-f-btn{font-family:inherit;font-size:9.5px;font-weight:600;padding:6px 13px;border-radius:10px;border:0;background:linear-gradient(145deg,#7c6cf0,#6455d8);color:#fff;cursor:pointer;box-shadow:4px 4px 9px #cfc4de,-2px -2px 8px #fff}
+[data-th="soft"] .pv-f-link{font-size:9px;color:#8a7d9e}
+
+/* ================= 7. EDITORIAL ================= */
+[data-th="editorial"] .pv-land{font-family:Georgia,"Times New Roman","Songti SC",serif;color:#26221c}
+[data-th="editorial"] .pv-l-wrap{padding:0}
+[data-th="editorial"] .pv-l-eyebrow{display:block;font-family:"Helvetica Neue",Arial,sans-serif;font-size:6.5px;letter-spacing:.24em;text-transform:uppercase;color:#9a5b34;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d8cdb9}
+[data-th="editorial"] .pv-l-wrap h4{margin:0 0 7px;font-size:20px;line-height:1.1;font-weight:400;letter-spacing:-.3px;font-style:italic}
+[data-th="editorial"] .pv-l-wrap p{margin:0 0 11px;font-size:9px;line-height:1.62;color:#5c554a;max-width:94%}
+[data-th="editorial"] .pv-l-wrap p::first-letter{font-size:22px;float:left;line-height:.85;padding-right:4px;color:#9a5b34;font-weight:700}
+[data-th="editorial"] .pv-l-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+[data-th="editorial"] .pv-l-btn{font-family:"Helvetica Neue",Arial,sans-serif;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;background:#8c4a26;color:#f4efe6;border:0;border-radius:0;cursor:pointer}
+[data-th="editorial"] .pv-l-ghost{font-family:"Helvetica Neue",Arial,sans-serif;font-size:7.5px;letter-spacing:.1em;color:#8c4a26}
+[data-th="editorial"] .pv-l-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;border-top:1px solid #d8cdb9;padding-top:8px}
+[data-th="editorial"] .pv-l-card{height:26px;background:#e9e1d3;position:relative}
+[data-th="editorial"] .pv-l-card::after{content:"";position:absolute;left:4px;bottom:4px;width:60%;height:1px;background:#b8a992}
+[data-th="editorial"] .pv-l-card:nth-child(2){background:#d9c9ad}
+[data-th="editorial"] .pv-l-card:nth-child(3){background:#c9b795}
+
+/* ================= 8. NEO-MORPHIC ================= */
+[data-th="neo"] .pv-dash{background:#eceff4;border-radius:16px;padding:9px;border:1px solid #e6eaf0;color:#2d3748;font-family:-apple-system,"Segoe UI",sans-serif;box-shadow:inset 1px 1px 0 #fff}
+[data-th="neo"] .pv-d-bar{display:flex;align-items:center;gap:6px;padding:0 2px 7px}
+[data-th="neo"] .pv-d-bar b{font-size:9.5px;font-weight:650;letter-spacing:-.1px}
+[data-th="neo"] .pv-d-tag{margin-left:auto;font-size:6.5px;padding:2px 6px;border-radius:99px;background:#3b6cf6;color:#fff;font-weight:600;letter-spacing:.04em}
+[data-th="neo"] .pv-dots{display:flex;gap:3px}
+[data-th="neo"] .pv-dots i{width:6px;height:6px;border-radius:50%;background:#c4ccda;display:block}
+[data-th="neo"] .pv-d-body{display:flex;gap:8px}
+[data-th="neo"] .pv-d-side{width:56px;padding:5px 0;border-radius:11px;background:#eceff4;box-shadow:3px 3px 6px #d5dbe5,-3px -3px 6px #fff}
+[data-th="neo"] .pv-d-nav{font-size:7px;padding:4px 7px;color:#8b97a8}
+[data-th="neo"] .pv-d-nav.on{color:#3b6cf6;font-weight:650}
+[data-th="neo"] .pv-d-main{flex:1}
+[data-th="neo"] .pv-d-kpis{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+[data-th="neo"] .pv-d-kpi{background:#eceff4;border-radius:10px;padding:5px 7px;box-shadow:3px 3px 7px #d5dbe5,-3px -3px 7px #fff}
+[data-th="neo"] .pv-d-kpi span{display:block;font-size:6px;letter-spacing:.08em;text-transform:uppercase;color:#96a1b2}
+[data-th="neo"] .pv-d-kpi strong{display:block;font-size:12px;letter-spacing:-.3px;color:#2d3748}
+[data-th="neo"] .pv-d-kpi em{font-size:6px;font-style:normal;color:#22a06b}
+[data-th="neo"] .pv-d-chart{display:flex;align-items:flex-end;gap:3px;height:38px;margin:8px 0 8px;padding:4px 6px;border-radius:10px;background:#eceff4;box-shadow:inset 2px 2px 5px #d5dbe5,inset -2px -2px 5px #fff}
+[data-th="neo"] .pv-d-chart i{flex:1;background:#b9c8e8;border-radius:2px 2px 0 0;display:block}
+[data-th="neo"] .pv-d-chart i:nth-child(4){background:#3b6cf6}
+[data-th="neo"] .pv-d-chart i:nth-child(5){background:#3b6cf6}
+[data-th="neo"] .pv-d-actions{display:flex;gap:7px}
+[data-th="neo"] .pv-d-btn{font-family:inherit;font-size:7.5px;font-weight:600;padding:4px 10px;border:0;border-radius:8px;background:#3b6cf6;color:#fff;cursor:pointer;box-shadow:3px 3px 6px #c8d0dd,-2px -2px 5px #fff}
+[data-th="neo"] .pv-d-btn.ghost{background:#eceff4;color:#5b6678;box-shadow:3px 3px 6px #d5dbe5,-3px -3px 6px #fff}
+
+
+@media (max-width:900px){
+  .panel{grid-template-columns:1fr}
+  .panel-side{border-left:0;border-top:1px solid var(--line-2);flex-direction:row;flex-wrap:wrap}
+  .side-block{flex:1 1 200px}
+  .top-nav{display:none}
+}
+@media (max-width:640px){
+  .wrap{padding:0 18px}
+  .hero{padding:48px 0 32px}
+  .grid{grid-template-columns:1fr;gap:18px}
+  .card-preview{height:220px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><span class="brand-mark">◧</span> Style Lab</div>
+    <nav class="top-nav">
+      <a href="#styles">风格库</a>
+      <a href="#workspace">提示词</a>
+      <a href="#workspace">导出</a>
+    </nav>
+    <span class="sel-pill empty" id="selPill">未选择风格</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker"><i></i> UI Style Prompt Generator · for AI Coding Agents</div>
+    <h1>选一个风格，<br />让 AI 照着规范写界面。</h1>
+    <p>8 种当下最有辨识度的界面风格。每种都配一套可直接喂给 Cursor / Claude Code / Codex 的工程化提示词 —— 包含 Design Tokens、组件规范、以及明确的红线清单（Don'ts）。</p>
+  </section>
+
+  <div class="bar" id="styles">
+    <div class="filters" id="filters"></div>
+    <span class="bar-hint">点击卡片选择风格 · 再次点击取消</span>
+  </div>
+
+  <section class="grid" id="grid">
+    
+  <article class="card" data-id="neo-brutalism" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="brutal" data-density="spacious">
+      <div class="pv pv-dash">
+      <div class="pv-d-bar"><span class="pv-dots"><i></i><i></i><i></i></span><b>RAW/CMS</b><span class="pv-d-tag">V2.0</span></div>
+      <div class="pv-d-body">
+        <div class="pv-d-side"><div class="pv-d-nav on">Overview</div><div class="pv-d-nav">Revenue</div><div class="pv-d-nav">Reports</div><div class="pv-d-nav">Settings</div></div>
+        <div class="pv-d-main">
+          <div class="pv-d-kpis">
+            <div class="pv-d-kpi"><span>MRR</span><strong>$48.2K</strong><em>+12.4%</em></div>
+            <div class="pv-d-kpi"><span>Users</span><strong>12,904</strong><em>+3.1%</em></div>
+          </div>
+          <div class="pv-d-chart"><i style="height:42%"></i><i style="height:68%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:74%"></i><i style="height:100%"></i><i style="height:62%"></i><i style="height:88%"></i></div>
+          <div class="pv-d-actions"><button class="pv-d-btn">Publish</button><button class="pv-d-btn ghost">Export</button></div>
+        </div>
+      </div>
+    </div>
+      <span class="card-badge">01</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Neo-Brutalism</h3>
+        <span class="card-cn">新粗野主义</span>
+      </div>
+      <p class="card-desc">高饱和撞色 + 纯黑粗边 + 无模糊硬阴影，界面像一张被剪贴出来的海报。</p>
+      <div class="card-tags"><span>硬阴影</span><span>粗边框</span><span>高饱和</span><span>零圆角</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="glassmorphism" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="glass" data-density="spacious">
+      <div class="pv pv-form">
+      <div class="pv-f-head"><h4>Sign in to Aura</h4><p>Continue with your workspace account</p></div>
+      <label>Email<input placeholder="you@studio.com" /></label>
+      <label>Workspace<input placeholder="design-team" /></label>
+      <div class="pv-f-row"><button class="pv-f-btn">Continue</button><span class="pv-f-link">Cancel</span></div>
+    </div>
+      <span class="card-badge">02</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Glassmorphism</h3>
+        <span class="card-cn">玻璃拟态</span>
+      </div>
+      <p class="card-desc">半透明磨砂面板悬浮在彩色光斑之上，1px 白边勾出玻璃厚度。</p>
+      <div class="card-tags"><span>磨砂</span><span>半透明</span><span>光斑</span><span>细腻白边</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="bento-grid" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="bento" data-density="compact">
+      <div class="pv pv-land">
+    <div class="pv-l-wrap">
+      <span class="pv-l-eyebrow">Introducing 3.0</span>
+      <h4>Built for teams that ship.</h4>
+      <p>One canvas. Every surface. Zero context switching.</p>
+      <div class="pv-l-row"><button class="pv-l-btn">Start free</button><span class="pv-l-ghost">See docs →</span></div>
+      <div class="pv-l-cards"><div class="pv-l-card"></div><div class="pv-l-card"></div><div class="pv-l-card"></div></div>
+    </div>
+  </div>
+      <span class="card-badge">03</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Bento Grid</h3>
+        <span class="card-cn">便当盒网格</span>
+      </div>
+      <p class="card-desc">苹果发布会式模块化拼贴，1px 微光描边 + 极暗渐变，信息密度极高但不拥挤。</p>
+      <div class="card-tags"><span>模块化</span><span>渐变</span><span>精细边框</span><span>深色</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="cyberpunk" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="cyber" data-density="compact">
+      <div class="pv pv-dash">
+      <div class="pv-d-bar"><span class="pv-dots"><i></i><i></i><i></i></span><b>NEXUS//OS</b><span class="pv-d-tag">LINK OK</span></div>
+      <div class="pv-d-body">
+        <div class="pv-d-side"><div class="pv-d-nav on">Overview</div><div class="pv-d-nav">Revenue</div><div class="pv-d-nav">Reports</div><div class="pv-d-nav">Settings</div></div>
+        <div class="pv-d-main">
+          <div class="pv-d-kpis">
+            <div class="pv-d-kpi"><span>MRR</span><strong>9.4TB</strong><em>+12.4%</em></div>
+            <div class="pv-d-kpi"><span>Users</span><strong>0x3F2A</strong><em>+3.1%</em></div>
+          </div>
+          <div class="pv-d-chart"><i style="height:30%"></i><i style="height:55%"></i><i style="height:40%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:95%"></i><i style="height:70%"></i><i style="height:88%"></i><i style="height:50%"></i></div>
+          <div class="pv-d-actions"><button class="pv-d-btn">Execute</button><button class="pv-d-btn ghost">Export</button></div>
+        </div>
+      </div>
+    </div>
+      <span class="card-badge">04</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Cyberpunk / Dark Tech</h3>
+        <span class="card-cn">赛博暗黑风</span>
+      </div>
+      <p class="card-desc">近黑底 + 霓虹青/品红双通道发光，等宽字体与切角，像一块军用终端。</p>
+      <div class="card-tags"><span>霓虹</span><span>暗黑</span><span>等宽字体</span><span>HUD</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="swiss-minimal" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="swiss" data-density="spacious">
+      <div class="pv pv-land">
+    <div class="pv-l-wrap">
+      <span class="pv-l-eyebrow">Studio · 001</span>
+      <h4>Form follows the grid.</h4>
+      <p>A design system built on restraint: one typeface, one grid, no decoration.</p>
+      <div class="pv-l-row"><button class="pv-l-btn">View grid</button><span class="pv-l-ghost">See docs →</span></div>
+      <div class="pv-l-cards"><div class="pv-l-card"></div><div class="pv-l-card"></div><div class="pv-l-card"></div></div>
+    </div>
+  </div>
+      <span class="card-badge">05</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Clean Swiss / Minimal</h3>
+        <span class="card-cn">瑞士极简</span>
+      </div>
+      <p class="card-desc">走不完的留白、1px 细线、无装饰的无衬线大字，靠字体与网格说话。</p>
+      <div class="card-tags"><span>留白</span><span>黑白灰</span><span>栅格</span><span>无装饰</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="soft-ui" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="soft" data-density="balanced">
+      <div class="pv pv-form">
+      <div class="pv-f-head"><h4>Daily focus</h4><p>Set a soft reminder for tonight</p></div>
+      <label>Email<input placeholder="you@studio.com" /></label>
+      <label>Workspace<input placeholder="Read 20 pages" /></label>
+      <div class="pv-f-row"><button class="pv-f-btn">Save</button><span class="pv-f-link">Cancel</span></div>
+    </div>
+      <span class="card-badge">06</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Soft UI / Neumorphism</h3>
+        <span class="card-cn">柔和拟物</span>
+      </div>
+      <p class="card-desc">同一底色上双向外阴影与内阴影，控件像从界面里被“压出来”。</p>
+      <div class="card-tags"><span>双向阴影</span><span>同色系</span><span>大圆角</span><span>柔和</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="editorial" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="editorial" data-density="balanced">
+      <div class="pv pv-land">
+    <div class="pv-l-wrap">
+      <span class="pv-l-eyebrow">Issue 07 · Longform</span>
+      <h4>The quiet return of print.</h4>
+      <p>Why the most ambitious digital products of 2026 look like a magazine from 1968 — and what that tells us about attention.</p>
+      <div class="pv-l-row"><button class="pv-l-btn">Read story</button><span class="pv-l-ghost">See docs →</span></div>
+      <div class="pv-l-cards"><div class="pv-l-card"></div><div class="pv-l-card"></div><div class="pv-l-card"></div></div>
+    </div>
+  </div>
+      <span class="card-badge">07</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Editorial / Magazine</h3>
+        <span class="card-cn">杂志编辑风</span>
+      </div>
+      <p class="card-desc">衬线大字 + 细规线 + 米色纸感，排版像一本当代独立杂志。</p>
+      <div class="card-tags"><span>衬线体</span><span>纸感</span><span>首字下沉</span><span>规线</span></div>
+    </div>
+  </article>
+  <article class="card" data-id="clean-saas" tabindex="0" role="button" aria-pressed="false">
+    <div class="card-preview" data-th="neo" data-density="balanced">
+      <div class="pv pv-dash">
+      <div class="pv-d-bar"><span class="pv-dots"><i></i><i></i><i></i></span><b>Linear-ish</b><span class="pv-d-tag">Pro</span></div>
+      <div class="pv-d-body">
+        <div class="pv-d-side"><div class="pv-d-nav on">Overview</div><div class="pv-d-nav">Revenue</div><div class="pv-d-nav">Reports</div><div class="pv-d-nav">Settings</div></div>
+        <div class="pv-d-main">
+          <div class="pv-d-kpis">
+            <div class="pv-d-kpi"><span>MRR</span><strong>$128.4K</strong><em>+12.4%</em></div>
+            <div class="pv-d-kpi"><span>Users</span><strong>8,412</strong><em>+3.1%</em></div>
+          </div>
+          <div class="pv-d-chart"><i style="height:38%"></i><i style="height:52%"></i><i style="height:46%"></i><i style="height:70%"></i><i style="height:64%"></i><i style="height:86%"></i><i style="height:78%"></i><i style="height:94%"></i></div>
+          <div class="pv-d-actions"><button class="pv-d-btn">New issue</button><button class="pv-d-btn ghost">Export</button></div>
+        </div>
+      </div>
+    </div>
+      <span class="card-badge">08</span>
+      <span class="card-check" aria-hidden="true">✓</span>
+    </div>
+    <div class="card-meta">
+      <div class="card-title-row">
+        <h3>Clean SaaS / Product</h3>
+        <span class="card-cn">现代产品风</span>
+      </div>
+      <p class="card-desc">Linear / Vercel 一代的标准答案：中性灰阶、单强调色、8px 网格、极轻阴影。</p>
+      <div class="card-tags"><span>中性灰</span><span>8px 网格</span><span>微阴影</span><span>克制</span></div>
+    </div>
+  </article>
+  </section>
+
+  <section class="workspace" id="workspace">
+    <div class="ws-head">
+      <div>
+        <h2>提示词工作台</h2>
+        <p id="wsSub">从上方选择一种风格后，这里会生成完整的工程化规范。</p>
+      </div>
+      <div class="ws-tabs" id="tabs">
+        <button class="ws-tab on" data-tab="full">完整规范</button>
+        <button class="ws-tab" data-tab="compact">精简版</button>
+        <button class="ws-tab" data-tab="rules">仅 Don'ts</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-main">
+        <div class="panel-tools">
+          <div class="panel-file"><b id="fileName">style-rules.md</b><span id="charCount"></span></div>
+          <div style="display:flex;gap:6px">
+            <button class="btn sm ghost" id="btnCopy">复制</button>
+            <button class="btn sm" id="btnDownload">下载 .md</button>
+            <button class="btn sm" id="btnDownloadJson">导出 JSON</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <pre class="code" id="codeBox"><span class="k-cmt"># 等待选择…
+# 上方的风格卡片中选一个，提示词会出现在这里。</span></pre>
+        </div>
+      </div>
+      <aside class="panel-side" id="side">
+        <div class="side-block">
+          <h4>Design Tokens</h4>
+          <div class="tok-list" id="tokList"><span style="font-size:11.5px;color:#a1a1aa">—</span></div>
+        </div>
+        <div class="side-block">
+          <h4>Don'ts 红线</h4>
+          <ul class="dont-list" id="dontList"><li style="color:#a1a1aa">—</li></ul>
+        </div>
+        <div class="side-block">
+          <h4>导出</h4>
+          <div class="export-row">
+            <button class="btn sm" data-export="SKILL.md">SKILL.md <span>↓</span></button>
+            <button class="btn sm" data-export=".cursorrules">.cursorrules <span>↓</span></button>
+            <button class="btn sm" data-export="tailwind.config.js">tailwind.config.js <span>↓</span></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>Style Lab · 8 种风格 · 纯前端，无依赖</span>
+  <span>复制后粘贴给 Cursor / Claude Code / Codex / v0</span>
+</footer>
+
+<div class="toast" id="toast"><i></i><span id="toastMsg">已复制</span></div>
+
+<script>
+const STYLES = [{"id":"neo-brutalism","name":"Neo-Brutalism","cn":"新粗野主义","tagline":"高饱和撞色 + 纯黑粗边 + 无模糊硬阴影，界面像一张被剪贴出来的海报。","tags":["硬阴影","粗边框","高饱和","零圆角"],"th":"brutal","cat":["饱和","浅色","高冲击"],"density":"spacious","preview":{"type":"dashboard","brand":"RAW/CMS","tag":"V2.0","kpi1":"$48.2K","kpi2":"12,904","button":"Publish","bars":[42,68,55,90,74,100,62,88]},"palette":[{"name":"Canvas","hex":"#F5F2E8"},{"name":"Ink (border)","hex":"#000000"},{"name":"Primary","hex":"#5C8CFF"},{"name":"Acid","hex":"#C6F56A"},{"name":"Signal","hex":"#FFDE59"},{"name":"Alert","hex":"#FF5C5C"}],"tokens":[{"k":"圆角","v":"rounded-none","c":"#000"},{"k":"边框","v":"border-[3px] border-black","c":"#000"},{"k":"主阴影","v":"shadow-[4px_4px_0_0_#000]","c":"#FFDE59"},{"k":"悬停阴影","v":"hover:shadow-[7px_7px_0_0_#000]","c":"#C6F56A"},{"k":"主色块","v":"bg-[#5C8CFF]","c":"#5C8CFF"},{"k":"背景","v":"bg-[#F5F2E8]","c":"#F5F2E8"},{"k":"标题字重","v":"font-black tracking-tight","c":"#3D3D46"}],"components":[["Button","bg-black text-white border-[3px] border-black rounded-none px-6 py-3 font-black uppercase tracking-wide shadow-[4px_4px_0_0_#5C8CFF]；hover 时 translate-x-[2px] translate-y-[2px] 且 shadow 收缩为 2px —— 产生“被按下去”的机械物理感。active 时 shadow 归零、完全贴合。"],["Card","bg-white border-[3px] border-black shadow-[6px_6px_0_0_#000] rounded-none p-6；禁止任何渐变、禁止模糊。卡片标题用 font-black uppercase，副文案用 text-sm text-neutral-700。"],["Input","bg-white border-[3px] border-black rounded-none px-4 py-3 font-bold placeholder:font-normal placeholder:text-neutral-400；focus 时 outline-none + 阴影换成品牌色 shadow-[4px_4px_0_0_#5C8CFF]，不加模糊光圈。"],["Badge / Tag","bg-[#FFDE59] border-2 border-black px-2 py-0.5 text-[11px] font-black uppercase tracking-widest，绕不开的黑边。"],["Nav","顶部一条 border-b-[3px] border-black 的实心色带；当前项整块反色（bg-black text-white），不用下划线。"],["Layout","堆叠采用明显的 24–32px 硬间距，区块之间用 3px 黑线分隔；允许元素轻微旋转（rotate-1）制造手工感。"]],"dos":["所有阴影必须是 offset 纯色（0 blur），且颜色取自色板；不允许 rgba 半透明阴影","每个可交互元素都要有明确的三态：默认 / hover 位移 / active 归零","大量使用 border-black + 高饱和填充，视觉重量感强于精致感","字体用无衬线黑体（Inter Black / Archivo Black），标题全大写或全小写二选一，不要混搭"],"donts":["禁止 rounded-lg / rounded-xl 等任何圆角，圆角最大 0（或 2px）","禁止 backdrop-blur、模糊阴影、玻璃拟态、任何半透明蒙层","禁止用灰色系表达层级，层级只能靠黑边框 + 硬阴影 + 色块区分","禁止低饱和马卡龙色、禁止渐变背景、禁止柔和的 pill 按钮","禁止细边框（1px）——所有描边不得低于 2px，主体控件 3px"],"tailwindExtend":"screens: {},\ncolors: {\n  brutal: {\n    canvas: '#F5F2E8',\n    ink: '#000000',\n    primary: '#5C8CFF',\n    acid: '#C6F56A',\n    signal: '#FFDE59',\n    alert: '#FF5C5C',\n  },\n},\nborderRadius: { none: '0px' },\nboxShadow: {\n  hard: '4px 4px 0 0 #000',\n  'hard-lg': '7px 7px 0 0 #000',\n  'hard-primary': '4px 4px 0 0 #5C8CFF',\n  'hard-inset': 'inset 3px 3px 0 0 rgba(0,0,0,0.12)',\n},"},{"id":"glassmorphism","name":"Glassmorphism","cn":"玻璃拟态","tagline":"半透明磨砂面板悬浮在彩色光斑之上，1px 白边勾出玻璃厚度。","tags":["磨砂","半透明","光斑","细腻白边"],"th":"glass","cat":["饱和","深色","质感"],"density":"spacious","preview":{"type":"form","title":"Sign in to Aura","sub":"Continue with your workspace account","ph":"design-team","button":"Continue"},"palette":[{"name":"Base","hex":"#6D5DF6"},{"name":"Glow pink","hex":"#FF7AB8"},{"name":"Glow teal","hex":"#33D6C4"},{"name":"Glow amber","hex":"#FFCF5C"},{"name":"Glass fill","hex":"rgba(255,255,255,0.16)"},{"name":"Glass border","hex":"rgba(255,255,255,0.42)"}],"tokens":[{"k":"磨砂","v":"backdrop-blur-2xl backdrop-saturate-150","c":"#A5B4FC"},{"k":"面板底色","v":"bg-white/15","c":"rgba(255,255,255,.55)"},{"k":"边框","v":"border border-white/40","c":"#FFFFFF"},{"k":"圆角","v":"rounded-2xl (16px) / rounded-3xl (24px)","c":"#FFCF5C"},{"k":"投影","v":"shadow-[0_8px_32px_rgba(31,38,135,0.37)]","c":"#FF7AB8"},{"k":"内高光","v":"shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]","c":"#33D6C4"},{"k":"底图","v":"bg-gradient + 3 个 radial 光斑","c":"#6D5DF6"}],"components":[["Button (primary)","bg-white/90 text-[#3B2A8F] font-semibold rounded-xl px-5 py-2.5 border border-white/60 shadow-[0_4px_14px_rgba(20,10,70,0.25)]；hover 时 bg-white + translate-y-[1px]，不要用彩色实心按钮。"],["Button (ghost)","bg-white/10 text-white border border-white/30 backdrop-blur-md；hover 时 bg-white/20。"],["Card / Panel","bg-white/[0.12] border border-white/30 rounded-2xl backdrop-blur-2xl p-6，必须叠加 inset 顶部高光让边缘像玻璃断面；卡片之间留 20–24px。"],["Input","bg-white/10 border border-white/30 rounded-lg px-4 py-2.5 text-white placeholder:text-white/50；focus 时 border-white/70 + ring-1 ring-white/30，不要彩色 ring。"],["背景","整个页面必须是彩色渐变 + 2–3 个模糊光球（blur-3xl 的绝对定位圆），玻璃需要背后有东西才有意义。"],["Typography","文字一律白色系：主文本 text-white，次级 text-white/75，标签 text-white/60 uppercase tracking-wider。"]],"dos":["每一个玻璃面板背后必须有高饱和的渐变或光斑，否则磨砂质感失效","边框使用 1px 半透明白（white/30–white/50），并配 inset 顶高光","圆角统一 12–24px，圆角越大玻璃感越强","同屏玻璃面板不超过 3 层嵌套，避免糊成一片"],"donts":["禁止在纯白或纯灰背景上使用玻璃面板（没有内容可模糊）","禁止纯黑实心按钮、禁止粗边框（>2px）","禁止不透明的深色卡片——所有面板透明度必须 ≥ 60% 透明","禁止 backdrop-blur 叠加在滚动长列表上（性能杀手，改用 sticky 头部）","禁止文字使用深灰 #333，玻璃上的文字必须是白色系"],"tailwindExtend":"backdropBlur: { xs: '2px', glass: '24px' },\nbackgroundColor: {\n  glass: 'rgba(255,255,255,0.12)',\n  'glass-strong': 'rgba(255,255,255,0.2)',\n},\nborderColor: { glass: 'rgba(255,255,255,0.35)' },\nboxShadow: {\n  glass: '0 8px 32px rgba(31,38,135,0.37), inset 0 1px 0 rgba(255,255,255,0.5)',\n},"},{"id":"bento-grid","name":"Bento Grid","cn":"便当盒网格","tagline":"苹果发布会式模块化拼贴，1px 微光描边 + 极暗渐变，信息密度极高但不拥挤。","tags":["模块化","渐变","精细边框","深色"],"th":"bento","cat":["深色","栅格","质感"],"density":"compact","preview":{"type":"land","eyebrow":"Introducing 3.0","title":"Built for teams that ship.","sub":"One canvas. Every surface. Zero context switching.","button":"Start free"},"palette":[{"name":"Page","hex":"#0B0B0F"},{"name":"Tile","hex":"#16171D"},{"name":"Hairline","hex":"rgba(255,255,255,0.08)"},{"name":"Accent","hex":"#818CF8"},{"name":"Text","hex":"#FFFFFF"},{"name":"Muted","hex":"#8B8FA3"}],"tokens":[{"k":"页面底","v":"bg-[#0B0B0F]","c":"#0B0B0F"},{"k":"卡片底","v":"bg-gradient-to-br from-white/[0.07] to-white/[0.02]","c":"#16171D"},{"k":"描边","v":"border border-white/[0.08]","c":"#8B8FA3"},{"k":"圆角","v":"rounded-2xl (16px) / rounded-3xl (24px)","c":"#818CF8"},{"k":"内高光","v":"shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]","c":"#FFFFFF"},{"k":"网格","v":"grid-cols-6 gap-3 md:gap-4","c":"#A5B4FC"},{"k":"强调色","v":"text-indigo-300 + 极淡 accent 光晕","c":"#818CF8"}],"components":[["Tile (核心组件)","min-h-[180px] rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] to-white/[0.015] p-5 relative overflow-hidden；每个 tile 内只能有一个视觉焦点。"],["Grid","桌面 6 列（或 12 列），用 col-span / row-span 制造大小错落：主视觉 tile 占 4×2，次要 tile 占 2×1，永远不要全部等宽等高。"],["Button","bg-white text-black rounded-full px-5 py-2.5 text-sm font-semibold；次级为 border border-white/15 text-white bg-white/5。"],["Accent glow","在关键 tile 内放一个绝对定位 radial-gradient（indigo，opacity 20%–35%，blur-2xl）作为“光”，不要用发光边框。"],["Typography","标题 text-3xl~5xl font-semibold tracking-tighter，颜色可用 from-white to-white/60 的 bg-clip-text 渐变；副文本 text-sm text-neutral-400 leading-relaxed。"],["间距","gap 统一 12–16px；页面内边距 24–32px；tile 内部 padding 20–24px。"]],"dos":["大小 tile 混排：至少一个 4x2 的 hero tile 和两个 2x1 的次级 tile","所有 tile 圆角一致（16 或 24px），描边统一 1px white/8%","深色底 + 极淡白色渐变填充，靠 1px 描边而不是投影划分区域","图表 / 数字 / 图标放进 tile，形成可视化拼贴"],"donts":["禁止等高等宽的“九宫格”——那是表格不是 bento","禁止 1px 以上的彩色边框，禁止霓虹 glow 外发光","禁止在 tile 上用强投影（深色背景上影子不可见，只会显脏）","禁止纯黑 #000 纯白 #FFF 的硬对比大面积色块","禁止同屏使用超过 2 个强调色"],"tailwindExtend":"borderRadius: { tile: '24px', 'tile-sm': '16px' },\nborderColor: { hairline: 'rgba(255,255,255,0.08)' },\nbackgroundImage: {\n  tile: 'linear-gradient(150deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))',\n  glow: 'radial-gradient(circle at 70% 0%, rgba(129,140,248,0.28), transparent 62%)',\n},\nboxShadow: { tile: 'inset 0 1px 0 rgba(255,255,255,0.06)' },"},{"id":"cyberpunk","name":"Cyberpunk / Dark Tech","cn":"赛博暗黑风","tagline":"近黑底 + 霓虹青/品红双通道发光，等宽字体与切角，像一块军用终端。","tags":["霓虹","暗黑","等宽字体","HUD"],"th":"cyber","cat":["深色","高冲击","质感"],"density":"compact","preview":{"type":"dashboard","brand":"NEXUS//OS","tag":"LINK OK","kpi1":"9.4TB","kpi2":"0x3F2A","button":"Execute","bars":[30,55,40,78,62,95,70,88,50]},"palette":[{"name":"Void","hex":"#06060B"},{"name":"Cyan","hex":"#00F0FF"},{"name":"Magenta","hex":"#FF2EA6"},{"name":"Lime","hex":"#39FF88"},{"name":"Grid","hex":"rgba(0,240,255,0.06)"},{"name":"Text","hex":"#C8FFF9"}],"tokens":[{"k":"页面底","v":"bg-[#06060B]","c":"#06060B"},{"k":"霓虹边框","v":"border border-cyan-400/45","c":"#00F0FF"},{"k":"辉光","v":"shadow-[0_0_24px_-4px_rgba(0,240,255,0.55)]","c":"#00F0FF"},{"k":"文本发光","v":"text-shadow 见 tailwindExtend","c":"#FF2EA6"},{"k":"字体","v":"font-mono uppercase tracking-[0.14em]","c":"#39FF88"},{"k":"切角","v":"clip-path: polygon(...) 8px 切角","c":"#C8FFF9"},{"k":"网格背景","v":"22px 线性网格 + 极低透明度","c":"#5F8F95"}],"components":[["Button","bg-magenta/15 text-[#FF6FC0] border border-[#FF2EA6] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] + shadow-[0_0_12px_-2px_rgba(255,46,166,0.6)]；hover 时 text-shadow 增强、背景提到 /25，绝不改变尺寸。"],["Panel","bg-[#06080F]/90 border border-cyan-400/40 + 双层 box-shadow（0 0 0 1px 内衬 + 0 0 24px 外发光），四角用 clip-path 切角 8px。"],["Input","bg-transparent border border-cyan-400/35 text-cyan-100 font-mono px-3 py-2；focus 时 border-cyan-400 + shadow-[0_0_18px_-4px_rgba(0,240,255,0.8)]，光标颜色 cyan。"],["Label / Meta","font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF2EA6]，前面加 // 或 0x 前缀。"],["Data viz","柱状 / 折线一律用 cyan→transparent 竖向渐变 + 同色发光，网格线用 rgba(0,240,255,0.08)。"],["Typography","标题用等宽字体（JetBrains Mono / IBM Plex Mono）大写，正文可用 Inter 但字距略收紧；数字用 tabular-nums。"]],"dos":["发光必须成对出现：border 颜色 + 同色低透明度 box-shadow","只允许 1 个主霓虹色 + 1 个次霓虹色（青 + 品红，或青 + 绿）","用 clip-path 切角和 1px 细线构建 HUD 感，而不是圆角","大写 + 宽字距 + 等宽字体是风格的骨架，不可省略"],"donts":["禁止白色大背景、禁止浅色模式版本","禁止 4px 以上的彩色霓虹边框（会变成游戏按钮而非界面）","禁止彩色渐变按钮填充，霓虹只做线与光，不做大面积色块","禁止圆角 > 4px，禁止柔软阴影，禁止马卡龙色","禁止同时使用 3 种以上霓虹色，会丧失高级感"],"tailwindExtend":"colors: {\n  void: '#06060B',\n  neon: { cyan: '#00F0FF', magenta: '#FF2EA6', lime: '#39FF88' },\n},\nfontFamily: { mono: ['\"JetBrains Mono\"', '\"IBM Plex Mono\"', 'monospace'] },\nboxShadow: {\n  neon: '0 0 0 1px rgba(0,240,255,0.18), 0 0 24px -4px rgba(0,240,255,0.55)',\n  'neon-pink': '0 0 12px -2px rgba(255,46,166,0.6)',\n},\ndropShadow: {\n  'neon-text': '0 0 8px rgba(0,240,255,0.85)',\n},"},{"id":"swiss-minimal","name":"Clean Swiss / Minimal","cn":"瑞士极简","tagline":"走不完的留白、1px 细线、无装饰的无衬线大字，靠字体与网格说话。","tags":["留白","黑白灰","栅格","无装饰"],"th":"swiss","cat":["浅色","极简"],"density":"spacious","preview":{"type":"land","eyebrow":"Studio · 001","title":"Form follows the grid.","sub":"A design system built on restraint: one typeface, one grid, no decoration.","button":"View grid"},"palette":[{"name":"Paper","hex":"#F7F7F5"},{"name":"Ink","hex":"#111111"},{"name":"Rule","hex":"#DCDCDC"},{"name":"Body","hex":"#555555"},{"name":"Caption","hex":"#8A8A8A"},{"name":"Accent","hex":"#111111"}],"tokens":[{"k":"页面底","v":"bg-[#F7F7F5] / bg-white","c":"#F7F7F5"},{"k":"主文字","v":"text-[#111111]","c":"#111111"},{"k":"次级文字","v":"text-[#555555]","c":"#555555"},{"k":"分割线","v":"border-t border-[#DCDCDC]","c":"#DCDCDC"},{"k":"圆角","v":"rounded-none","c":"#8A8A8A"},{"k":"标题","v":"text-5xl font-normal tracking-[-0.045em]","c":"#111"},{"k":"留白","v":"py-24 / py-32，栅格 gap-6","c":"#DCDCDC"}],"components":[["Button","bg-[#111] text-white rounded-none px-6 py-3 text-xs uppercase tracking-[0.12em] font-medium；次级按钮为纯文字 + 1px 下边框（underline-offset-4）。悬停只改变不透明度（hover:opacity-70），不做位移与缩放。"],["Card","没有卡片——用 border-t 1px 细线 + 大块留白分隔内容块；若必须用容器，仅 1px #E5E5E5 边框、无阴影、无圆角。"],["Input","bg-transparent border-0 border-b border-[#CCC] rounded-none px-0 py-3 text-sm；focus 时 border-b-[#111] 加粗 1px，无 box-shadow、无 ring。"],["Typography","全站单一无衬线（Inter / Helvetica Now / Söhne）。标题大而细（font-normal，不用 bold），正文 15–16px / line-height 1.6，标签 11px uppercase tracking-[0.16em]。"],["Grid","12 列栅格，最大宽度 1200px，双侧留白 ≥ 48px；所有元素严格对齐栅格线，禁止居中对称排版之外的随意位置。"],["Hierarchy","层级只用三件事表达：字号、字重、颜色深浅（#111 / #555 / #8A8A8A）。"]],"dos":["留白是主角：区块垂直间距 ≥ 96px，元素之间 ≥ 24px","只用黑白灰，最多加一个中性强调色；禁止任何彩色渐变","所有分割用 1px hairline，不用粗线不用阴影","标题字重要克制（400–500），靠字号和字距制造冲击力"],"donts":["禁止圆角（最大 2px），禁止 box-shadow","禁止彩色按钮、渐变、插画、3D、玻璃、emoji","禁止超过 2 种字体、禁止 font-weight 700 以上","禁止元素居中堆叠成“卡片流”，必须落在栅格上","禁止装饰性图标，图标只在承载语义时出现且必须是 1.5px 线性"],"tailwindExtend":"colors: {\n  paper: '#F7F7F5',\n  ink: { DEFAULT: '#111111', soft: '#555555', mute: '#8A8A8A' },\n  rule: '#DCDCDC',\n},\nborderRadius: { none: '0px' },\nfontFamily: { sans: ['Inter', 'Helvetica Neue', 'system-ui', 'sans-serif'] },\nletterSpacing: { tighter: '-0.045em', label: '0.16em' },"},{"id":"soft-ui","name":"Soft UI / Neumorphism","cn":"柔和拟物","tagline":"同一底色上双向外阴影与内阴影，控件像从界面里被“压出来”。","tags":["双向阴影","同色系","大圆角","柔和"],"th":"soft","cat":["浅色","质感","低冲击"],"density":"balanced","preview":{"type":"form","title":"Daily focus","sub":"Set a soft reminder for tonight","ph":"Read 20 pages","button":"Save"},"palette":[{"name":"Base","hex":"#F3EEF8"},{"name":"Light","hex":"#FFFFFF"},{"name":"Dark","hex":"#DCD2E8"},{"name":"Accent","hex":"#6C5CE7"},{"name":"Text","hex":"#3D3350"},{"name":"Muted","hex":"#8A7D9E"}],"tokens":[{"k":"底色","v":"bg-[#F3EEF8]（凸起与凹陷同底）","c":"#F3EEF8"},{"k":"外阴影(凸)","v":"shadow-[8px_8px_16px_#DCD2E8,-8px_-8px_16px_#FFFFFF]","c":"#DCD2E8"},{"k":"内阴影(凹)","v":"shadow-[inset_2px_2px_5px_#DCD2E8,inset_-2px_-2px_5px_#FFF]","c":"#FFFFFF"},{"k":"圆角","v":"rounded-2xl (16px) / rounded-3xl (24px)","c":"#6C5CE7"},{"k":"主色","v":"bg-[#6C5CE7] text-white","c":"#6C5CE7"},{"k":"边框","v":"border-0（靠阴影分界，永不描边）","c":"#FFCF5C"},{"k":"字色","v":"text-[#3D3350] / text-[#8A7D9E]","c":"#3D3350"}],"components":[["Button","圆角 12–16px，渐变填充 linear-gradient(145deg, 亮主色, 暗主色) + 双向外阴影；hover 时阴影减弱（模拟被按亮），active 时切换为 inset 阴影 —— 这是拟物的核心反馈。"],["Card","bg-[#F3EEF8] rounded-3xl shadow-[8px_8px_16px_#DCD2E8,-8px_-8px_16px_#FFF] p-6，无边框无描边，卡片与背景同色，仅靠阴影“凸起”。"],["Input","凹陷态：bg-[#F3EEF8] + inset 双向阴影，圆角 12px，placeholder 用 #B3A8C4；focus 时 inset 加深并加 1px 主色内描边。"],["Toggle / Slider","凹槽 + 凸起圆钮，圆钮用渐变 + 外阴影，切换时圆钮平滑平移 200ms。"],["Typography","偏中等字重（500–600），字色不用纯黑，用带紫调的深灰 #3D3350；正文 14–15px，行高 1.6。"],["间距","padding 20–28px，圆角与 padding 比例协调；元素间距 16–20px，避免拥挤。"]],"dos":["凸起和凹陷的两个阴影必须来自同一底色的亮/暗两档","所有控件圆角 ≥ 12px，且整站统一","交互反馈用「阴影翻转」（外 → 内）而不是颜色变化","主色只用于 CTA，其余全部同色系"],"donts":["禁止 1px 边框描边——拟物不能用线分界","禁止纯黑阴影、禁止高对比硬阴影","禁止在彩色背景上做拟物（会失去同色阴影逻辑）","禁止同时出现玻璃拟态或粗野主义元素","禁止使用 font-weight 700+ 的粗黑标题"],"tailwindExtend":"colors: { soft: { base: '#F3EEF8', light: '#FFFFFF', dark: '#DCD2E8', accent: '#6C5CE7' } },\nboxShadow: {\n  soft: '8px 8px 16px #DCD2E8, -8px -8px 16px #FFFFFF',\n  'soft-sm': '4px 4px 9px #DCD2E8, -4px -4px 9px #FFFFFF',\n  'soft-inset': 'inset 2px 2px 5px #DCD2E8, inset -2px -2px 5px #FFFFFF',\n},"},{"id":"editorial","name":"Editorial / Magazine","cn":"杂志编辑风","tagline":"衬线大字 + 细规线 + 米色纸感，排版像一本当代独立杂志。","tags":["衬线体","纸感","首字下沉","规线"],"th":"editorial","cat":["浅色","排版","低冲击"],"density":"balanced","preview":{"type":"land","eyebrow":"Issue 07 · Longform","title":"The quiet return of print.","sub":"Why the most ambitious digital products of 2026 look like a magazine from 1968 — and what that tells us about attention.","button":"Read story"},"palette":[{"name":"Paper","hex":"#F4EFE6"},{"name":"Ink","hex":"#26221C"},{"name":"Rust","hex":"#8C4A26"},{"name":"Rule","hex":"#D8CDB9"},{"name":"Body","hex":"#5C554A"},{"name":"Tint","hex":"#E9E1D3"}],"tokens":[{"k":"底色","v":"bg-[#F4EFE6]","c":"#F4EFE6"},{"k":"标题","v":"font-serif italic tracking-tight","c":"#26221C"},{"k":"正文","v":"font-serif text-[#5C554A] leading-[1.7]","c":"#5C554A"},{"k":"标签","v":"font-sans uppercase tracking-[0.22em] text-[11px]","c":"#8C4A26"},{"k":"规线","v":"border-t border-[#D8CDB9]","c":"#D8CDB9"},{"k":"强调色","v":"text-[#8C4A26]","c":"#8C4A26"},{"k":"圆角","v":"rounded-none","c":"#5C554A"}],"components":[["Button","bg-[#8C4A26] text-[#F4EFE6] rounded-none px-6 py-3 text-[11px] font-sans uppercase tracking-[0.16em]；hover 时 bg 加深 10%，不做位移。"],["Card","纸张感容器：bg-[#F4EFE6] 或更深一档 #EFE8DC，1px #D8CDB9 边框、无阴影无圆角；内部标题下必须有 1px 规线。"],["Input","下划线式：border-0 border-b border-[#C9BAA1] bg-transparent rounded-none py-3 font-serif；focus 时 border-[#8C4A26]。"],["文章正文","首段首字母下沉（::first-letter 字号 3–4 倍 + 主色），正文栏宽 60–72 字符，段间距 1.2em，配合 pull quote 与编号小节。"],["Typography","标题用衬线（Playfair Display / GT Sectra / Freight），正文也用衬线；仅标签、按钮、导航用无衬线小字大写。"],["Layout","多栏网格（2–3 栏）+ 大量横向规线；图片配图注（caption，10px 斜体灰）。"]],"dos":["衬线标题 + 无衬线标签的对比是风格核心，两者都要出现","所有分隔用 1px 莫兰迪色规线，不用阴影","色彩限定在纸色 + 墨色 + 一个锈红/赭石强调色","重视字距与行高：标签 0.2em 字距，正文 1.7 行高"],"donts":["禁止圆角、禁止 box-shadow、禁止玻璃拟态","禁止无衬线大标题（会立刻变成 SaaS 落地页）","禁止高饱和荧光色、禁止渐变按钮","禁止居中排版的长段落，正文必须左对齐","禁止卡通插画与 3D 图标，配图用摄影或版画质感"],"tailwindExtend":"colors: {\n  paper: { DEFAULT: '#F4EFE6', deep: '#EFE8DC' },\n  ink: { DEFAULT: '#26221C', soft: '#5C554A' },\n  rust: '#8C4A26',\n  rule: '#D8CDB9',\n},\nfontFamily: {\n  serif: ['\"Playfair Display\"', 'Georgia', '\"Songti SC\"', 'serif'],\n  sans: ['Inter', 'Helvetica Neue', 'sans-serif'],\n},\nborderRadius: { none: '0px' },"},{"id":"clean-saas","name":"Clean SaaS / Product","cn":"现代产品风","tagline":"Linear / Vercel 一代的标准答案：中性灰阶、单强调色、8px 网格、极轻阴影。","tags":["中性灰","8px 网格","微阴影","克制"],"th":"neo","cat":["浅色","极简","栅格"],"density":"balanced","preview":{"type":"dashboard","brand":"Linear-ish","tag":"Pro","kpi1":"$128.4K","kpi2":"8,412","button":"New issue","bars":[38,52,46,70,64,86,78,94]},"palette":[{"name":"Canvas","hex":"#FFFFFF"},{"name":"Surface","hex":"#FAFAFB"},{"name":"Border","hex":"#E8EAEE"},{"name":"Text","hex":"#14161C"},{"name":"Muted","hex":"#6B7280"},{"name":"Accent","hex":"#3B6CF6"}],"tokens":[{"k":"页面底","v":"bg-white / bg-[#FAFAFB]","c":"#FAFAFB"},{"k":"卡片底","v":"bg-white border border-[#E8EAEE]","c":"#FFFFFF"},{"k":"圆角","v":"rounded-lg (8px) / rounded-xl (12px)","c":"#3B6CF6"},{"k":"阴影","v":"shadow-[0_1px_2px_rgba(16,24,40,0.05)]","c":"#E8EAEE"},{"k":"主色","v":"bg-[#3B6CF6] text-white","c":"#3B6CF6"},{"k":"正文","v":"text-sm text-[#6B7280] leading-relaxed","c":"#6B7280"},{"k":"标题","v":"text-[15px] font-semibold text-[#14161C]","c":"#14161C"}],"components":[["Button (primary)","h-9 px-3.5 rounded-lg bg-[#3B6CF6] text-white text-[13px] font-medium shadow-[0_1px_2px_rgba(16,24,40,0.08)]；hover:bg-[#3260E8]，active:scale-[0.99]，transition 150ms。"],["Button (secondary)","h-9 px-3.5 rounded-lg bg-white border border-[#E8EAEE] text-[#14161C] text-[13px] font-medium；hover:bg-[#FAFAFB]。"],["Card","bg-white border border-[#E8EAEE] rounded-xl p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)]；卡片里不要再套卡片超过一层。"],["Input","h-9 rounded-lg border border-[#E8EAEE] bg-white px-3 text-[13px] placeholder:text-[#9CA3AF]；focus:border-[#3B6CF6] focus:ring-2 focus:ring-[#3B6CF6]/15。"],["Table / List","行高 40–44px，行间 1px #F1F2F5 分隔，hover 行 bg-[#FAFAFB]；表头 11px uppercase text-[#9CA3AF]。"],["Spacing","严格 8px 网格（4/8/12/16/24/32），组件高度 32/36/44 三档。"]],"dos":["中性灰阶承担 90% 的视觉，主色只出现在 CTA、链接、选中态","阴影极轻（y=1px，opacity ≤ 5%），层级主要靠 1px 边框","所有间距落在 8px 网格上，同类元素高度一致","字号阶梯收敛：11 / 13 / 15 / 20 / 28，不用 14、17 这类中间值"],"donts":["禁止渐变背景、彩色大色块、霓虹光效","禁止 shadow-lg 以上的重阴影，禁止多色卡片","禁止圆角超过 16px（除头像/胶囊标签）","禁止在同一屏出现 2 种以上强调色","禁止装饰性动画；过渡时长控制在 150–200ms"],"tailwindExtend":"colors: {\n  brand: { DEFAULT: '#3B6CF6', hover: '#3260E8', soft: '#EEF2FF' },\n  surface: { DEFAULT: '#FFFFFF', muted: '#FAFAFB' },\n  line: '#E8EAEE',\n  ink: { DEFAULT: '#14161C', muted: '#6B7280' },\n},\nboxShadow: { card: '0 1px 2px rgba(16,24,40,0.05)', pop: '0 8px 24px -6px rgba(16,24,40,0.12)' },"}];
+</script>
+<script>
+/* ===================== Style Lab — 交互与提示词引擎 ===================== */
+(() => {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  let current = null;       // 选中的风格对象
+  let currentTab = 'full';  // full | compact | rules
+  let currentFilter = 'all';
+
+  /* ---------------- prompt builders ---------------- */
+
+  function mdFull(s) {
+    return `# UI Style Specification — ${s.name}
+
+> 你是一名资深前端工程师 + 视觉设计师。请严格按照以下规范实现界面，任何偏离都视为缺陷。
+> 风格代号：\`${s.name}\`（${s.cn}）
+> 一句话定义：${s.tagline}
+
+---
+
+## 0. 硬性约束（最高优先级）
+
+1. 技术栈：React + TypeScript + Tailwind CSS（无额外 UI 库；如需组件库，只能用 headless 方案）。
+2. 本规范中的 Tailwind 类名是**契约**，不是建议——必须在代码中原样出现或等价实现。
+3. 不得引入未在色板中定义的颜色；不得引入第二套圆角/阴影体系。
+4. 先实现静态视觉，再实现交互；交互反馈必须符合「组件规范」中的三态描述。
+5. 如遇规范未覆盖的场景，选择**更克制、更贴近现有 token** 的方案，并在注释中说明理由。
+
+---
+
+## 1. 风格基因（Style DNA）
+
+| 维度 | 规定 |
+| --- | --- |
+| 视觉印象 | ${s.tagline} |
+| 核心手段 | ${s.tags.join(' / ')} |
+| 布局密度 | ${{ spacious: '宽松（大留白）', balanced: '均衡', compact: '紧凑（高信息密度）' }[s.density]} |
+| 情绪关键词 | ${s.tags.join('、')} |
+
+## 2. Design Tokens
+
+### 2.1 色板（唯一允许使用的颜色）
+
+| 名称 | 值 | 用途 |
+| --- | --- | --- |
+${s.palette.map((p) => `| ${p.name} | \`${p.hex}\` | ${usageHint(p.name)} |`).join('\n')}
+
+### 2.2 Tailwind 类名契约
+
+${s.tokens.map((t) => `- **${t.k}** → \`${t.v}\``).join('\n')}
+
+### 2.3 tailwind.config 扩展
+
+\`\`\`js
+// tailwind.config.js — theme.extend
+${s.tailwindExtend}
+\`\`\`
+
+## 3. 组件规范（Component Rules）
+
+${s.components.map(([name, spec], i) => `### 3.${i + 1} ${name}
+${spec}`).join('\n\n')}
+
+## 4. 必须做到（Do）
+
+${s.dos.map((d) => `- ${d}`).join('\n')}
+
+## 5. 禁止事项（Don'ts — 违反即为不合格）
+
+${s.donts.map((d) => `- ❌ ${d}`).join('\n')}
+
+## 6. 执行清单
+
+- [ ] 页面中不存在色板之外的颜色
+- [ ] 圆角/边框/阴影全部来自 tokens 表，无临时值
+- [ ] 每个可交互元素都有 hover / focus-visible / active 三态
+- [ ] 已逐条核对「禁止事项」，无一条被违反
+- [ ] 在 375px / 768px / 1280px 三个断点下视觉一致
+
+---
+
+<!-- 把这段规范完整粘贴给 AI 编码助手，然后在同一轮对话里提出具体页面需求。 -->
+`;
+  }
+
+  function mdCompact(s) {
+    return `# Style: ${s.name} (${s.cn})
+${s.tagline}
+
+## Tokens
+${s.tokens.map((t) => `- ${t.k}: \`${t.v}\``).join('\n')}
+
+## Colors
+${s.palette.map((p) => `${p.name} ${p.hex}`).join(' · ')}
+
+## Components
+${s.components.map(([n, v]) => `- **${n}**: ${v}`).join('\n')}
+
+## Must
+${s.dos.map((d) => `- ${d}`).join('\n')}
+
+## Never (违反即失败)
+${s.donts.map((d) => `- ${d}`).join('\n')}
+
+请严格按上述规范实现，不要自行发挥视觉风格。
+`;
+  }
+
+  function mdRules(s) {
+    return `# 视觉红线清单 — ${s.name}
+
+以下每一条都是**硬性禁止**，实现时逐条自检；命中任意一条请立即重写该部分。
+
+${s.donts.map((d, i) => `${i + 1}. ${d}`).join('\n')}
+
+## 反向自检问题（提交前逐条回答）
+1. 我是否引入了色板之外的颜色？
+2. 我是否为了"好看"添加了规范中未提到的阴影 / 圆角 / 渐变？
+3. 我是否在悬停时改变了组件尺寸导致布局抖动？
+4. 我是否可以删掉任意一个装饰元素而界面不变差？如果不能，说明装饰是必要的；如果能，请删掉。
+`;
+  }
+
+  function usageHint(name) {
+    const map = {
+      Canvas: '页面背景', Paper: '页面背景', Base: '页面背景 & 控件底色', Page: '页面背景',
+      Void: '页面背景', 'Ink (border)': '所有描边 / 阴影', Ink: '主文字 & 深色填充',
+      Border: '1px 分割线 / 卡片描边', Rule: '1px 规线', Hairline: '1px 卡片描边',
+      Primary: '主 CTA', Accent: '强调 / 链接 / 选中态', '主色块': '主 CTA 背景',
+      'Accent glow': '局部光晕', 'Glass fill': '玻璃面板填充', 'Glass border': '玻璃面板描边',
+      Text: '主文本', '主文字': '标题 & 正文', Body: '正文文本', '次级文字': '副文本 / 说明',
+      Muted: '辅助文字 / 占位符', Caption: '标签 / caption', '标题字重': '所有标题',
+      Glow: '背景光斑', Signal: '提示 / 高亮块', Alert: '错误 / 危险操作',
+      Light: '拟物高光阴影', Dark: '拟物暗部阴影', Tint: '次级区块底色',
+      Rust: '强调色（链接、编号）', Lime: '成功 / 在线状态', Magenta: '主霓虹 / 次要 CTA',
+      Cyan: '主霓虹 / 边框 / 数据可视化', Grid: '背景网格线', 'Glass': '玻璃质感',
+      '主色': '主 CTA', '底色': '页面与控件统一底色', '外阴影(凸)': '凸起元素',
+      '内阴影(凹)': '输入框 / 凹槽', '边框': '（本风格不使用边框）', '圆角': '全局圆角基准',
+      '阴影': '卡片极轻投影', '页面底': '页面背景', '卡片底': '卡片填充',
+      '正文': '正文文本', '标题': '标题', '标签': '小标签 / 表头', '规线': '内容分节',
+      '强调色': '链接与编号', '字色': '文字两档', '磨砂': '面板背景处理', '面板底色': '玻璃填充',
+      '投影': '玻璃面板投影', '内高光': '玻璃顶部高光', '底图': '页面背景图',
+      '网格': '栅格系统', '切角': '面板四角裁切', '文本发光': '标题辉光', '字体': '全站字体',
+      '网格背景': '页面背景网格', '留白': '区块间距', '分割线': '区块分隔',
+      '霓虹边框': '面板描边', '辉光': '外发光', '主阴影': '卡片默认阴影',
+      '悬停阴影': '悬停时阴影放大', '背景': '页面背景',
+    };
+    return map[name] || '—';
+  }
+
+  function jsonConfig(s) {
+    return JSON.stringify(
+      {
+        $schema: 'style-lab/1.0',
+        style: { id: s.id, name: s.name, nameCn: s.cn, definition: s.tagline, tags: s.tags, density: s.density },
+        palette: Object.fromEntries(s.palette.map((p) => [slug(p.name), p.hex])),
+        tokens: s.tokens.map((t) => ({ token: t.k, tailwind: t.v, swatch: t.c })),
+        components: Object.fromEntries(s.components.map(([n, v]) => [slug(n), v])),
+        must: s.dos,
+        never: s.donts,
+        tailwindExtend: s.tailwindExtend,
+      },
+      null,
+      2
+    );
+  }
+
+  function cursorRules(s) {
+    return `# .cursorrules — ${s.name} (${s.cn})
+# 生成任何 UI 代码前，先读本文件。违反红线必须重写。
+
+## 风格定义
+${s.tagline}
+
+## Tailwind Tokens（必须原样使用）
+${s.tokens.map((t) => `${t.k}: ${t.v}`).join('\n')}
+
+## 组件写法
+${s.components.map(([n, v]) => `${n}: ${v}`).join('\n\n')}
+
+## MUST
+${s.dos.map((d) => `+ ${d}`).join('\n')}
+
+## NEVER
+${s.donts.map((d) => `- ${d}`).join('\n')}
+
+## 代码风格
+- React + TypeScript + Tailwind，函数组件，不用 CSS-in-JS
+- 组件文件名 PascalCase，样式全部用 className，不写 style={{}}（动态值除外）
+- 不要引入任何 UI 组件库（MUI / Antd / Chakra）
+`;
+  }
+
+  function skillMd(s) {
+    return `---
+name: ui-style-${s.id}
+description: 强制以「${s.name}（${s.cn}）」风格实现任何界面。当用户要求生成 ${s.name} 风格、或需要与该风格一致的 UI 时使用。
+---
+
+# ${s.name} 界面实现规范
+
+${s.tagline}
+
+## 使用流程
+1. 读下方 Tokens 与组件规范
+2. 按规范生成结构，再补样式
+3. 对照 Never 清单逐条自检
+4. 输出前回答自检问题
+
+## Tokens
+${s.tokens.map((t) => `- ${t.k}: \`${t.v}\``).join('\n')}
+
+## Colors
+${s.palette.map((p) => `- ${p.name}: \`${p.hex}\``).join('\n')}
+
+## Components
+${s.components.map(([n, v]) => `### ${n}\n${v}`).join('\n\n')}
+
+## Must
+${s.dos.map((d) => `- ${d}`).join('\n')}
+
+## Never
+${s.donts.map((d) => `- ${d}`).join('\n')}
+
+## tailwind.config.extend
+\`\`\`js
+${s.tailwindExtend}
+\`\`\`
+`;
+  }
+
+  function tailwindConfig(s) {
+    return `/** tailwind.config.js — generated by Style Lab (${s.name}) */
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{ts,tsx,js,jsx,html}'],
+  theme: {
+    extend: {
+${s.tailwindExtend.split('\n').map((l) => '      ' + l).join('\n')}
+    },
+  },
+  plugins: [],
+};
+`;
+  }
+
+  const slug = (str) => String(str).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'token';
+
+  /* ---------------- syntax highlighting (safe) ---------------- */
+  const escHTML = (str) => str.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+  function highlight(md) {
+    const lines = escHTML(md).split('\n');
+    let inFence = false;
+    return lines
+      .map((line) => {
+        if (/^\s*```/.test(line)) {
+          inFence = !inFence;
+          return `<span class="k-cmt">${line}</span>`;
+        }
+        if (inFence) return `<span class="k-val">${line}</span>`;
+        if (/^#{1,6}\s/.test(line)) return `<span class="k-sect">${line}</span>`;
+        if (/^\s*<!--/.test(line) || /^\s*\*\s/.test(line)) return `<span class="k-cmt">${line}</span>`;
+        if (/^\s*\|/.test(line)) return `<span class="k-row">${line}</span>`;
+        if (/^\s*-\s*❌/.test(line)) return `<span class="k-neg">${inline(line)}</span>`;
+        return inline(line);
+      })
+      .join('\n');
+  }
+
+  // 行内元素：先占位 code，避免 ** 与 ` 互相干扰
+  function inline(line) {
+    const codes = [];
+    let out = line.replace(/`([^`]+)`/g, (_, c) => {
+      codes.push(c);
+      return `\u0000${codes.length - 1}\u0000`;
+    });
+    out = out.replace(/\*\*([^*]+)\*\*/g, '<span class="k-bold">$1</span>');
+    return out.replace(/\u0000(\d+)\u0000/g, (_, i) => `<span class="k-key">\`${codes[+i]}\`</span>`);
+  }
+
+  /* ---------------- render ---------------- */
+  function cssVarForHEX(hex) {
+    // 给 swatch 用：rgba 值直接使用，其余原样
+    return hex;
+  }
+
+  function renderPrompt() {
+    const codeBox = $('#codeBox');
+    const fileName = $('#fileName');
+    const charCount = $('#charCount');
+
+    if (!current) {
+      codeBox.innerHTML = `<span class="k-cmt"># 等待选择…
+# 上方的风格卡片中选一个，提示词会出现在这里。</span>`;
+      fileName.textContent = 'style-rules.md';
+      charCount.textContent = '';
+      return;
+    }
+
+    const map = { full: mdFull, compact: mdCompact, rules: mdRules };
+    const text = map[currentTab](current);
+    codeBox.innerHTML = highlight(text);
+    codeBox.dataset.raw = text;
+    fileName.textContent =
+      currentTab === 'full' ? `${current.id}.md` : currentTab === 'compact' ? `${current.id}.compact.md` : `${current.id}.donts.md`;
+    charCount.textContent = `· ${text.length} 字符 · ~${Math.ceil(text.length / 3.2)} tokens`;
+  }
+
+  function renderSide() {
+    const tokList = $('#tokList');
+    const dontList = $('#dontList');
+    if (!current) {
+      tokList.innerHTML = '<span style="font-size:11.5px;color:#a1a1aa">—</span>';
+      dontList.innerHTML = '<li style="color:#a1a1aa">—</li>';
+      return;
+    }
+    tokList.innerHTML = current.tokens
+      .slice(0, 6)
+      .map(
+        (t) => `<div class="tok">
+          <span class="sw" style="background:${cssVarForHEX(t.c)}"></span>
+          <span class="tx"><b>${escHTML(t.k)}</b><code>${escHTML(t.v)}</code></span>
+        </div>`
+      )
+      .join('');
+    dontList.innerHTML = current.donts.map((d) => `<li>${escHTML(d)}</li>`).join('');
+  }
+
+  function renderSelection() {
+    $$('.card').forEach((c) => {
+      const on = current && c.dataset.id === current.id;
+      c.classList.toggle('selected', !!on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    const pill = $('#selPill');
+    const sub = $('#wsSub');
+    if (current) {
+      pill.classList.remove('empty');
+      pill.textContent = `${current.name} · ${current.cn}`;
+      sub.textContent = `${current.cn} — ${current.tagline} 规范已生成，可直接复制到你的 AI 编码助手。`;
+    } else {
+      pill.classList.add('empty');
+      pill.textContent = '未选择风格';
+      sub.textContent = '从上方选择一种风格后，这里会生成完整的工程化规范。';
+    }
+  }
+
+  /* ---------------- actions ---------------- */
+  function toast(msg) {
+    const t = $('#toast');
+    $('#toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove('show'), 1900);
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    }
+  }
+
+  function download(name, content, mime = 'text/plain') {
+    const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function requireStyle() {
+    if (!current) {
+      toast('请先选择一个风格');
+      document.getElementById('styles').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
+  }
+
+  /* ---------------- events ---------------- */
+  function bind() {
+    // filter chips
+    const filters = $('#filters');
+    filters.innerHTML =
+      `<button class="chip on" data-f="all">全部 ${STYLES.length}</button>` +
+      ['深色', '浅色', '极简', '质感', '饱和', '栅格']
+        .map((label) => `<button class="chip" data-f="${label}">${label}</button>`)
+        .join('');
+
+    filters.addEventListener('click', (e) => {
+      const btn = e.target.closest('.chip');
+      if (!btn) return;
+      $$('.chip', filters).forEach((c) => c.classList.toggle('on', c === btn));
+      currentFilter = btn.dataset.f;
+      applyFilter();
+    });
+
+    function applyFilter() {
+      $$('.card').forEach((c) => {
+        const s = STYLES.find((x) => x.id === c.dataset.id);
+        const show = currentFilter === 'all' || (s.cat || []).includes(currentFilter);
+        c.style.display = show ? '' : 'none';
+      });
+    }
+
+    // card select
+    $('#grid').addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      const next = STYLES.find((s) => s.id === card.dataset.id);
+      current = current && current.id === next.id ? null : next;
+      renderSelection();
+      renderSide();
+      renderPrompt();
+      if (current) {
+        document.getElementById('workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    $('#grid').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const card = e.target.closest('.card');
+      if (!card) return;
+      e.preventDefault();
+      card.click();
+    });
+
+    // tabs
+    $('#tabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.ws-tab');
+      if (!tab) return;
+      $$('.ws-tab').forEach((t) => t.classList.toggle('on', t === tab));
+      currentTab = tab.dataset.tab;
+      renderPrompt();
+    });
+
+    // copy
+    $('#btnCopy').addEventListener('click', async () => {
+      if (!requireStyle()) return;
+      const text =
+        currentTab === 'full' ? mdFull(current) : currentTab === 'compact' ? mdCompact(current) : mdRules(current);
+      const ok = await copyText(text);
+      toast(ok ? `已复制 ${current.name} 规范 · ${text.length} 字符` : '复制失败，请手动选择复制');
+    });
+
+    // download md
+    $('#btnDownload').addEventListener('click', () => {
+      if (!requireStyle()) return;
+      const map = { full: mdFull, compact: mdCompact, rules: mdRules };
+      download(`${current.id}.md`, map[currentTab](current), 'text/markdown');
+      toast('Markdown 已下载');
+    });
+
+    // download json
+    $('#btnDownloadJson').addEventListener('click', () => {
+      if (!requireStyle()) return;
+      download(`${current.id}.style.json`, jsonConfig(current), 'application/json');
+      toast('JSON 配置已下载');
+    });
+
+    // side export
+    $('#side').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-export]');
+      if (!btn) return;
+      if (!requireStyle()) return;
+      const f = btn.dataset.export;
+      if (f === 'SKILL.md') download(`SKILL.${current.id}.md`, skillMd(current), 'text/markdown');
+      if (f === '.cursorrules') download(`.cursorrules.${current.id}`, cursorRules(current));
+      if (f === 'tailwind.config.js') download(`tailwind.config.${current.id}.js`, tailwindConfig(current), 'application/javascript');
+      toast(`${f} 已导出`);
+    });
+
+    // keyboard shortcut: c to copy
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'c' && !window.getSelection().toString()) {
+        if (current) {
+          e.preventDefault();
+          $('#btnCopy').click();
+        }
+      }
+    });
+  }
+
+  /* ---------------- init ---------------- */
+  bind();
+  renderSelection();
+  renderPrompt();
+})();
+
+</script>
+</body>
+</html>

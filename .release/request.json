@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2.5.10",
-  "publicationSha256": "02d4c9331f4715ec2dc802ef5132635482c7c92f60df9bfe2c5da6a635a9b9b9",
+  "version": "2.5.11",
+  "publicationSha256": "8feeaa0429589caab38b8c42aaf4ff15e9bb9fd9cc3fefe0aaa8e14c6926571a",
   "source": {
     "kind": "local-git-snapshot",
-    "commit": "61d237e18726d28546cfab6971f46dc7d852bdeb",
-    "tree": "f9c498274f76efcfe91d59b2165643c2ee771749",
-    "ref": "refs/environment-releases/source/v2.5.10",
+    "commit": "a0b6b719768ecd5a9c63d4d4580c606ce65fd439",
+    "tree": "4b71ff70f3696bb6a0760cd0ce309423931559ee",
+    "ref": "refs/environment-releases/source/v2.5.11",
     "baseCommit": "2f66fe355ea2345a6d8e0c1185d562612f60f8d3"
   },
-  "notes": "## v2.5.10 · 2026-10-30\n\n替换默认操作手册与环境准备页面\n\n- 默认主页采用确认后的编程升级实操页面，包含热身、项目初始化、V1–V4 与复盘，保留原稿提示词、内嵌图片和操作交互。\n- 环境准备采用确认后的三步单文件页面；根目录与 course 入口同步生成，增加两页切换、版本标识及历史入口。\n- 网页生成接入统一构建，原稿摘要和实际网页字节严格核验；公开 Pages 验收新增默认主页及两个 course 页面，历史版本与标签不改写。\n- 本次只替换在线说明，通用技能及执行包的运行方法维持原有维护边界。\n"
+  "notes": "## v2.5.11 · 2026-10-30\n\n移除两个在线页面之间的跳转导航\n\n- 移除编程操作和环境准备页面标题下方的“① 环境准备 ／ ② 编程操作”导航，两页独立展示。\n- 根目录、course 入口和本地预览同步生成；原稿正文、提示词、截图、目录及发布记录入口保持一致。\n"
 }

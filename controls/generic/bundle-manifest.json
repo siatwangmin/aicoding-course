@@ -413,7 +413,7 @@
     "github-cli.json": "07c95867a27e105250a1d3035a11df127398de14eb0137e583aee072801f24f7",
     "git-for-windows.json": "ca96ea8b6924c3828ab1a8923575703667c598d3e02f08bdbcb38d9d6b226c3d",
     "nodejs.json": "8bca88df09d24cbda88ce06afee5d81d5f57b6a6251c2c6ae1717ccdda61683e",
-    "VERSION.json": "e3ec4cc7d46fa46feb6db9e7004d3399371bcb124f1d10199930fb0484d3a6ac",
+    "VERSION.json": "7d9e1cc5bc6e71599f102f100337c0bdd734442c615cab95b7b1c3818b00cbac",
     "setup-guide.md": "15afe7d24f687fd6851aa69ee918e7d50318897225c2383a70b5dfa73acdaee5",
     "course-contract/compatibility.json": "e25714f0637e1ce6df6fe693cc4a00b3354e8ab2aa334d1bf79df1713eb809e3",
     "ai-coding-env-skill.sha256": "790dad6b1ff99be37787f616b4eb0f03d18754008f4827b5c6db544f57fe235a",
@@ -422,5 +422,5 @@
     "ai-coding-github-skill.sha256": "d923c84ced2ef2a9ca5c1c3bc46e5996d66da174b41ae97a0cb2e3d368f29846",
     "ai-coding-android-skill.sha256": "e58e04616bddb2421e4d3edc7a05940b3b7bd46c008ce6e647cd2fa6e5d2b2d4"
   },
-  "contentId": "88e5d9e20499516e27250db2eab5e131c643138689b5c3b4493798cdaeaf2962"
+  "contentId": "b110717707494d5f4093561bf706d61408961b05785983d947d9be27b705f30b"
 }
